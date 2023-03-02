@@ -1,6 +1,6 @@
 import React from 'react';
 import { Content, HeaderTabs, Page } from '@backstage/core-components';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import StarIcon from '@material-ui/icons/Star';
 import { makeStyles } from '@material-ui/core';
 import { PageHeader } from './PageHeader';
@@ -66,6 +66,7 @@ export const ParodosPage: React.FC = ({ children }) => {
   const { pathname } = useLocation();
   const [isProject, setIsProject] = React.useState(true);
   const backendUrl = useBackendUrl();
+  const navigate = useNavigate();
 
   const { error } = useAsync(async () => {
     const response = await fetch(`${backendUrl}/api/proxy/parodos/projects`);
@@ -84,7 +85,7 @@ export const ParodosPage: React.FC = ({ children }) => {
 
   const onChangeTab = (index: number) => {
     setSelectedTab(index);
-    window.location.href = `${pluginRoutePrefix}${navigationMap[index].routes[0]}`;
+    navigate(`${pluginRoutePrefix}${navigationMap[index].routes[0]}`);
   };
 
   return (
