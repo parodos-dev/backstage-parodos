@@ -8,7 +8,7 @@ import {
 } from '@backstage/core-components';
 import Add from '@material-ui/icons/Add';
 import { Grid } from '@material-ui/core';
-import { useAsync } from 'react-use';
+import useAsync from 'react-use/lib/useAsync';
 
 import { EmptyProjectsState } from './EmptyProjectsState';
 import { useCommonStyles } from '../../styles';
