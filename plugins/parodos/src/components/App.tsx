@@ -1,19 +1,19 @@
 import React, { useEffect } from 'react';
+import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
+import { useInterval } from '@patternfly/react-core';
+import { Progress } from '@backstage/core-components';
+
 import { useStore } from '../stores/workflowStore/workflowStore';
 import { useGetAppConfig } from './api/useGetAppConfig';
 import { PluginRouter } from './PluginRouter';
-import { Progress } from '@backstage/core-components';
-import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
-import { useInterval } from '@patternfly/react-core';
 
 const POLLING_INTERVAL_MILLISECONDS = 5 * 1000;
 
-export const App = () => {
+export const useInitializeStore = () => {
   const appConfig = useGetAppConfig();
   const setAppConfig = useStore(state => state.setAppConfig);
   const fetchProjects = useStore(state => state.fetchProjects);
   const fetchDefinitions = useStore(state => state.fetchDefinitions);
-  const initiallyLoaded = useStore(state => state.initiallyLoaded);
   const { fetch } = useApi(fetchApiRef);
 
   useEffect(() => {
@@ -27,6 +27,12 @@ export const App = () => {
 
     initialiseStore();
   }, [appConfig, fetch, fetchDefinitions, fetchProjects, setAppConfig]);
+};
+
+export const App = () => {
+  const fetchProjects = useStore(state => state.fetchProjects);
+  const initiallyLoaded = useStore(state => state.initiallyLoaded);
+  useInitializeStore();
 
   useInterval(() => {
     // Assumption: the fetchProjects does not take longer then POLLING_INTERVAL
