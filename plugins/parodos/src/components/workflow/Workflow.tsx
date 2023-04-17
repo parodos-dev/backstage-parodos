@@ -46,7 +46,8 @@ const useStyles = makeStyles(theme => ({
 
 interface ProjectsPayload {
   onboardingAssessmentTask: {
-    Name?: string;
+    name?: string;
+    description?: string;
     newProject: boolean;
     project?: Project;
   };
@@ -95,14 +96,17 @@ export function Workflow(): JSX.Element {
             {
               type: 'TASK',
               workName: 'onboardingAssessmentTask',
-              arguments: Object.entries(formData.onboardingAssessmentTask).map(
-                ([key, value]) => {
+              arguments: Object.entries(formData.onboardingAssessmentTask)
+                .filter(([_, value]) =>
+                  /* Especially to filter-out 'project', the API expects it via 'projectId' above */
+                  ['string', 'boolean'].includes(typeof value),
+                )
+                .map(([key, value]) => {
                   return {
                     key: key,
                     value: value,
                   };
-                },
-              ),
+                }),
             },
           ],
         }),
@@ -146,9 +150,7 @@ export function Workflow(): JSX.Element {
 
       const newProjectResponse = await fetch(projectsUrl, {
         method: 'POST',
-        body: JSON.stringify({
-          name: formData.onboardingAssessmentTask.Name,
-        }),
+        body: JSON.stringify(formData.onboardingAssessmentTask),
       });
 
       if (!newProjectResponse.ok) {
