@@ -13,7 +13,6 @@ import { ParodosPage } from '../ParodosPage';
 import { ProjectsTable } from './ProjectsTable';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import { ProjectStatus } from '../../models/project';
-import { Loading } from '../Loading';
 
 type ProjectFilters = ProjectStatus | 'all-projects';
 
@@ -48,7 +47,7 @@ export const ProjectOverviewPage = (): JSX.Element => {
     useState<ProjectFilters>('all-projects');
 
   const allProjects = useStore(state => state.projects);
-  const loading = useStore(state => state.projectsLoading);
+  const hasProjects = useStore(state => state.hasProjects);
 
   const filteredProjects = useMemo(() => {
     if (projectFilter === 'all-projects') {
@@ -64,9 +63,7 @@ export const ProjectOverviewPage = (): JSX.Element => {
 
   let content: ReactElement | null = null;
 
-  if (loading) {
-    content = <Loading />;
-  } else if (allProjects.length > 0) {
+  if (hasProjects()) {
     content = (
       <Grid item className={styles.table}>
         <ProjectsTable projects={filteredProjects} />
