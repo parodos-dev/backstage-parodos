@@ -13,6 +13,7 @@ import { mockLog } from './topology/mock/mockLog';
 import * as urls from '../../../urls';
 import {
   WorkflowStatus,
+  workflowStatusSchema,
   WorkflowTask,
   WorkStatus,
 } from '../../../models/workflowTaskSchema';
@@ -88,7 +89,9 @@ export const WorkFlowDetail = () => {
 
     const updateWorksFromApi = async () => {
       const data = await fetch(`${workflowsUrl}/${executionId}/status`);
-      const response = (await data.json()) as WorkflowStatus;
+      const response = workflowStatusSchema.parse(
+        (await data.json()) as WorkflowStatus,
+      );
 
       setWorkflowName(response.workFlowName);
       updateWorks(response.works);
