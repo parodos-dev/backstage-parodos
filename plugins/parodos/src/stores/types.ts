@@ -2,13 +2,15 @@ import { FetchApi } from '@backstage/core-plugin-api';
 import type { Project } from '../models/project';
 import type { WorkflowDefinition } from '../models/workflowDefinitionSchema';
 import type { NotificationContent } from '../models/notification';
+import type { ParodosConfig } from '../types';
 
 export interface UISlice {
   baseUrl: string | undefined;
-  setBaseUrl(url: string): void;
+  setAppConfig(config: ParodosConfig): void;
   loading(): boolean;
   error(): unknown | undefined;
   getApiUrl(url: string): string;
+  workflows: Pick<ParodosConfig, 'workflows'>['workflows'];
 }
 
 export const predicates = {
