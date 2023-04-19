@@ -32,6 +32,7 @@ export const createProjectsSlice: StateCreator<
         unstable_batchedUpdates(() => {
           state.projects = projects;
           state.projectsLoading = false;
+          state.initiallyLoaded = true;
         });
       });
     } catch (e) {

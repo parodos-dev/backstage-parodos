@@ -4,13 +4,16 @@ import { useBackendUrl } from './api/useBackendUrl';
 import { PluginRouter } from './PluginRouter';
 import { Progress } from '@backstage/core-components';
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
+import { useInterval } from '@patternfly/react-core';
+
+const POLLING_INTERVAL = 5 * 1000; // in ms
 
 export const App = () => {
   const backendUrl = useBackendUrl();
   const setBaseUrl = useStore(state => state.setBaseUrl);
   const fetchProjects = useStore(state => state.fetchProjects);
   const fetchDefinitions = useStore(state => state.fetchDefinitions);
-  const loading = useStore(state => state.loading());
+  const initiallyLoaded = useStore(state => state.initiallyLoaded);
   const { fetch } = useApi(fetchApiRef);
 
   useEffect(() => {
@@ -25,5 +28,12 @@ export const App = () => {
     initialiseStore();
   }, [backendUrl, fetch, fetchDefinitions, fetchProjects, setBaseUrl]);
 
-  return loading ? <Progress /> : <PluginRouter />;
+  // do polling
+  useInterval(() => {
+    // Assumption: the fetchProjects does not take longer then POLLING_INTERVAL
+    // If needed, we can i.e. leverage state.loading to skip certain ticks
+    fetchProjects(fetch);
+  }, POLLING_INTERVAL);
+
+  return initiallyLoaded ? <PluginRouter /> : <Progress />;
 };
