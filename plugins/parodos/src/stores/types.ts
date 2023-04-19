@@ -5,7 +5,6 @@ import type { NotificationContent } from '../models/notification';
 
 export interface UISlice {
   baseUrl: string | undefined;
-  initiallyLoaded: boolean;
   setBaseUrl(url: string): void;
   loading(): boolean;
   error(): unknown | undefined;
