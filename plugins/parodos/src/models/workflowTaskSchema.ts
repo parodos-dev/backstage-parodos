@@ -5,6 +5,7 @@ const status = z.union([
   z.literal('IN_PROGRESS'),
   z.literal('PENDING'),
   z.literal('FAILED'),
+  z.literal('REJECTED'),
 ]);
 
 export type Status = z.infer<typeof status>;
