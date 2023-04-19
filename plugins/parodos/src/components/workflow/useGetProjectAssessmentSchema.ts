@@ -1,6 +1,6 @@
 import { FormSchema } from '../types';
 import { jsonSchemaFromWorkflowDefinition } from '../../hooks/useWorkflowDefinitionToJsonSchema/jsonSchemaFromWorkflowDefinition';
-import { ASSESSMENT_WORKFLOW } from './constants';
+import { ASSESSMENT_WORKFLOW, ASSESSMENT_WORKFLOW_TASK } from './constants';
 import type {
   WorkflowDefinition,
   WorkFlowTaskParameter,
@@ -68,31 +68,30 @@ export function useGetProjectAssessmentSchema({
 
   const formSchema = jsonSchemaFromWorkflowDefinition(cloned);
 
-  set(formSchema, `steps[0].uiSchema.onboardingAssessmentTask.['ui:order']`, [
-    'newProject',
-    'name',
-    'description',
-    '*',
-  ]);
+  set(
+    formSchema,
+    `steps[0].uiSchema.[${ASSESSMENT_WORKFLOW_TASK}].['ui:order']`,
+    ['newProject', 'name', 'description', '*'],
+  );
 
   // TODO: should be able to do this with ui:title
   set(
     formSchema,
-    `steps[0].schema.properties.onboardingAssessmentTask.properties.newProject.title`,
+    `steps[0].schema.properties.[${ASSESSMENT_WORKFLOW_TASK}].properties.newProject.title`,
     'Is this a new assessment for this project?',
   );
 
   if (!hasProjects) {
     set(
       formSchema,
-      `steps[0].uiSchema.onboardingAssessmentTask.newProject.['ui:disabled']`,
+      `steps[0].uiSchema.[${ASSESSMENT_WORKFLOW_TASK}].newProject.['ui:disabled']`,
       true,
     );
   }
 
   set(
     formSchema,
-    `steps[0].uiSchema.onboardingAssessmentTask.newProject.['ui:xs']`,
+    `steps[0].uiSchema.[${ASSESSMENT_WORKFLOW_TASK}].newProject.['ui:xs']`,
     12,
   );
 
