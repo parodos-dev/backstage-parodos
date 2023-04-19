@@ -33,7 +33,7 @@ export type WorkStatus = z.infer<typeof baseWorkStatusSchema> & {
   works?: WorkStatus[];
 };
 
-type Input = z.input<typeof baseWorkStatusSchema>  & { status: string };
+type Input = z.input<typeof baseWorkStatusSchema> & { status: string };
 type Output = z.output<typeof baseWorkStatusSchema> & { status: Status };
 
 export const workStatusSchema: z.ZodType<Output, z.ZodTypeDef, Input> =
@@ -51,4 +51,8 @@ export const workflowStatusSchema = z.object({
 export type WorkflowTask = z.infer<typeof workflowTaskSchema>;
 
 // HACK: need to work out why this is needed
-export type WorkflowStatus = {[K in keyof z.infer<typeof workflowStatusSchema>]: K extends 'status' ? Status : z.infer<typeof workflowStatusSchema>[K]};
+export type WorkflowStatus = {
+  [K in keyof z.infer<typeof workflowStatusSchema>]: K extends 'status'
+    ? Status
+    : z.infer<typeof workflowStatusSchema>[K];
+};

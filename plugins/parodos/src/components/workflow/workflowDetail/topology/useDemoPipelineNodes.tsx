@@ -21,8 +21,7 @@ export function useDemoPipelineNodes(
   const getStatus = (status: WorkflowTask['status']) => {
     if (status === 'COMPLETED') return RunStatus.Succeeded;
     else if (status === 'IN_PROGRESS') return RunStatus.InProgress;
-    else if (['FAILED', 'REJECTED'].includes(status))
-      return RunStatus.Failed;
+    else if (['FAILED', 'REJECTED'].includes(status)) return RunStatus.Failed;
     return RunStatus.Pending;
   };
 

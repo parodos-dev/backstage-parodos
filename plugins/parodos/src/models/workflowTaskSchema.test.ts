@@ -1,9 +1,5 @@
 import { assert } from 'assert-ts';
-import { type SafeParseReturnType } from 'zod';
-import {
-  type WorkflowStatus,
-  workflowStatusSchema,
-} from './workflowTaskSchema';
+import { workflowStatusSchema } from './workflowTaskSchema';
 
 const mockWorkflowStatus = {
   workFlowExecutionId: 'a6257c0a-c801-4449-827d-7a5d819ee733',
@@ -42,8 +38,7 @@ const mockWorkflowStatus = {
 
 describe('workflowTaskSchema', () => {
   it('parses API result', () => {
-    const result: SafeParseReturnType<unknown, WorkflowStatus> =
-      workflowStatusSchema.safeParse(mockWorkflowStatus);
+    const result = workflowStatusSchema.safeParse(mockWorkflowStatus);
 
     assert(result.success);
 
@@ -62,8 +57,7 @@ describe('workflowTaskSchema', () => {
     // precondition
     expect(lowerCaseStatusWorkflow.works[0].status).toBe('failed');
 
-    const result: SafeParseReturnType<unknown, WorkflowStatus> =
-      workflowStatusSchema.safeParse(lowerCaseStatusWorkflow);
+    const result = workflowStatusSchema.safeParse(lowerCaseStatusWorkflow);
 
     assert(result.success);
 
