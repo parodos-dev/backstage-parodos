@@ -1,5 +1,6 @@
 import { assert } from 'assert-ts';
-import { workflowStatusSchema } from './workflowTaskSchema';
+import { Status, workflowStatusSchema } from './workflowTaskSchema';
+import { expectType } from 'ts-expect';
 
 const mockWorkflowStatus = {
   workFlowExecutionId: 'a6257c0a-c801-4449-827d-7a5d819ee733',
@@ -62,5 +63,7 @@ describe('workflowTaskSchema', () => {
     assert(result.success);
 
     expect(result.data.status).toBe('FAILED');
+
+    expectType<Status>(result.data.status);
   });
 });

@@ -7,12 +7,9 @@ const status = z.union([
   z.literal('FAILED'),
 ]);
 
-type Status = z.infer<typeof status>;
+export type Status = z.infer<typeof status>;
 
-const transformedStatus = z.preprocess(
-  s => String(s).toUpperCase(),
-  status,
-) as z.ZodType<Status, z.ZodTypeDef, string>;
+const transformedStatus = z.preprocess(s => String(s).toUpperCase(), status);
 
 export const workflowTaskSchema = z.object({
   id: z.string(),
@@ -33,8 +30,8 @@ export type WorkStatus = z.infer<typeof baseWorkStatusSchema> & {
   works?: WorkStatus[];
 };
 
-type Input = z.input<typeof baseWorkStatusSchema> & { status: string };
-type Output = z.output<typeof baseWorkStatusSchema> & { status: Status };
+type Input = z.input<typeof baseWorkStatusSchema> & { works?: Input[] };
+type Output = z.output<typeof baseWorkStatusSchema> & { works?: Output[] };
 
 export const workStatusSchema: z.ZodType<Output, z.ZodTypeDef, Input> =
   baseWorkStatusSchema.extend({
@@ -45,14 +42,9 @@ export const workflowStatusSchema = z.object({
   workFlowExecutionId: z.string(),
   workFlowName: z.string(),
   works: z.array(workStatusSchema),
-  status: status.transform(s => s.toUpperCase()),
+  status: transformedStatus,
 });
 
 export type WorkflowTask = z.infer<typeof workflowTaskSchema>;
 
-// HACK: need to work out why this is needed
-export type WorkflowStatus = {
-  [K in keyof z.infer<typeof workflowStatusSchema>]: K extends 'status'
-    ? Status
-    : z.infer<typeof workflowStatusSchema>[K];
-};
+export type WorkflowStatus = z.infer<typeof workflowStatusSchema>;
