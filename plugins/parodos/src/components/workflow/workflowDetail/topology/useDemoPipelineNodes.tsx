@@ -22,7 +22,7 @@ export function useDemoPipelineNodes(
     if (status.toUpperCase() === 'COMPLETED') return RunStatus.Succeeded;
     else if (status.toUpperCase() === 'IN_PROGRESS')
       return RunStatus.InProgress;
-    else if (['FAILED', 'REJECTED'].indexOf(status.toUpperCase()) > -1)
+    else if (['FAILED', 'REJECTED'].includes(status.toUpperCase()))
       return RunStatus.Failed;
     return RunStatus.Pending;
   };
