@@ -13,6 +13,7 @@ export const createProjectsSlice: StateCreator<
 > = (set, get) => ({
   projectsLoading: true,
   projectsError: undefined,
+  initiallyLoaded: false,
   hasProjects() {
     return get().projects.length > 0;
   },
@@ -32,6 +33,9 @@ export const createProjectsSlice: StateCreator<
         unstable_batchedUpdates(() => {
           state.projects = projects;
           state.projectsLoading = false;
+          if (state.initiallyLoaded === false) {
+            state.initiallyLoaded = true;
+          }
         });
       });
     } catch (e) {
