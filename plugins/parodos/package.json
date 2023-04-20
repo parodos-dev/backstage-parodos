@@ -73,5 +73,6 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "configSchema": "config.d.ts"
 }

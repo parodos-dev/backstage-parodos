@@ -1,16 +1,18 @@
 import { FormSchema } from '../types';
 import { jsonSchemaFromWorkflowDefinition } from '../../hooks/useWorkflowDefinitionToJsonSchema/jsonSchemaFromWorkflowDefinition';
-import { ASSESSMENT_WORKFLOW, ASSESSMENT_WORKFLOW_TASK } from './constants';
 import type {
   WorkflowDefinition,
   WorkFlowTaskParameter,
 } from '../../models/workflowDefinitionSchema';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import set from 'lodash.set';
+import { ParodosConfig } from '../../types';
+import { assert } from 'assert-ts';
 
 interface Props {
   hasProjects: boolean;
   newProject: boolean;
+  workflows: Pick<ParodosConfig, 'workflows'>['workflows'];
 }
 
 const newProjectChoice: WorkFlowTaskParameter = {
@@ -22,10 +24,13 @@ const newProjectChoice: WorkFlowTaskParameter = {
 export function useGetProjectAssessmentSchema({
   hasProjects,
   newProject,
+  workflows: { assessment, assessmentTask },
 }: Props): FormSchema {
   const definition = useStore(state =>
-    state.getWorkDefinitionBy('byName', ASSESSMENT_WORKFLOW),
+    state.getWorkDefinitionBy('byName', assessment),
   );
+
+  assert(!!definition, `no workflow definition found for ${assessment}`);
 
   const cloned = JSON.parse(JSON.stringify(definition)) as WorkflowDefinition;
 
@@ -68,30 +73,31 @@ export function useGetProjectAssessmentSchema({
 
   const formSchema = jsonSchemaFromWorkflowDefinition(cloned);
 
-  set(
-    formSchema,
-    `steps[0].uiSchema.[${ASSESSMENT_WORKFLOW_TASK}].['ui:order']`,
-    ['newProject', 'name', 'description', '*'],
-  );
+  set(formSchema, `steps[0].uiSchema.[${assessmentTask}].['ui:order']`, [
+    'newProject',
+    'name',
+    'description',
+    '*',
+  ]);
 
   // TODO: should be able to do this with ui:title
   set(
     formSchema,
-    `steps[0].schema.properties.[${ASSESSMENT_WORKFLOW_TASK}].properties.newProject.title`,
+    `steps[0].schema.properties.[${assessmentTask}].properties.newProject.title`,
     'Is this a new assessment for this project?',
   );
 
   if (!hasProjects) {
     set(
       formSchema,
-      `steps[0].uiSchema.[${ASSESSMENT_WORKFLOW_TASK}].newProject.['ui:disabled']`,
+      `steps[0].uiSchema.[${assessmentTask}].newProject.['ui:disabled']`,
       true,
     );
   }
 
   set(
     formSchema,
-    `steps[0].uiSchema.[${ASSESSMENT_WORKFLOW_TASK}].newProject.['ui:xs']`,
+    `steps[0].uiSchema.[${assessmentTask}].newProject.['ui:xs']`,
     12,
   );
 

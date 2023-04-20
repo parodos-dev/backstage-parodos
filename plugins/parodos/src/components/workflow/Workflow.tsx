@@ -17,7 +17,6 @@ import {
   workflowSchema,
 } from '../../models/workflow';
 import { type Project, projectSchema } from '../../models/project';
-import { ASSESSMENT_WORKFLOW, ASSESSMENT_WORKFLOW_TASK } from './constants';
 import {
   WorkflowOptionsList,
   type WorkflowOptionsListItem,
@@ -45,12 +44,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 interface ProjectsPayload {
-  [ASSESSMENT_WORKFLOW_TASK]: {
-    name?: string;
-    description?: string;
-    newProject: boolean;
-    project?: Project;
-  };
+  name?: string;
+  description?: string;
+  newProject: boolean;
+  project?: Project;
 }
 
 function isProject(input?: string | Project): input is Project {
@@ -63,6 +60,8 @@ export function Workflow(): JSX.Element {
   const addProject = useStore(state => state.addProject);
   const hasProjects = useStore(state => state.hasProjects());
   const [isNewProject, setIsNewProject] = useState(true);
+  const assessment = useStore(state => state.workflows.assessment);
+  const assessmentTask = useStore(state => state.workflows.assessmentTask);
   const { fetch } = useApi(fetchApiRef);
 
   const [project, setProject] = useState<Project | undefined>();
@@ -76,6 +75,7 @@ export function Workflow(): JSX.Element {
   const formSchema = useGetProjectAssessmentSchema({
     hasProjects,
     newProject: isNewProject,
+    workflows: { assessment, assessmentTask },
   });
 
   const [{ error: createWorkflowError }, createWorkflow] = useAsyncFn(
@@ -84,19 +84,19 @@ export function Workflow(): JSX.Element {
       formData,
     }: {
       workflowProject: Project;
-      formData: ProjectsPayload;
+      formData: Record<string, ProjectsPayload>;
     }) => {
       // TODO:  task here should be dynamic based on assessment workflow definition
       const workFlowResponse = await fetch(workflowsUrl, {
         method: 'POST',
         body: JSON.stringify({
           projectId: workflowProject.id,
-          workFlowName: ASSESSMENT_WORKFLOW,
+          workFlowName: assessment,
           works: [
             {
               type: 'TASK',
-              workName: ASSESSMENT_WORKFLOW_TASK,
-              arguments: Object.entries(formData[ASSESSMENT_WORKFLOW_TASK])
+              workName: assessmentTask,
+              arguments: Object.entries(formData[assessmentTask])
                 .filter(([_, value]) =>
                   /* Especially to filter-out 'project', the API expects it via 'projectId' above */
                   ['string', 'boolean'].includes(typeof value),
@@ -139,18 +139,18 @@ export function Workflow(): JSX.Element {
 
       setWorkflowOptions(options);
     },
-    [fetch, workflowsUrl],
+    [assessment, assessmentTask, fetch, workflowsUrl],
   );
 
   const [{ error: startAssessmentError }, startAssessment] = useAsyncFn(
-    async ({ formData }: IChangeEvent<ProjectsPayload>) => {
+    async ({ formData }: IChangeEvent<Record<string, ProjectsPayload>>) => {
       assert(!!formData, `no formData`);
 
       setAssessmentStatus('inprogress');
 
       const newProjectResponse = await fetch(projectsUrl, {
         method: 'POST',
-        body: JSON.stringify(formData[ASSESSMENT_WORKFLOW_TASK]),
+        body: JSON.stringify(formData[assessmentTask]),
       });
 
       if (!newProjectResponse.ok) {
@@ -165,7 +165,7 @@ export function Workflow(): JSX.Element {
 
       addProject(newProject);
     },
-    [addProject, createWorkflow, fetch, projectsUrl],
+    [addProject, assessmentTask, createWorkflow, fetch, projectsUrl],
   );
 
   const errorApi = useApi(errorApiRef);
@@ -179,13 +179,13 @@ export function Workflow(): JSX.Element {
   }, [createWorkflowError, errorApi, startAssessmentError]);
 
   const changeHandler = useCallback(
-    async (e: IChangeEvent<ProjectsPayload>) => {
-      if (!e.formData?.[ASSESSMENT_WORKFLOW_TASK]) {
+    async (e: IChangeEvent<Record<string, ProjectsPayload>>) => {
+      if (!e.formData?.[assessmentTask]) {
         return;
       }
 
       const { newProject: nextIsNewProject, project: selectedProject } =
-        e.formData[ASSESSMENT_WORKFLOW_TASK];
+        e.formData[assessmentTask];
 
       if (nextIsNewProject !== isNewProject) {
         setProject(undefined);
@@ -199,7 +199,7 @@ export function Workflow(): JSX.Element {
         });
       }
     },
-    [createWorkflow, isNewProject],
+    [assessmentTask, createWorkflow, isNewProject],
   );
 
   const inProgress = assessmentStatus === 'inprogress';

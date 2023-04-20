@@ -1,1 +1,1 @@
-export * from './useBackendUrl';
+export * from './useGetAppConfig';

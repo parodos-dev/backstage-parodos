@@ -1,3 +1,4 @@
+import { unstable_batchedUpdates } from 'react-dom';
 import type { StateCreator } from 'zustand';
 import type { UISlice, StateMiddleware, State } from '../types';
 
@@ -9,13 +10,21 @@ export const createUISlice: StateCreator<
 > = (set, get) => ({
   baseUrl: '',
   initiallyLoaded: false,
+  workflows: {
+    assessment: '',
+    assessmentTask: '',
+  },
   getApiUrl(url: string) {
     return `${get().baseUrl}${url}`;
   },
-  setBaseUrl(url) {
+  setAppConfig(config) {
     set(state => {
-      state.baseUrl = url;
-    }, false);
+      unstable_batchedUpdates(() => {
+        state.baseUrl = config.backendUrl;
+        state.workflows.assessment = config.workflows.assessment;
+        state.workflows.assessmentTask = config.workflows.assessmentTask;
+      }, false);
+    });
   },
   loading() {
     return get().projectsLoading || get().workflowLoading;
