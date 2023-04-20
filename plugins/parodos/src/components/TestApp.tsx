@@ -21,6 +21,12 @@ const TestAppStore: React.FC = ({ children }) => {
 export const TestApp: React.FC = ({ children }) => {
   const mockConfig = new MockConfigApi({
     backend: { baseUrl: MOCK_BASE_URL },
+    parodos: {
+      workflows: {
+        assessment: 'onboardingAssessment_ASSESSMENT_WORKFLOW',
+        assessmentTask: 'onboardingAssessmentTask',
+      },
+    },
   });
   const mockFetch = new MockFetchApi({
     baseImplementation: (
