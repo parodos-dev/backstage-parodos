@@ -39,6 +39,7 @@ export interface ProjectsSlice {
   addProject(project: Project): void;
   projectsLoading: boolean;
   projectsError: Error | undefined;
+  initiallyLoaded: boolean;
 }
 
 export type NotificationState = 'ALL' | 'UNREAD' | 'ARCHIVED';

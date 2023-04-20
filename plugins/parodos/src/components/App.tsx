@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useStore } from '../stores/workflowStore/workflowStore';
 import { useGetAppConfig } from './api/useGetAppConfig';
 import { PluginRouter } from './PluginRouter';
@@ -13,7 +13,7 @@ export const App = () => {
   const setAppConfig = useStore(state => state.setAppConfig);
   const fetchProjects = useStore(state => state.fetchProjects);
   const fetchDefinitions = useStore(state => state.fetchDefinitions);
-  const [initiallyLoaded, setInitiallyLoaded] = useState(false);
+  const initiallyLoaded = useStore(state => state.initiallyLoaded);
   const { fetch } = useApi(fetchApiRef);
 
   useEffect(() => {
@@ -23,7 +23,6 @@ export const App = () => {
       // We do not pre-fetch notifications, let's do that on demand.
       // TODO: fetch unread notificaionts count and keep it updated to render te tip to the user.
       await Promise.all([fetchProjects(fetch), fetchDefinitions(fetch)]);
-      setInitiallyLoaded(true);
     }
 
     initialiseStore();
