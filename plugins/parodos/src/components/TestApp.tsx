@@ -1,4 +1,6 @@
+// To be used in tests only.
 import React from 'react';
+// eslint-disable-next-line @backstage/no-undeclared-imports
 import {
   MockConfigApi,
   MockFetchApi,
@@ -23,7 +25,7 @@ export const TestApp: React.FC = ({ children }) => {
   const mockFetch = new MockFetchApi({
     baseImplementation: (
       input: RequestInfo | URL,
-      init?: RequestInit,
+      // init?: RequestInit,
     ): Promise<Response> => {
       // TODO: The test case should pass the mocks as props to the component
       if (input === `${MOCK_BASE_URL}/${MOCK_CONTEXT_URL}/projects`) {
