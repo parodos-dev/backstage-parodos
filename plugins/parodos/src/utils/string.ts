@@ -1,5 +1,3 @@
-import { type ProjectStatus } from '../models/project';
-
 function capitalize(text: string): string {
   return `${text.charAt(0).toUpperCase()}${text.slice(1).toLowerCase()}`;
 }
@@ -12,7 +10,7 @@ function taskDisplayName(taskName: string): string {
     .join(' ');
 }
 
-export function projectStatusDisplayName(projectStatus: ProjectStatus): string {
+export function projectStatusDisplayName(projectStatus: string): string {
   return projectStatus.split('-').map(capitalize).join(' ');
 }
 

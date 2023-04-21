@@ -18,8 +18,8 @@ type ProjectFilters = ProjectStatus | 'all-projects';
 
 const projectFilterItems: { label: string; value: ProjectFilters }[] = [
   { label: 'All Projects', value: 'all-projects' },
-  { label: 'In Progress', value: 'in-progress' },
-  { label: 'On Boarded', value: 'on-boarded' },
+  { label: 'In Progress', value: 'IN_PROGRESS' },
+  { label: 'Completed', value: 'COMPLETED' },
 ];
 
 export const useStyles = makeStyles(theme => ({
