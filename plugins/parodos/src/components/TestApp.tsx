@@ -7,8 +7,7 @@ import {
   TestApiProvider,
 } from '@backstage/test-utils';
 import { configApiRef, fetchApiRef } from '@backstage/core-plugin-api';
-
-import { useInitializeStore } from './App';
+import { useInitializeStore } from '../hooks/useInitializeStore';
 
 const MOCK_BASE_URL = 'https://example.com';
 const MOCK_CONTEXT_URL = 'api/proxy/parodos';
