@@ -1,7 +1,6 @@
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { IChangeEvent } from '@rjsf/core-v5';
 import { type StrictRJSFSchema } from '@rjsf/utils';
-import { assert } from 'assert-ts';
 import { useNavigate } from 'react-router-dom';
 import useAsyncFn, { AsyncFnReturn } from 'react-use/lib/useAsyncFn';
 import { WorkflowDefinition } from '../../../models/workflowDefinitionSchema';
@@ -25,16 +24,12 @@ export function useStartWorkflow({
   projectId,
   tasks,
   isNew,
-}: UseStartWorkflow): AsyncFnReturn<
-  ({ formData }: IChangeEvent) => Promise<void>
-> {
+}: UseStartWorkflow): AsyncFnReturn<(e?: IChangeEvent) => Promise<void>> {
   const { fetch } = useApi(fetchApiRef);
   const navigate = useNavigate();
 
   return useAsyncFn(
-    async ({ formData }: IChangeEvent<StrictRJSFSchema>) => {
-      assert(!!formData);
-
+    async ({ formData = {} } = {} as IChangeEvent<StrictRJSFSchema>) => {
       const payload = getWorklfowsPayload({
         projectId,
         workflow,
