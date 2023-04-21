@@ -61,7 +61,7 @@ proxy:
     headers:
       Content-Type: 'application/json'
       accept: 'application/json'
-      # Authorization: ${PARODOS_AUTH_KEY}
+      Authorization: ${PARODOS_AUTH_KEY}
 
   '/parodos-notifications':
     target: 'http://localhost:8081/api/v1'
@@ -73,7 +73,7 @@ proxy:
     headers:
       Content-Type: 'application/json'
       accept: 'application/json'
-      # Authorization: ${PARODOS_NOTIFICATION_AUTH_KEY}
+      Authorization: ${PARODOS_NOTIFICATION_AUTH_KEY}
 
 # Reference documentation http://backstage.io/docs/features/techdocs/configuration
 # Note: After experimenting with basic setup, use CI/CD to generate docs
