@@ -18,6 +18,7 @@ import * as urls from '../../../urls';
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
 import { useStore } from '../../../stores/workflowStore/workflowStore';
 import { useStartWorkflow } from '../hooks/useStartWorkflow';
+import { Empty } from './Empty';
 
 interface OnboardingProps {
   isNew: boolean;
@@ -83,6 +84,7 @@ export function Onboarding({ isNew }: OnboardingProps): JSX.Element {
       </ContentHeader>
       <Typography paragraph>You are onboarding {workflowOption}.</Typography>
       {loading && <Progress />}
+      {formSchema.steps.length === 0 && <Empty startWorkflow={startWorkflow} />}
       {formSchema.steps.length > 0 && (
         <InfoCard>
           <Typography paragraph>
