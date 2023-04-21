@@ -29,6 +29,8 @@ export const createProjectsSlice: StateCreator<
 
       const projects = projectsResponse.map(projectSchema.parse) as Project[];
 
+      // projectStatus.split('-').map(capitalize).join(' ')
+
       set(state => {
         unstable_batchedUpdates(() => {
           state.projects = projects;
