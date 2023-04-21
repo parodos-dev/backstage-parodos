@@ -63,6 +63,21 @@ const routes = (
 
 For local development, the application username is `test`, password `test`.
 
+In addition, the [Parodos services](https://github.com/parodos-dev/parodos) need to be running. Please refer up-to-date instructions there, but as a short-cut:
+
+```
+git clone https://github.com/parodos-dev/parodos.git
+cd parodos
+mvn clean install
+cd ./workflow-examples
+
+If the action is failing on an expired token, it can be updated here: https://github.com/organizations/parodos-dev/settings/secrets/actions
+./start_workflow_service.sh &
+./start_notification_service.sh &
+```
+
+By doing that, there will be two services running at `http://localhost:8080` and `http://localhost:8081`.
+
 ## Release
 
 The project is published to the NPM JS Registry on release: https://www.npmjs.com/package/@parodos/plugin-parodos.
