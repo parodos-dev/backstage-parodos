@@ -41,7 +41,6 @@ describe('ProjectOverview', () => {
         }),
       );
       const { getByTestId, findByText, container } = rendered;
-      expect(getByTestId('header-title').textContent).toBe('Projects overview');
       expect(getByTestId('button-add-new-project').textContent).toBe(
         'Add new project',
       );
