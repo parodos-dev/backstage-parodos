@@ -53,7 +53,7 @@ describe('ProjectOverview', () => {
       // wait for re-render after receiving data
       await findByText('myProject');
       expect(
-        container.querySelector('td[value="In Progress"]'),
+        container.querySelector('td[value="In progress"]'),
       ).toBeInTheDocument();
     });
   });
