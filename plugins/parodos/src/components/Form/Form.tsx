@@ -15,10 +15,12 @@ import {
   ButtonGroup,
 } from '@material-ui/core';
 import { FluidObjectFieldTemplate } from '../layouts/FluidObjectFieldTemplate';
-import { OutlinedBaseInputTemplate } from './widgets/TextAreaWidget';
+import { OutlinedBaseInputTemplate } from './Templates/OutlinedObjectFieldTemplate';
 import ArrayFieldTemplate from './Templates/ArrayFieldTemplate';
 import { default as CoreForm } from '@rjsf/core-v5';
 import { useStyles } from './styles';
+import { type RegistryWidgetsType } from '@rjsf/utils';
+import { SelectWidget } from './widgets/SelectWidget';
 
 type FormProps = Pick<
   JsonFormProps,
@@ -74,6 +76,10 @@ export function Form({
     }
   };
 
+  const widgets: RegistryWidgetsType = {
+    SelectWidget,
+  };
+
   const TheForm = (
     <JsonForm
       ref={formRef}
@@ -88,6 +94,7 @@ export function Form({
       onSubmit={handleNext}
       schema={currentStep.schema}
       disabled={disabled}
+      widgets={widgets}
       templates={{
         ObjectFieldTemplate: FluidObjectFieldTemplate,
         BaseInputTemplate: OutlinedBaseInputTemplate as any,
