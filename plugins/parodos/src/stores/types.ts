@@ -11,6 +11,7 @@ export interface UISlice {
   error(): unknown | undefined;
   getApiUrl(url: string): string;
   workflows: Pick<ParodosConfig, 'workflows'>['workflows'];
+  initialized(): boolean;
 }
 
 export const predicates = {
@@ -28,7 +29,7 @@ export interface WorkflowSlice {
     value: string,
   ): WorkflowDefinition | undefined;
   fetchDefinitions(fetch: FetchApi['fetch']): Promise<void>;
-  workflowLoading: boolean;
+  workflowDefinitionsLoading: boolean;
   workflowError: unknown | undefined;
 }
 

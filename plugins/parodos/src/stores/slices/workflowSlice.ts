@@ -16,7 +16,7 @@ export const createWorkflowSlice: StateCreator<
   WorkflowSlice
 > = (set, get) => ({
   workflowDefinitions: [],
-  workflowLoading: true,
+  workflowDefinitionsLoading: true,
   workflowError: undefined,
   getWorkDefinitionBy(filterBy, value) {
     const workflowDefinition = get().workflowDefinitions.find(
@@ -27,7 +27,7 @@ export const createWorkflowSlice: StateCreator<
   },
   async fetchDefinitions(fetch: FetchApi['fetch']) {
     set(state => {
-      state.workflowLoading = true;
+      state.workflowDefinitionsLoading = true;
     });
 
     try {
@@ -39,7 +39,7 @@ export const createWorkflowSlice: StateCreator<
       set(state => {
         unstable_batchedUpdates(() => {
           state.workflowDefinitions = definitions;
-          state.workflowLoading = false;
+          state.workflowDefinitionsLoading = false;
         });
       });
     } catch (e) {

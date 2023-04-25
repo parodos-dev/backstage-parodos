@@ -10,14 +10,16 @@ const POLLING_INTERVAL_MILLISECONDS = 5 * 1000;
 
 export const App = () => {
   const fetchProjects = useStore(state => state.fetchProjects);
-  const initiallyLoaded = useStore(state => state.initiallyLoaded);
-  useInitializeStore();
+
+  const { initialStateLoaded } = useInitializeStore();
 
   useInterval(() => {
-    // Assumption: the fetchProjects does not take longer then POLLING_INTERVAL
-    // If needed, we can i.e. leverage state.loading to skip certain ticks
+    if (!initialStateLoaded) {
+      return;
+    }
+
     fetchProjects(fetch);
   }, POLLING_INTERVAL_MILLISECONDS);
 
-  return initiallyLoaded ? <PluginRouter /> : <Progress />;
+  return initialStateLoaded ? <PluginRouter /> : <Progress />;
 };
