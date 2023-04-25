@@ -11,6 +11,7 @@ export interface UISlice {
   error(): unknown | undefined;
   getApiUrl(url: string): string;
   workflows: Pick<ParodosConfig, 'workflows'>['workflows'];
+  initialized(): boolean;
 }
 
 export const predicates = {

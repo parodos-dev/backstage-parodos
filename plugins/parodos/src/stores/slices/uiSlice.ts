@@ -29,6 +29,9 @@ export const createUISlice: StateCreator<
   loading() {
     return get().projectsLoading || get().workflowDefinitionsLoading;
   },
+  initialized() {
+    return get().initiallyLoaded && !get().workflowDefinitionsLoading;
+  },
   error() {
     return get().workflowError ?? get().projectsError;
   },

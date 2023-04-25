@@ -8,10 +8,7 @@ export const useInitializeStore = () => {
   const setAppConfig = useStore(state => state.setAppConfig);
   const fetchProjects = useStore(state => state.fetchProjects);
   const fetchDefinitions = useStore(state => state.fetchDefinitions);
-  const projectsInitiallyLoaded = useStore(state => state.initiallyLoaded);
-  const workflowDefinitionsLoading = useStore(
-    state => state.workflowDefinitionsLoading,
-  );
+  const initialized = useStore(state => state.initialized());
   const { fetch } = useApi(fetchApiRef);
 
   useEffect(() => {
@@ -25,6 +22,6 @@ export const useInitializeStore = () => {
   }, [appConfig, fetch, fetchDefinitions, fetchProjects, setAppConfig]);
 
   return {
-    initialStateLoaded: projectsInitiallyLoaded && !workflowDefinitionsLoading,
+    initialStateLoaded: initialized,
   };
 };
