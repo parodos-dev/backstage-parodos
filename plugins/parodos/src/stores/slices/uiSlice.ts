@@ -27,7 +27,7 @@ export const createUISlice: StateCreator<
     });
   },
   loading() {
-    return get().projectsLoading || get().workflowLoading;
+    return get().projectsLoading || get().workflowDefinitionsLoading;
   },
   error() {
     return get().workflowError ?? get().projectsError;
