@@ -1,0 +1,25 @@
+---
+name: Main push
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: 'Build container images'
+        run: |
+          make build-image
+
+      - name: Login to quay
+        env:
+          QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+        run: |
+          echo "$QUAY_GITHUB_TOKEN" | docker login quay.io --username parodos-dev+githubpush --password-stdin
+
+      - name: 'Push images'
+        run: |
+          make push-image

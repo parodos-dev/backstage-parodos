@@ -1,7 +1,7 @@
 DOCKER ?= docker
 
-ORG=quay.io/parodos/
-IMAGE=orion-ui
+ORG=quay.io/parodos-dev/
+IMAGE=backstage-parodos
 
 GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD | sed s,^main$$,latest,g)
 GIT_HASH := $(shell git rev-parse HEAD)
