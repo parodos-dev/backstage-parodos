@@ -19,7 +19,9 @@ export const createWorkflowSlice: StateCreator<
   workflowLoading: true,
   workflowError: undefined,
   getWorkDefinitionBy(filterBy, value) {
-    const workflowDefinition = get().workflowDefinitions.find(
+    const workflowDefinitions = get().workflowDefinitions;
+
+    const workflowDefinition = workflowDefinitions.find(
       def => predicates[filterBy](def) === value,
     );
 
