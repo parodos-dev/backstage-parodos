@@ -86,6 +86,8 @@ export function Workflow(): JSX.Element {
       workflowProject: Project;
       formData: Record<string, ProjectsPayload>;
     }) => {
+      delete formData[assessmentTask].project;
+
       // TODO:  task here should be dynamic based on assessment workflow definition
       const workFlowResponse = await fetch(workflowsUrl, {
         method: 'POST',
@@ -96,17 +98,14 @@ export function Workflow(): JSX.Element {
             {
               type: 'TASK',
               workName: assessmentTask,
-              arguments: Object.entries(formData[assessmentTask])
-                .filter(([_, value]) =>
-                  /* Especially to filter-out 'project', the API expects it via 'projectId' above */
-                  ['string', 'boolean'].includes(typeof value),
-                )
-                .map(([key, value]) => {
+              arguments: Object.entries(formData[assessmentTask]).map(
+                ([key, value]) => {
                   return {
                     key: key,
                     value: value,
                   };
-                }),
+                },
+              ),
             },
           ],
         }),
