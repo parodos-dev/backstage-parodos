@@ -136,6 +136,7 @@ function* transformWorkToStep(work: WorkType) {
       minLength,
       maxLength,
       enum: options,
+      valueProviderName,
     },
   ] of Object.entries(work.parameters ?? {})) {
     const propertiesPath = `properties.${work.name}.properties.${key}`;
@@ -147,6 +148,10 @@ function* transformWorkToStep(work: WorkType) {
       minLength,
       maxLength,
     });
+
+    if (typeof valueProviderName === 'string') {
+      set(schema, `${propertiesPath}.valueProviderName`, valueProviderName);
+    }
 
     const objectPath = `${work.name}.${key}`;
 
