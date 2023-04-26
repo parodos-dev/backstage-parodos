@@ -41,5 +41,9 @@ describe('WorkflowDefinitionSchema', () => {
     expect(typeof trueRequired).toBe('boolean');
 
     expect(trueRequired).toBe(true);
+
+    const valueProviderName = result.data.works[0]?.works?.[0].parameters?.WORKFLOW_SELECT_SAMPLE.valueProviderName;
+
+    expect(valueProviderName).toBe('complexWorkFlowValueProvider');
   });
 });
