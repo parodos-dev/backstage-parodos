@@ -88,6 +88,10 @@ export function getUiSchema(type: ParameterFormat) {
         'ui:widget': 'radio',
       };
     }
+    case 'multi-select':
+      return {
+        'ui:widget': 'checkboxes',
+      };
     case 'url':
     case 'number':
       return {};
