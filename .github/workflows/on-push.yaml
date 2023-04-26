@@ -25,11 +25,12 @@ jobs:
         run: |
           make build-image
 
-      - name: Login to quay
-        env:
-          QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
-        run: |
-          echo "$QUAY_GITHUB_TOKEN" | docker login quay.io --username parodos-dev+githubpush --password-stdin
+      - name: Login to Quay
+        uses: docker/login-action@v2
+        with:
+          registry: 'quay.io'
+          username: 'parodos-dev+githubpush'
+          password: '${{ secrets.QUAY_GITHUB_TOKEN }}'
 
       - name: 'Push images'
         run: |
