@@ -26,7 +26,6 @@ export const mockDependantDefinition = {
       description: 'Workflow multi-select parameter sample',
       type: 'string',
       required: false,
-      enum: ['multi1', 'multi2'],
     },
     workloadId: {
       format: 'text',

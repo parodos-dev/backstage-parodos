@@ -2,7 +2,7 @@ import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { IChangeEvent } from '@rjsf/core-v5';
 import { type StrictRJSFSchema } from '@rjsf/utils';
 import { useNavigate } from 'react-router-dom';
-import useAsyncFn, { AsyncFnReturn } from 'react-use/lib/useAsyncFn';
+import useAsyncFn, { type AsyncFnReturn } from 'react-use/lib/useAsyncFn';
 import { WorkflowDefinition } from '../../../models/workflowDefinitionSchema';
 import {
   WorkflowStatus,
