@@ -210,11 +210,8 @@ export function* getAllSteps(work: WorkType) {
 
 export function jsonSchemaFromWorkflowDefinition(
   workflowDefinition: WorkflowDefinition,
+  formSchema: FormSchema,
 ): FormSchema {
-  const result: FormSchema = {
-    steps: [],
-  };
-
   const parameters = workflowDefinition.parameters ?? {};
 
   if (Object.keys(parameters).length > 0) {
@@ -225,7 +222,7 @@ export function jsonSchemaFromWorkflowDefinition(
       } as WorkType),
     ][0];
 
-    result.steps.push(masterStep);
+    formSchema.steps.push(masterStep);
   }
 
   for (const work of workflowDefinition.works.filter(
@@ -235,11 +232,11 @@ export function jsonSchemaFromWorkflowDefinition(
         (w?.works ?? []).length > 0),
   )) {
     for (const step of [...getAllSteps(work)].reverse()) {
-      result.steps.push(step);
+      formSchema.steps.push(step);
     }
   }
 
-  return result;
+  return formSchema;
 }
 
 function worksWithParameter(work: WorkType): boolean {

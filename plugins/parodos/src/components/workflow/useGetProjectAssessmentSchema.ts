@@ -71,7 +71,7 @@ export function useGetProjectAssessmentSchema({
     };
   }
 
-  const formSchema = jsonSchemaFromWorkflowDefinition(cloned);
+  const formSchema = jsonSchemaFromWorkflowDefinition(cloned, { steps: [] });
 
   set(formSchema, `steps[0].uiSchema.[${assessmentTask}].['ui:order']`, [
     'newProject',

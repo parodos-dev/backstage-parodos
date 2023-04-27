@@ -11,6 +11,7 @@ describe('jsonSchemaFromWorkflowDefinition', () => {
   it('transforms a workflow definition with recursive works', () => {
     const result = jsonSchemaFromWorkflowDefinition(
       mockRecursiveWorksWorkflowDefinition as unknown as WorkflowDefinition,
+      { steps: [] },
     );
 
     expect(result.steps.length).toBeGreaterThan(0);
@@ -31,7 +32,9 @@ describe('jsonSchemaFromWorkflowDefinition', () => {
   });
 
   it('transforms deeply nested recursive structure', () => {
-    const result = jsonSchemaFromWorkflowDefinition(mockDeepRecursiveWorks);
+    const result = jsonSchemaFromWorkflowDefinition(mockDeepRecursiveWorks, {
+      steps: [],
+    });
 
     const domainName = get(
       result.steps[0]?.schema,
