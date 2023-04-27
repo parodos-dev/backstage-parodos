@@ -12,8 +12,10 @@ describe('<Form />', () => {
       ...mockAndromedaWorkflowDefinition,
       works: [mockAndromedaWorkflowDefinition.works[0]],
     };
-    const formSchema: FormSchema =
-      jsonSchemaFromWorkflowDefinition(mockWorkflow);
+    const formSchema: FormSchema = jsonSchemaFromWorkflowDefinition(
+      mockWorkflow,
+      { steps: [] },
+    );
 
     it('renders a basic dynamic form', () => {
       const { getByRole } = render(
@@ -45,6 +47,7 @@ describe('<Form />', () => {
   describe('with stepper', () => {
     const formSchema: FormSchema = jsonSchemaFromWorkflowDefinition(
       mockAndromedaWorkflowDefinition,
+      { steps: [] },
     );
 
     it('renders a stepper with more than one task', () => {

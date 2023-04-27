@@ -113,7 +113,7 @@ export function Form({
       ) : (
         <ButtonGroup className={styles.buttonContainer} variant="contained">
           <Button
-            disabled={activeStep === 0}
+            disabled={activeStep === 0 || disabled}
             className={styles.previous}
             onClick={handleBack}
           >
@@ -124,6 +124,7 @@ export function Form({
             color="primary"
             type="submit"
             className={styles.next}
+            disabled={disabled}
           >
             NEXT
           </Button>
