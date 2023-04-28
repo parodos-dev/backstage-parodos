@@ -139,6 +139,10 @@ function* transformWorkToStep(work: WorkType) {
       valueProviderName,
     },
   ] of Object.entries(work.parameters ?? {})) {
+    if ((format === 'multi-select' || format === 'select') && !options) {
+      continue;
+    }
+
     const propertiesPath = `properties.${work.name}.properties.${key}`;
 
     set(schema, propertiesPath, {

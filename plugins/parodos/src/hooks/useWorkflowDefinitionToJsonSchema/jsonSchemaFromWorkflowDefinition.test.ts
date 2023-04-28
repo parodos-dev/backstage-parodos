@@ -72,7 +72,7 @@ describe('jsonSchemaFromWorkflowDefinition', () => {
       works: [],
     };
 
-    const result = jsonSchemaFromWorkflowDefinition(definition);
+    const result = jsonSchemaFromWorkflowDefinition(definition, { steps: [] });
 
     const valueProviderName = get(
       result.steps[0]?.schema,

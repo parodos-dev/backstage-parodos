@@ -1,5 +1,6 @@
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
+import { valueProviderResponseSchema } from '../models/valueProviderResponse';
 import { useStore } from '../stores/workflowStore/workflowStore';
 import * as urls from '../urls';
 
@@ -40,7 +41,7 @@ export function useUpdateSchema({
         throw new Error(`${data.status} - ${data.statusText}`);
       }
 
-      return data;
+      return valueProviderResponseSchema.parse(await data.json());
     },
     [fetch, valueProviderName, workflowDefinitionName, workflowDefinitionsUrl],
   );

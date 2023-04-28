@@ -11,13 +11,14 @@ export function SelectWidget({ onChange, ...props }: WidgetProps) {
   const workflowDefinitionName = Object.keys(
     props.registry.rootSchema.properties ?? {},
   )[0];
-  const [{ loading, error }, updateSchema] = useUpdateSchema({
-    valueProviderName,
-    workflowDefinitionName,
-  });
+  const [{ loading, error, value: valueProviderResponse }, updateSchema] =
+    useUpdateSchema({
+      valueProviderName,
+      workflowDefinitionName,
+    });
 
   // eslint-disable-next-line no-console
-  console.log({ loading, error, schema: props.schema });
+  console.log({ loading, error, schema: props.schema, valueProviderResponse });
 
   const changeHandler = useCallback(
     async (value: ChangeEventHandlerArgs) => {

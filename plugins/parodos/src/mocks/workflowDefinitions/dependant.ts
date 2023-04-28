@@ -1,4 +1,6 @@
-export const mockDependantDefinition = {
+import { WorkflowDefinition } from '../../models/workflowDefinitionSchema';
+
+export const mockDependantDefinition: WorkflowDefinition = {
   id: '3316b504-1000-4d12-95fc-a0a56790c929',
   name: 'complexWorkFlow',
   type: 'INFRASTRUCTURE',
@@ -40,9 +42,9 @@ export const mockDependantDefinition = {
       required: false,
     },
   },
-  properties: {
-    version: null,
-  },
+  // properties: {
+  //   version: null,
+  // },
   works: [
     {
       id: '92ee48b4-daad-4fac-acde-f4c4d8ea0425',

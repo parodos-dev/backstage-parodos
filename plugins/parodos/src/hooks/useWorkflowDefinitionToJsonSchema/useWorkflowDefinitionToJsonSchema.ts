@@ -8,6 +8,7 @@ import { GetDefinitionFilter } from '../../stores/types';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import { useImmerReducer } from 'use-immer';
 import { useEffect } from 'react';
+import { mockDependantDefinition } from '../../mocks/workflowDefinitions/dependant';
 
 type Actions = {
   type: 'INITIALIZE';
@@ -22,7 +23,7 @@ const reducer = (draft: State, action: Actions) => {
     case 'INITIALIZE': {
       if (!draft.initialized) {
         draft.formSchema = jsonSchemaFromWorkflowDefinition(
-          action.payload.definition,
+          mockDependantDefinition,
           draft.formSchema,
         );
 
