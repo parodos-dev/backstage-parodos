@@ -14,23 +14,29 @@ type Actions = {
   payload: { definition: WorkflowDefinition };
 };
 
-type State = { formSchema: FormSchema };
+type State = { formSchema: FormSchema; initialized: boolean };
 
 const reducer = (draft: State, action: Actions) => {
   // eslint-disable-next-line default-case
   switch (action.type) {
     case 'INITIALIZE': {
-      draft.formSchema = jsonSchemaFromWorkflowDefinition(
-        action.payload.definition,
-        draft.formSchema,
-      );
+      if (!draft.initialized) {
+        draft.formSchema = jsonSchemaFromWorkflowDefinition(
+          action.payload.definition,
+          draft.formSchema,
+        );
+
+        draft.initialized = true;
+      }
+
       break;
     }
   }
 };
 
-const initialState = {
+const initialState: State = {
   formSchema: { steps: [] },
+  initialized: false,
 };
 
 export function useWorkflowDefinitionToJsonSchema(
