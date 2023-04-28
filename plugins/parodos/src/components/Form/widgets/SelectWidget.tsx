@@ -6,7 +6,7 @@ import { assert } from 'assert-ts';
 
 type ChangeEventHandlerArgs = Parameters<WidgetProps['onChange']>[0];
 
-export function SelectWidget({ onChange, ...props }: WidgetProps) {
+export function SelectWidget({ onChange, formContext, ...props }: WidgetProps) {
   const valueProviderName = props.schema.valueProviderName;
   const workflowDefinitionName = Object.keys(
     props.registry.rootSchema.properties ?? {},
@@ -15,10 +15,12 @@ export function SelectWidget({ onChange, ...props }: WidgetProps) {
     useUpdateSchema({
       valueProviderName,
       workflowDefinitionName,
+      updateSchema: formContext.updateSchema
     });
 
+
   // eslint-disable-next-line no-console
-  console.log({ loading, error, schema: props.schema, valueProviderResponse });
+  // console.log({ loading, error, schema: props.schema, valueProviderResponse });
 
   const changeHandler = useCallback(
     async (value: ChangeEventHandlerArgs) => {

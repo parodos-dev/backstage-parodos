@@ -2,7 +2,7 @@ import {
   workflowDefinitionSchema,
   type WorkflowDefinition,
 } from '../../models/workflowDefinitionSchema';
-import type { FormSchema } from '../../components/types';
+import type { FormSchema, Step } from '../../components/types';
 import { jsonSchemaFromWorkflowDefinition } from './jsonSchemaFromWorkflowDefinition';
 import { GetDefinitionFilter } from '../../stores/types';
 import { useStore } from '../../stores/workflowStore/workflowStore';
@@ -10,15 +10,16 @@ import { useImmerReducer } from 'use-immer';
 import { useCallback, useEffect } from 'react';
 import { mockDependantDefinition } from '../../mocks/workflowDefinitions/dependant';
 import { ValueProviderResponse } from '../../models/valueProviderResponse';
+import { current } from 'immer';
 
 type UPDATE_SCHEMA = {
   type: 'UPDATE_SCHEMA';
   payload: { valueProviderResponse: ValueProviderResponse };
 };
 
-type UpdateSchema = (
+export type UpdateSchema = (
   action: UPDATE_SCHEMA['payload']['valueProviderResponse'],
-) => UPDATE_SCHEMA;
+) => void;
 
 type Actions =
   | {
@@ -30,9 +31,7 @@ type Actions =
 type State = {
   formSchema: FormSchema;
   initialized: boolean;
-  updateSchema?: (
-    valueProviderResponse: ValueProviderResponse,
-  ) => UPDATE_SCHEMA;
+  updateSchema?: UpdateSchema;
 };
 
 const reducer = (draft: State, action: Actions) => {
@@ -53,19 +52,23 @@ const reducer = (draft: State, action: Actions) => {
     case 'UPDATE_SCHEMA': {
       for (const { key, value, propertyPath } of action.payload
         .valueProviderResponse) {
-        const step = !propertyPath ? draft.formSchema.steps[0] : undefined;
+        const step = !propertyPath ? Object.values(draft.formSchema.steps[0].schema?.properties ?? {})?.[0] : undefined;
 
         if (!step) {
           continue;
         }
 
-        const current = draft.formSchema.steps.find(s => s.title === key);
 
-        console.log(current, value, key);
-
-        if (!current) {
-          continue;
+        // TODO: fix types
+        for(const [fieldKey,fieldValue] of Object.entries((step as any).properties)) {
+          console.log({fieldKey, key})
+          if(fieldKey === key) {
+            console.log(value);
+          }
         }
+
+
+      
       }
       break;
     }
@@ -88,12 +91,12 @@ export function useWorkflowDefinitionToJsonSchema(
 
   const [state, dispatch] = useImmerReducer(reducer, initialState);
 
-  const updateSchema: UpdateSchema = useCallback(
-    (valueProviderResponse: ValueProviderResponse) => ({
+  const updateSchema = useCallback(
+    (valueProviderResponse: ValueProviderResponse) => dispatch({
       type: 'UPDATE_SCHEMA',
       payload: { valueProviderResponse },
     }),
-    [],
+    [dispatch],
   );
 
   useEffect(() => {
