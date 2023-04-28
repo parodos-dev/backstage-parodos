@@ -52,7 +52,12 @@ export function Onboarding({ isNew }: OnboardingProps): JSX.Element {
 
   const workflowOption = searchParams.get('option');
 
-  const formSchema = useWorkflowDefinitionToJsonSchema(workflowName, 'byName');
+  const { formSchema, updateSchema } = useWorkflowDefinitionToJsonSchema(
+    workflowName,
+    'byName',
+  );
+
+  console.log(updateSchema);
 
   const tasks = useGetWorkflowTasksForTopology(workflowName);
 
