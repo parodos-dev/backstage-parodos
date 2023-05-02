@@ -35,8 +35,8 @@ export const createProjectsSlice: StateCreator<
 
       if (
         get().initiallyLoaded &&
-        (existing.size === newProjects.size &&
-          [...newProjects].every(id => existing.has(id)))
+        existing.size === newProjects.size &&
+        [...newProjects].every(id => existing.has(id))
       ) {
         return;
       }
