@@ -32,9 +32,13 @@ export const createProjectsSlice: StateCreator<
       const existing = get()
         .projects.map(p => p.id)
         .sort();
+
       const newProjects = projects.map(p => p.id).sort();
 
-      if (JSON.stringify(existing) === JSON.stringify(newProjects)) {
+      if (
+        get().initiallyLoaded &&
+        newProjects.every((id, index) => id === existing[index])
+      ) {
         return;
       }
 
