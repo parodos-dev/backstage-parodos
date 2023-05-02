@@ -27,7 +27,11 @@ export const createProjectsSlice: StateCreator<
       const response = await fetch(`${get().baseUrl}${urls.Projects}`);
       const projectsResponse = await response.json();
 
-      const projects = projectsResponse.map(projectSchema.parse) as Project[];
+      if ('error' in projectsResponse) {
+        throw new Error(`${projectsResponse.error}: ${projectsResponse.path}`);
+      }
+
+      const projects = (projectsResponse?.map(projectSchema.parse) ?? []) as Project[];
 
       const existing = new Set(get().projects.map(p => p.id));
 
