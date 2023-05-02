@@ -29,13 +29,9 @@ export const createProjectsSlice: StateCreator<
 
       const projects = projectsResponse.map(projectSchema.parse) as Project[];
 
-      const existing = new Set(
-        get()
-          .projects.map(p => p.id)
-          .sort(),
-      );
+      const existing = new Set(get().projects.map(p => p.id));
 
-      const newProjects = new Set(projects.map(p => p.id).sort());
+      const newProjects = new Set(projects.map(p => p.id));
 
       if (
         get().initiallyLoaded &&
