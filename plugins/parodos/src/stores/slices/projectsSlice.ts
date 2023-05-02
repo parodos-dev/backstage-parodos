@@ -29,6 +29,15 @@ export const createProjectsSlice: StateCreator<
 
       const projects = projectsResponse.map(projectSchema.parse) as Project[];
 
+      const existing = get()
+        .projects.map(p => p.id)
+        .sort();
+      const newProjects = projects.map(p => p.id).sort();
+
+      if (JSON.stringify(existing) === JSON.stringify(newProjects)) {
+        return;
+      }
+
       set(state => {
         unstable_batchedUpdates(() => {
           state.projects = projects;
