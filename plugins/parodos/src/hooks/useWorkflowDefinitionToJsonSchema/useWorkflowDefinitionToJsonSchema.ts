@@ -52,6 +52,7 @@ const reducer = (draft: State, action: Actions) => {
     case 'UPDATE_SCHEMA': {
       for (const { key, value, propertyPath } of action.payload
         .valueProviderResponse) {
+        console.log(propertyPath);
         const step = !propertyPath ? Object.values(draft.formSchema.steps[0].schema?.properties ?? {})?.[0] : undefined;
 
         if (!step) {
