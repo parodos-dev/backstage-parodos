@@ -31,7 +31,8 @@ export const createProjectsSlice: StateCreator<
         throw new Error(`${projectsResponse.error}: ${projectsResponse.path}`);
       }
 
-      const projects = (projectsResponse?.map(projectSchema.parse) ?? []) as Project[];
+      const projects = (projectsResponse?.map(projectSchema.parse) ??
+        []) as Project[];
 
       const existing = new Set(get().projects.map(p => p.id));
 
