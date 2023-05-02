@@ -25,7 +25,7 @@ const useStyles = makeStyles(_theme => ({
   },
 }));
 
-export function WorkflowOverview(): JSX.Element {
+export function WorkflowsOverview(): JSX.Element {
   const projects = useStore(state => state.projects);
   const classes = useStyles();
 

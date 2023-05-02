@@ -5,7 +5,7 @@ export const pluginRoutePrefix = '/parodos';
 
 export const navigationMap = [
   { label: 'Projects', routes: ['/project-overview'], icon: <ProjectsIcon /> },
-  { label: 'Workflow', routes: ['/workflow'], icon: <AssessmentIcon />},
+  { label: 'Workflows', routes: ['/workflows'], icon: <AssessmentIcon />},
   {
     label: 'Assessment',
     routes: ['/onboarding/'],
