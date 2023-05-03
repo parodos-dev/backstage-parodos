@@ -108,11 +108,11 @@ const reducer = (draft: State, action: Actions) => {
 
         if (options) {
           assert((options ?? []).length > 0, `no options at path ${workName}`);
-          if (originalFormat === 'multi-select') {
-            set(step, `${fieldPath}.items.enum`, options ?? []);
-          } else {
-            set(step, `${fieldPath}.enum`, options ?? []);
-          }
+
+          const enumPath =
+            originalFormat === 'multi-select' ? 'items.enum' : 'enum';
+
+          set(step, `${fieldPath}.${enumPath}`, options);
         }
 
         set(

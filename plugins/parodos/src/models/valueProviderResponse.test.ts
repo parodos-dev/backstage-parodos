@@ -8,6 +8,7 @@ describe('project', () => {
         key: 'WORKFLOW_SELECT_SAMPLE',
         value: 'option2',
         workName: 'complexWorkFlow',
+        proertyPath: 'complexWorkFlow',
       },
     ]);
 
