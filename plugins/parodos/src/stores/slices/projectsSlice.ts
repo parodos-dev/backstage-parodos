@@ -17,7 +17,13 @@ export const createProjectsSlice: StateCreator<
   hasProjects() {
     return get().projects.length > 0;
   },
+  selectProject(id: string) {
+    set(state => {
+      state.selectedProjectId = id;
+    });
+  },
   projects: [],
+  selectedProjectId: undefined,
   async fetchProjects(fetch: FetchApi['fetch']) {
     set(state => {
       state.projectsLoading = true;

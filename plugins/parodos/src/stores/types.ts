@@ -35,9 +35,11 @@ export interface WorkflowSlice {
 
 export interface ProjectsSlice {
   projects: Project[];
+  selectedProjectId: string | undefined;
   fetchProjects(fetch: FetchApi['fetch']): Promise<void>;
   hasProjects(): boolean;
   addProject(project: Project): void;
+  selectProject(projectId: string): void;
   projectsLoading: boolean;
   projectsError: Error | undefined;
   initiallyLoaded: boolean;

@@ -10,9 +10,9 @@ import { WorkflowsOverview } from './workflow/WorkflowsOverview';
 export const PluginRouter = () => (
   <Routes>
     <Route path="/" element={<ProjectOverviewPage />} />
-    <Route path="/workflows" element={<WorkflowsOverview />} />
     <Route path="/project-overview" element={<ProjectOverviewPage />} />
-    <Route path="/workflow" element={<Workflow />} />
+    <Route path="/workflows" element={<WorkflowsOverview />} />
+    <Route path="/workflows/new" element={<Workflow />} />
     <Route path="/notification" element={<Notification />} />
     <Route
       path="/onboarding/:projectId/:workflowName/new/"
