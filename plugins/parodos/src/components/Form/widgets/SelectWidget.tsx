@@ -15,9 +15,8 @@ export function SelectWidget({ onChange, formContext, ...props }: WidgetProps) {
     useUpdateSchema({
       valueProviderName,
       workflowDefinitionName,
-      updateSchema: formContext.updateSchema
+      updateSchema: formContext.updateSchema,
     });
-
 
   // eslint-disable-next-line no-console
   // console.log({ loading, error, schema: props.schema, valueProviderResponse });

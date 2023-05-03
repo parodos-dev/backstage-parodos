@@ -139,10 +139,6 @@ function* transformWorkToStep(work: WorkType) {
       valueProviderName,
     },
   ] of Object.entries(work.parameters ?? {})) {
-    if ((format === 'multi-select' || format === 'select') && !options) {
-      continue;
-    }
-
     const propertiesPath = `properties.${work.name}.properties.${key}`;
 
     set(schema, propertiesPath, {
@@ -163,6 +159,7 @@ function* transformWorkToStep(work: WorkType) {
       ...getUiSchema(format ?? (type as ParameterFormat)),
       'ui:field': field,
       'ui:help': description,
+      'ui:original-format': format
     });
 
     if (required) {

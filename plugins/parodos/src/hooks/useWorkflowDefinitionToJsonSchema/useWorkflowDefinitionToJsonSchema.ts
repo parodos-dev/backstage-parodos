@@ -1,8 +1,9 @@
 import {
   workflowDefinitionSchema,
+  type ParameterFormat,
   type WorkflowDefinition,
 } from '../../models/workflowDefinitionSchema';
-import type { FormSchema, Step } from '../../components/types';
+import type { FormSchema } from '../../components/types';
 import { jsonSchemaFromWorkflowDefinition } from './jsonSchemaFromWorkflowDefinition';
 import { GetDefinitionFilter } from '../../stores/types';
 import { useStore } from '../../stores/workflowStore/workflowStore';
@@ -10,6 +11,8 @@ import { useImmerReducer } from 'use-immer';
 import { useCallback, useEffect } from 'react';
 import { mockDependantDefinition } from '../../mocks/workflowDefinitions/dependant';
 import { ValueProviderResponse } from '../../models/valueProviderResponse';
+import get from 'lodash.get';
+import set from 'lodash.set';
 import { current } from 'immer';
 
 type UPDATE_SCHEMA = {
@@ -50,26 +53,37 @@ const reducer = (draft: State, action: Actions) => {
       break;
     }
     case 'UPDATE_SCHEMA': {
-      for (const { key, value, propertyPath } of action.payload
-        .valueProviderResponse) {
-        console.log(propertyPath);
-        const step = !propertyPath ? Object.values(draft.formSchema.steps[0].schema?.properties ?? {})?.[0] : undefined;
+      if (action.payload.valueProviderResponse.length === 0) {
+        return;
+      }
 
-        if (!step) {
+      for (const { key, value, options, propertyPath } of action.payload
+        .valueProviderResponse) {
+        const paths = propertyPath.split('.');
+        if(paths.length === 1) {
+          const step = draft.formSchema.steps[0];
+
+          const workName = paths[0];
+
+          const fieldPath = `schema.properties.${workName}.properties.${key}`;
+
+          const originalFormat = get(step, `uiSchema.${workName}.${key}.['ui:original-format']`) as ParameterFormat;
+
+          if(options) {
+            set(step, `${fieldPath}.items.enum`, options ?? []);
+          }
+
+          set(step, `${fieldPath}.default`, originalFormat === 'multi-select' ? [value] : value);
+
           continue;
         }
 
+        // const step = paths.length === 1 ? draft.formSchema.steps[0] : draft.formSchema.steps[paths.length - 2];
 
-        // TODO: fix types
-        for(const [fieldKey,fieldValue] of Object.entries((step as any).properties)) {
-          console.log({fieldKey, key})
-          if(fieldKey === key) {
-            console.log(value);
-          }
-        }
+        // const field = paths.length === 1 ? get(step, `schema.properties.${paths[0]}.properties.${key}`) : undefined;
 
-
-      
+        // console.log({paths, step: current(step), field})
+       
       }
       break;
     }
@@ -93,10 +107,11 @@ export function useWorkflowDefinitionToJsonSchema(
   const [state, dispatch] = useImmerReducer(reducer, initialState);
 
   const updateSchema = useCallback(
-    (valueProviderResponse: ValueProviderResponse) => dispatch({
-      type: 'UPDATE_SCHEMA',
-      payload: { valueProviderResponse },
-    }),
+    (valueProviderResponse: ValueProviderResponse) =>
+      dispatch({
+        type: 'UPDATE_SCHEMA',
+        payload: { valueProviderResponse },
+      }),
     [dispatch],
   );
 

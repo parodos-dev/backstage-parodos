@@ -21,17 +21,17 @@ interface UpdateSchemaProps {
 export function useUpdateSchema({
   valueProviderName,
   workflowDefinitionName,
-  updateSchema
+  updateSchema,
 }: UpdateSchemaProps) {
   const { fetch } = useApi(fetchApiRef);
   const workflowDefinitionsUrl = useStore(store =>
     store.getApiUrl(urls.WorkflowDefinitions),
-    );
-    
-    return useAsyncFn(
-      async (payload: UpdatePayload[]) => {
+  );
+
+  return useAsyncFn(
+    async (payload: UpdatePayload[]) => {
       assert(!!updateSchema, 'no updateSchema function in formContext');
-      
+
       const data = await fetch(
         `${workflowDefinitionsUrl}/${workflowDefinitionName}/parameters/update/${valueProviderName}`,
         {
@@ -49,12 +49,18 @@ export function useUpdateSchema({
 
       const updates = valueProviderResponseSchema.parse(await data.json());
 
-      if(updates.length === 0) {
+      if (updates.length === 0) {
         return;
       }
-      
+
       updateSchema(updates);
     },
-    [fetch, updateSchema, valueProviderName, workflowDefinitionName, workflowDefinitionsUrl],
+    [
+      fetch,
+      updateSchema,
+      valueProviderName,
+      workflowDefinitionName,
+      workflowDefinitionsUrl,
+    ],
   );
 }
