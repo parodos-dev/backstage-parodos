@@ -159,7 +159,7 @@ function* transformWorkToStep(work: WorkType) {
       ...getUiSchema(format ?? (type as ParameterFormat)),
       'ui:field': field,
       'ui:help': description,
-      'ui:original-format': format
+      'ui:original-format': format,
     });
 
     if (required) {

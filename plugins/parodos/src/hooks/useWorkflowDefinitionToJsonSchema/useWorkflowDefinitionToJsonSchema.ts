@@ -3,7 +3,7 @@ import {
   type ParameterFormat,
   type WorkflowDefinition,
 } from '../../models/workflowDefinitionSchema';
-import type { FormSchema } from '../../components/types';
+import { FormSchema, Step } from '../../components/types';
 import { jsonSchemaFromWorkflowDefinition } from './jsonSchemaFromWorkflowDefinition';
 import { GetDefinitionFilter } from '../../stores/types';
 import { useStore } from '../../stores/workflowStore/workflowStore';
@@ -14,6 +14,7 @@ import { ValueProviderResponse } from '../../models/valueProviderResponse';
 import get from 'lodash.get';
 import set from 'lodash.set';
 import { current } from 'immer';
+import { assert } from 'assert-ts';
 
 type UPDATE_SCHEMA = {
   type: 'UPDATE_SCHEMA';
@@ -60,30 +61,55 @@ const reducer = (draft: State, action: Actions) => {
       for (const { key, value, options, propertyPath } of action.payload
         .valueProviderResponse) {
         const paths = propertyPath.split('.');
-        if(paths.length === 1) {
-          const step = draft.formSchema.steps[0];
+        const workName = paths.length === 1 ? paths[0] : paths[paths.length -2];
 
-          const workName = paths[0];
+        const step =
+          paths.length === 1
+            ? draft.formSchema.steps[0]
+            : draft.formSchema.steps[paths.length - 2];
 
-          const fieldPath = `schema.properties.${workName}.properties.${key}`;
+        let fieldPath = `schema.properties.${workName}.properties.${key}`;
 
-          const originalFormat = get(step, `uiSchema.${workName}.${key}.['ui:original-format']`) as ParameterFormat;
+        let originalFormat = get(
+          step,
+          `uiSchema.${workName}.${key}.['ui:original-format']`,
+        ) as ParameterFormat;
 
-          if(options) {
-            set(step, `${fieldPath}.items.enum`, options ?? []);
-          }
+        if(!get(step, fieldPath, undefined)) {
+          const worksPath = `schema.properties.${workName}.properties.works.items`;
+          
+          const works = get<Step, string>(step, worksPath) as Record<string, unknown>[];
 
-          set(step, `${fieldPath}.default`, originalFormat === 'multi-select' ? [value] : value);
+          assert(!!works, `no works at ${worksPath}`);
 
-          continue;
+          const worksKey = paths.slice(-1)[0];
+          
+          const worksIndex = works.findIndex(work => get(work, `properties.${worksKey}`));
+
+          assert(typeof worksIndex !== 'undefined', `no field found in works at ${fieldPath}`);
+
+          fieldPath = `${worksPath}[${worksIndex}].properties.${worksKey}.properties.${key}`;
+
+          assert(!!get(step, fieldPath), `no field at ${fieldPath}`);
+         
+          originalFormat = get(step.uiSchema, `${workName}.works.items[${worksIndex}].${worksKey}.${key}.['ui:original-format']`);
         }
 
-        // const step = paths.length === 1 ? draft.formSchema.steps[0] : draft.formSchema.steps[paths.length - 2];
+        if (options) {
+          assert((options ?? []).length > 0, `no options at path ${workName}`);
+          if(originalFormat === 'multi-select') {
+            set(step, `${fieldPath}.items.enum`, options ?? []);
+          } else {
+            set(step, `${fieldPath}.enum`, options ?? []);
+          }
+        }
 
-        // const field = paths.length === 1 ? get(step, `schema.properties.${paths[0]}.properties.${key}`) : undefined;
+        set(
+          step,
+          `${fieldPath}.default`,
+          originalFormat === 'multi-select' ? [value] : value,
+        );
 
-        // console.log({paths, step: current(step), field})
-       
       }
       break;
     }
