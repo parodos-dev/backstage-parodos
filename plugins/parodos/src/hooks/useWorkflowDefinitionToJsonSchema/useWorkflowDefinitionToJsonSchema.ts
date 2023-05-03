@@ -10,10 +10,10 @@ import { useStore } from '../../stores/workflowStore/workflowStore';
 import { useImmerReducer } from 'use-immer';
 import { useCallback, useEffect } from 'react';
 import { mockDependantDefinition } from '../../mocks/workflowDefinitions/dependant';
-import { ValueProviderResponse } from '../../models/valueProviderResponse';
 import get from 'lodash.get';
 import set from 'lodash.set';
 import { assert } from 'assert-ts';
+import { ValueProviderResponse } from '../../models/valueProviderResponse';
 
 type UPDATE_SCHEMA = {
   type: 'UPDATE_SCHEMA';
@@ -37,7 +37,7 @@ type State = {
   updateSchema?: UpdateSchema;
 };
 
-const reducer = (draft: State, action: Actions) => {
+export const reducer = (draft: State, action: Actions) => {
   switch (action.type) {
     case 'INITIALIZE': {
       if (!draft.initialized) {
@@ -129,7 +129,7 @@ const reducer = (draft: State, action: Actions) => {
   }
 };
 
-const initialState: State = {
+export const initialState: State = {
   formSchema: { steps: [] },
   initialized: false,
 };
