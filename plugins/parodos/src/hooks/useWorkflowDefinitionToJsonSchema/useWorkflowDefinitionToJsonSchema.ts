@@ -13,7 +13,6 @@ import { mockDependantDefinition } from '../../mocks/workflowDefinitions/dependa
 import { ValueProviderResponse } from '../../models/valueProviderResponse';
 import get from 'lodash.get';
 import set from 'lodash.set';
-import { current } from 'immer';
 import { assert } from 'assert-ts';
 
 type UPDATE_SCHEMA = {
@@ -61,7 +60,8 @@ const reducer = (draft: State, action: Actions) => {
       for (const { key, value, options, propertyPath } of action.payload
         .valueProviderResponse) {
         const paths = propertyPath.split('.');
-        const workName = paths.length === 1 ? paths[0] : paths[paths.length -2];
+        const workName =
+          paths.length === 1 ? paths[0] : paths[paths.length - 2];
 
         const step =
           paths.length === 1
@@ -75,29 +75,40 @@ const reducer = (draft: State, action: Actions) => {
           `uiSchema.${workName}.${key}.['ui:original-format']`,
         ) as ParameterFormat;
 
-        if(!get(step, fieldPath, undefined)) {
+        if (!get(step, fieldPath, undefined)) {
           const worksPath = `schema.properties.${workName}.properties.works.items`;
-          
-          const works = get<Step, string>(step, worksPath) as Record<string, unknown>[];
+
+          const works = get<Step, string>(step, worksPath) as Record<
+            string,
+            unknown
+          >[];
 
           assert(!!works, `no works at ${worksPath}`);
 
           const worksKey = paths.slice(-1)[0];
-          
-          const worksIndex = works.findIndex(work => get(work, `properties.${worksKey}`));
 
-          assert(typeof worksIndex !== 'undefined', `no field found in works at ${fieldPath}`);
+          const worksIndex = works.findIndex(work =>
+            get(work, `properties.${worksKey}`),
+          );
+
+          assert(
+            typeof worksIndex !== 'undefined',
+            `no field found in works at ${fieldPath}`,
+          );
 
           fieldPath = `${worksPath}[${worksIndex}].properties.${worksKey}.properties.${key}`;
 
           assert(!!get(step, fieldPath), `no field at ${fieldPath}`);
-         
-          originalFormat = get(step.uiSchema, `${workName}.works.items[${worksIndex}].${worksKey}.${key}.['ui:original-format']`);
+
+          originalFormat = get(
+            step.uiSchema,
+            `${workName}.works.items[${worksIndex}].${worksKey}.${key}.['ui:original-format']`,
+          );
         }
 
         if (options) {
           assert((options ?? []).length > 0, `no options at path ${workName}`);
-          if(originalFormat === 'multi-select') {
+          if (originalFormat === 'multi-select') {
             set(step, `${fieldPath}.items.enum`, options ?? []);
           } else {
             set(step, `${fieldPath}.enum`, options ?? []);
@@ -109,7 +120,6 @@ const reducer = (draft: State, action: Actions) => {
           `${fieldPath}.default`,
           originalFormat === 'multi-select' ? [value] : value,
         );
-
       }
       break;
     }
