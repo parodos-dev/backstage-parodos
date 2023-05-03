@@ -51,6 +51,8 @@ export function SelectWidget({
 
   useEffect(() => {
     if (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
       errorApi.post(new Error(`calling ${valueProviderName} failed`));
     }
   }, [error, errorApi, valueProviderName]);

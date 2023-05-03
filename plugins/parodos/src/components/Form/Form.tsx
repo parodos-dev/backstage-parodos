@@ -21,7 +21,7 @@ import { default as CoreForm } from '@rjsf/core-v5';
 import { useStyles } from './styles';
 import { type RegistryWidgetsType } from '@rjsf/utils';
 import { SelectWidget } from './widgets/SelectWidget';
-import type { UpdateSchema } from '../../hooks/useWorkflowDefinitionToJsonSchema/useWorkflowDefinitionToJsonSchema';
+import type { UpdateSchemaAction } from '../../hooks/useWorkflowDefinitionToJsonSchema/useWorkflowDefinitionToJsonSchema';
 
 type FormProps = Pick<
   JsonFormProps,
@@ -33,7 +33,7 @@ type FormProps = Pick<
     hideTitle?: boolean;
     stepLess?: boolean;
     children?: ReactNode;
-    updateSchema?: UpdateSchema;
+    updateSchema?: UpdateSchemaAction;
   };
 
 export function Form({

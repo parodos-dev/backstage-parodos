@@ -9,32 +9,34 @@ import { GetDefinitionFilter } from '../../stores/types';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import { useImmerReducer } from 'use-immer';
 import { useCallback, useEffect } from 'react';
-import { mockDependantDefinition } from '../../mocks/workflowDefinitions/dependant';
 import get from 'lodash.get';
 import set from 'lodash.set';
 import { assert } from 'assert-ts';
 import { ValueProviderResponse } from '../../models/valueProviderResponse';
 
-type UPDATE_SCHEMA = {
+type UpdateSchema = {
   type: 'UPDATE_SCHEMA';
   payload: { valueProviderResponse: ValueProviderResponse };
 };
 
-export type UpdateSchema = (
-  action: UPDATE_SCHEMA['payload']['valueProviderResponse'],
+export type UpdateSchemaAction = (
+  action: UpdateSchema['payload']['valueProviderResponse'],
 ) => void;
 
 type Actions =
   | {
       type: 'INITIALIZE';
-      payload: { definition: WorkflowDefinition; updateSchema: UpdateSchema };
+      payload: {
+        definition: WorkflowDefinition;
+        updateSchema: UpdateSchemaAction;
+      };
     }
-  | UPDATE_SCHEMA;
+  | UpdateSchema;
 
 type State = {
   formSchema: FormSchema;
   initialized: boolean;
-  updateSchema?: UpdateSchema;
+  updateSchema?: UpdateSchemaAction;
 };
 
 export const reducer = (draft: State, action: Actions) => {
@@ -42,7 +44,7 @@ export const reducer = (draft: State, action: Actions) => {
     case 'INITIALIZE': {
       if (!draft.initialized) {
         draft.formSchema = jsonSchemaFromWorkflowDefinition(
-          mockDependantDefinition,
+          action.payload.definition,
           draft.formSchema,
         );
 
@@ -124,7 +126,7 @@ export const reducer = (draft: State, action: Actions) => {
       break;
     }
     default: {
-      throw new Error('oh oh, we should not be here');
+      throw new Error(`unknown action type`);
     }
   }
 };

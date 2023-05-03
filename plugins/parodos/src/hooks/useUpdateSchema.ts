@@ -4,7 +4,7 @@ import useAsyncFn from 'react-use/lib/useAsyncFn';
 import { valueProviderResponseSchema } from '../models/valueProviderResponse';
 import { useStore } from '../stores/workflowStore/workflowStore';
 import * as urls from '../urls';
-import type { UpdateSchema } from './useWorkflowDefinitionToJsonSchema/useWorkflowDefinitionToJsonSchema';
+import type { UpdateSchemaAction } from './useWorkflowDefinitionToJsonSchema/useWorkflowDefinitionToJsonSchema';
 
 export interface UpdatePayload {
   key: string;
@@ -15,7 +15,7 @@ export interface UpdatePayload {
 interface UpdateSchemaProps {
   valueProviderName: string;
   workflowDefinitionName: string;
-  updateSchema?: UpdateSchema;
+  updateSchema?: UpdateSchemaAction;
 }
 
 export function useUpdateSchema({
