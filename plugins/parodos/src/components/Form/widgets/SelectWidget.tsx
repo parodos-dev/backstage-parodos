@@ -29,7 +29,7 @@ export function SelectWidget({
       if (valueProviderName) {
         assert(!!props.schema.title);
 
-        updateSchema([
+        await updateSchema([
           {
             key: props.schema.title,
             value,

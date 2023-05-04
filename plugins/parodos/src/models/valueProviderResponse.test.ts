@@ -1,7 +1,7 @@
 import { assert } from 'assert-ts';
 import { valueProviderResponseSchema } from './valueProviderResponse';
 
-describe('project', () => {
+describe('valueProviderResponseSchema', () => {
   it('parses the valueProviderResponse', () => {
     const result = valueProviderResponseSchema.safeParse([
       {
