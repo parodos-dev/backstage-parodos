@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { pluginRoutePrefix } from '../ParodosPage/navigationMap';
 import { WorkflowsTable } from './WorkflowsTable';
 import { useWorkflows } from './hooks/useWorkflows';
+import { errorApiRef, useApi } from '@backstage/core-plugin-api';
 
 const useStyles = makeStyles(_theme => ({
   titleIcon: {
@@ -43,13 +44,14 @@ export function WorkflowsOverview(): JSX.Element {
   const projectId = useStore(state => state.selectedProjectId);
   const selectProject = useStore(state => state.selectProject);
   const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
+  const errorApi = useApi(errorApiRef);
 
   const items = projects.map(project => ({
     label: project.name,
     value: project.id,
   }));
 
-  const [{ loading, error: _, value: workflows }, getWorkflows] =
+  const [{ loading, error, value: workflows }, getWorkflows] =
     useWorkflows(workflowsUrl);
 
   useEffect(() => {
@@ -57,6 +59,15 @@ export function WorkflowsOverview(): JSX.Element {
       getWorkflows(projectId);
     }
   }, [projectId, getWorkflows]);
+
+  useEffect(() => {
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+
+      errorApi.post(new Error('Start workflow failed'));
+    }
+  }, [errorApi, error]);
 
   return (
     <ParodosPage>

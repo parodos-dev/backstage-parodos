@@ -8,10 +8,8 @@ export function useWorkflows(
   const { fetch } = useApi(fetchApiRef);
 
   return useAsyncFn(
-    async (projectId: string) => {
-      const payload = { projectId };
-      // eslint-disable-next-line no-console
-      console.log(payload);
+    async (_projectId: string) => {
+      // const payload = { projectId };
 
       await new Promise(resolve => setTimeout(resolve, 1000));
 
