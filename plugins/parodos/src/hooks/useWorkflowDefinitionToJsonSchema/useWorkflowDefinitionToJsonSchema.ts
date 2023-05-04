@@ -154,10 +154,7 @@ export function useWorkflowDefinitionToJsonSchema(
   );
 
   useEffect(() => {
-    const definition = getWorkDefinitionBy(
-      filterType,
-      workflowDefinition,
-    ) as WorkflowDefinition;
+    const definition = getWorkDefinitionBy(filterType, workflowDefinition);
 
     dispatch({
       type: 'INITIALIZE',
