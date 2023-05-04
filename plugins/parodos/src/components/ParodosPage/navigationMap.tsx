@@ -5,9 +5,11 @@ export const pluginRoutePrefix = '/parodos';
 
 export const navigationMap = [
   { label: 'Projects', routes: ['/project-overview'], icon: <ProjectsIcon /> },
+  // TODO Hide `Workflows` tab until https://github.com/parodos-dev/parodos/pull/294 is merged
+  // { label: 'Workflows', routes: ['/workflows'], icon: <AssessmentIcon /> },
   {
     label: 'Assessment',
-    routes: ['/workflow', '/onboarding/'],
+    routes: ['/onboarding/'],
     icon: <AssessmentIcon />,
   },
 

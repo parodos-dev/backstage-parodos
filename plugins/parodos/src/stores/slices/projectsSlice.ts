@@ -17,7 +17,13 @@ export const createProjectsSlice: StateCreator<
   hasProjects() {
     return get().projects.length > 0;
   },
+  selectProject(id: string) {
+    set(state => {
+      state.selectedProjectId = id;
+    });
+  },
   projects: [],
+  selectedProjectId: undefined,
   async fetchProjects(fetch: FetchApi['fetch']) {
     set(state => {
       state.projectsLoading = true;
@@ -27,7 +33,12 @@ export const createProjectsSlice: StateCreator<
       const response = await fetch(`${get().baseUrl}${urls.Projects}`);
       const projectsResponse = await response.json();
 
-      const projects = projectsResponse.map(projectSchema.parse) as Project[];
+      if ('error' in projectsResponse) {
+        throw new Error(`${projectsResponse.error}: ${projectsResponse.path}`);
+      }
+
+      const projects = (projectsResponse?.map(projectSchema.parse) ??
+        []) as Project[];
 
       const existing = new Set(get().projects.map(p => p.id));
 

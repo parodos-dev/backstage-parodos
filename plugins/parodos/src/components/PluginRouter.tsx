@@ -5,12 +5,14 @@ import { Notification } from './notification';
 import { Workflow } from './workflow/Workflow';
 import { Onboarding } from './workflow/onboarding/Onboarding';
 import { WorkFlowDetail } from './workflow/workflowDetail/WorkFlowDetail';
+import { WorkflowsOverview } from './workflow/WorkflowsOverview';
 
 export const PluginRouter = () => (
   <Routes>
     <Route path="/" element={<ProjectOverviewPage />} />
     <Route path="/project-overview" element={<ProjectOverviewPage />} />
-    <Route path="/workflow" element={<Workflow />} />
+    <Route path="/workflows" element={<WorkflowsOverview />} />
+    <Route path="/onboarding" element={<Workflow />} />
     <Route path="/notification" element={<Notification />} />
     <Route
       path="/onboarding/:projectId/:workflowName/new/"
