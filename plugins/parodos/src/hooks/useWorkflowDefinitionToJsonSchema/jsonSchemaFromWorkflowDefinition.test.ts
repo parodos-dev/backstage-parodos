@@ -49,4 +49,36 @@ describe('jsonSchemaFromWorkflowDefinition', () => {
 
     expect(clusterName).toBe('clusterName');
   });
+
+  it('adds valueProviderName to the schema', () => {
+    const definition: WorkflowDefinition = {
+      id: 'ea22c6ed-b7d4-48bf-98d2-f7c1c78643d8',
+      name: 'prop',
+      type: 'INFRASTRUCTURE',
+      processingType: 'SEQUENTIAL',
+      author: null,
+      createDate: '2023-03-14T16:40:17.001+00:00',
+      modifyDate: '2023-03-14T16:40:17.001+00:00',
+      parameters: {
+        WORKFLOW_SELECT_SAMPLE: {
+          valueProviderName: 'complexWorkFlowValueProvider',
+          format: 'select',
+          description: 'Workflow select parameter sample',
+          type: 'string',
+          required: false,
+          enum: ['option1', 'option2'],
+        },
+      },
+      works: [],
+    };
+
+    const result = jsonSchemaFromWorkflowDefinition(definition, { steps: [] });
+
+    const valueProviderName = get(
+      result.steps[0]?.schema,
+      'properties.prop.properties.WORKFLOW_SELECT_SAMPLE.valueProviderName',
+    );
+
+    expect(valueProviderName).toBe('complexWorkFlowValueProvider');
+  });
 });

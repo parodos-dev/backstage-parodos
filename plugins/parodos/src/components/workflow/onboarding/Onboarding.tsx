@@ -52,7 +52,10 @@ export function Onboarding({ isNew }: OnboardingProps): JSX.Element {
 
   const workflowOption = searchParams.get('option');
 
-  const formSchema = useWorkflowDefinitionToJsonSchema(workflowName, 'byName');
+  const { formSchema, updateSchema } = useWorkflowDefinitionToJsonSchema(
+    workflowName,
+    'byName',
+  );
 
   const tasks = useGetWorkflowTasksForTopology(workflowName);
 
@@ -94,6 +97,7 @@ export function Onboarding({ isNew }: OnboardingProps): JSX.Element {
             formSchema={formSchema}
             onSubmit={startWorkflow}
             disabled={loading}
+            updateSchema={updateSchema}
             transformErrors={(errors: RJSFValidationError[]) => {
               return errors.map(err =>
                 err?.message?.includes('must match pattern')

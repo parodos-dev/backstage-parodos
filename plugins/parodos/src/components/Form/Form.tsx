@@ -21,6 +21,7 @@ import { default as CoreForm } from '@rjsf/core-v5';
 import { useStyles } from './styles';
 import { type RegistryWidgetsType } from '@rjsf/utils';
 import { SelectWidget } from './widgets/SelectWidget';
+import type { UpdateSchemaAction } from '../../hooks/useWorkflowDefinitionToJsonSchema/useWorkflowDefinitionToJsonSchema';
 
 type FormProps = Pick<
   JsonFormProps,
@@ -32,6 +33,7 @@ type FormProps = Pick<
     hideTitle?: boolean;
     stepLess?: boolean;
     children?: ReactNode;
+    updateSchema?: UpdateSchemaAction;
   };
 
 export function Form({
@@ -42,6 +44,7 @@ export function Form({
   disabled = false,
   className,
   transformErrors,
+  updateSchema,
   hideTitle = false,
   stepLess = false,
   children,
@@ -90,7 +93,7 @@ export function Form({
       showErrorList={false}
       onChange={handleChange}
       formData={formState}
-      formContext={{ formData: formState, form: formRef }}
+      formContext={{ formData: formState, form: formRef, updateSchema }}
       onSubmit={handleNext}
       schema={currentStep.schema}
       disabled={disabled}
