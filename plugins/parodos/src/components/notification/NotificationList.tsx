@@ -7,6 +7,11 @@ import {
   ButtonGroup,
   Chip,
   Grid,
+  makeStyles,
+  Paper,
+  Table,
+  TableBody,
+  TableContainer,
   TablePagination,
   Typography,
   withStyles,
@@ -20,6 +25,7 @@ import { useStore } from '../../stores/workflowStore/workflowStore';
 import { getHumanReadableDate } from '../converters';
 import { NotificationContent } from '../../models/notification';
 import { errorApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
+import { NotificationListItem } from './NotificationListItem';
 
 const ParodosAccordion = withStyles({
   root: {
@@ -42,12 +48,25 @@ const ParodosAccordion = withStyles({
   expanded: {},
 })(Accordion);
 
+const useStyles = makeStyles(theme => ({
+  root: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  tbody: {
+    '& tr:last-child': {
+      borderBottom: `1px solid ${theme.palette.grey.A100}`,
+    },
+  },
+}));
+
 const isNotificationArchived = (notification: NotificationContent) =>
   notification.folder === 'archive';
 const isNotificationRead = (notification: NotificationContent) =>
   notification.read;
 
 export const NotificationList: React.FC = () => {
+  const styles = useStyles();
   const notifications = useStore(state => state.notifications);
   const fetchNotifications = useStore(state => state.fetchNotifications);
   const deleteNotification = useStore(state => state.deleteNotification);
@@ -151,101 +170,30 @@ export const NotificationList: React.FC = () => {
             ]}
           />
         </Grid>
-        <Grid item>
-          {loading && <Progress />}
+      </Grid>
+      <TableContainer component="div" className={styles.root}>
+        <Table aria-label="notifications table">
+          <TableBody className={styles.tbody}>
+            {notifications.map(notification => (
+              <NotificationListItem
+                key={notification.id}
+                notification={notification}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
-          {(notifications || []).map(notification => (
-            <ParodosAccordion square key={notification.id}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1bh-content"
-                id={`panel1bh-header-${notification.id}`}
-              >
-                <Grid container direction="row" alignItems="center" spacing={2}>
-                  <Grid item xs={5}>
-                    <Typography variant="body2">
-                      {notification.subject}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={2}>
-                    <Typography variant="body2">
-                      {getHumanReadableDate(notification.createdOn)}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={2}>
-                    {(notification.tags || []).map((tag, idx) => (
-                      <Chip
-                        key={idx}
-                        label={tag}
-                        size="small"
-                        variant="outlined"
-                      />
-                    ))}
-                  </Grid>
-                  <Grid item xs={3}>
-                    <ButtonGroup>
-                      <Button
-                        variant="outlined"
-                        onClick={getOnDelete(notification)}
-                      >
-                        Delete
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        disabled={isNotificationArchived(notification)}
-                        onClick={getSetNotificationState(
-                          notification,
-                          'ARCHIVE',
-                        )}
-                      >
-                        Archive
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        disabled={isNotificationRead(notification)}
-                        onClick={getSetNotificationState(notification, 'READ')}
-                      >
-                        Read
-                      </Button>
-                    </ButtonGroup>
-                  </Grid>
-                </Grid>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Grid
-                  container
-                  direction="row"
-                  justifyContent="flex-start"
-                  spacing={2}
-                >
-                  <Grid item xs={6}>
-                    {notification.body}
-                  </Grid>
-                  <Grid item xs={2}>
-                    {notification.fromuser}
-                  </Grid>
-                  <Grid item xs={2}>
-                    {notification.messageType}
-                  </Grid>
-                  <Grid item xs={2}>
-                    {notification.folder}
-                  </Grid>
-                </Grid>
-              </AccordionDetails>
-            </ParodosAccordion>
-          ))}
-        </Grid>
-        <Grid container direction="row" justifyContent="center">
-          <TablePagination
-            component="div"
-            count={notificationsCount || 0}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={rowsPerPage}
-            rowsPerPageOptions={[5, 10, 20]}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Grid>
+      <Grid container direction="row" justifyContent="center">
+        <TablePagination
+          component="div"
+          count={notificationsCount || 0}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={[5, 10, 20]}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Grid>
     </>
   );
