@@ -98,7 +98,7 @@ export function WorkflowsOverview(): JSX.Element {
             variant="contained"
             type="button"
             color="primary"
-            onClick={() => navigate(`${pluginRoutePrefix}/workflows/new`)}
+            onClick={() => navigate(`${pluginRoutePrefix}/onboarding`)}
           >
             Add new project
           </Button>
