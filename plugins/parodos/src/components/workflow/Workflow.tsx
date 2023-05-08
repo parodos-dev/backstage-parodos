@@ -12,19 +12,16 @@ import { useGetProjectAssessmentSchema } from './useGetProjectAssessmentSchema';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 import { IChangeEvent } from '@rjsf/core-v5';
 import * as urls from '../../urls';
-import {
-  displayableWorkflowOptions,
-  workflowSchema,
-} from '../../models/workflow';
 import { type Project, projectSchema } from '../../models/project';
-import {
-  WorkflowOptionsList,
-  type WorkflowOptionsListItem,
-} from './WorkflowOptionsList';
+import { WorkflowOptionsList } from './WorkflowOptionsList';
 import { assert } from 'assert-ts';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import { ProjectPicker } from '../Form/extensions/ProjectPicker/ProjectPicker';
-import { taskDisplayName } from '../../utils/string';
+import {
+  ProjectsPayload,
+  useCreateWorkflow,
+  WorkflowOptionsListItem,
+} from './hooks/useCreateWorkflow';
 
 export type AssessmentStatusType = 'none' | 'inprogress' | 'complete';
 
@@ -43,20 +40,12 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-interface ProjectsPayload {
-  name?: string;
-  description?: string;
-  newProject: boolean;
-  project?: Project;
-}
-
 function isProject(input?: string | Project): input is Project {
   return typeof input !== 'string' && typeof input?.id === 'string';
 }
 
 export function Workflow(): JSX.Element {
   const projectsUrl = useStore(state => state.getApiUrl(urls.Projects));
-  const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
   const addProject = useStore(state => state.addProject);
   const hasProjects = useStore(state => state.hasProjects());
   const [isNewProject, setIsNewProject] = useState(true);
@@ -78,68 +67,8 @@ export function Workflow(): JSX.Element {
     workflows: { assessment, assessmentTask },
   });
 
-  const [{ error: createWorkflowError }, createWorkflow] = useAsyncFn(
-    async ({
-      workflowProject,
-      formData,
-    }: {
-      workflowProject: Project;
-      formData: Record<string, ProjectsPayload>;
-    }) => {
-      delete formData[assessmentTask].project;
-
-      // TODO:  task here should be dynamic based on assessment workflow definition
-      const workFlowResponse = await fetch(workflowsUrl, {
-        method: 'POST',
-        body: JSON.stringify({
-          projectId: workflowProject.id,
-          workFlowName: assessment,
-          works: [
-            {
-              type: 'TASK',
-              workName: assessmentTask,
-              arguments: Object.entries(formData[assessmentTask]).map(
-                ([key, value]) => {
-                  return {
-                    key: key,
-                    value: value,
-                  };
-                },
-              ),
-            },
-          ],
-        }),
-      });
-
-      if (!workFlowResponse.ok) {
-        throw new Error(workFlowResponse.statusText);
-      }
-
-      const workflow = workflowSchema.parse(await workFlowResponse.json());
-
-      const options = displayableWorkflowOptions.flatMap(option => {
-        const items = workflow.workFlowOptions[option];
-
-        if (items.length === 0) {
-          return items;
-        }
-
-        const optionType = taskDisplayName(option);
-
-        return items.map(item => ({
-          ...item,
-          type: optionType,
-        }));
-      }) as WorkflowOptionsListItem[];
-
-      setProject(workflowProject);
-
-      setAssessmentStatus('complete');
-
-      setWorkflowOptions(options);
-    },
-    [assessment, assessmentTask, fetch, workflowsUrl],
-  );
+  const [{ error: createWorkflowError, loading: _ }, createWorkflow] =
+    useCreateWorkflow({ assessment, assessmentTask });
 
   const [{ error: startAssessmentError }, startAssessment] = useAsyncFn(
     async ({ formData }: IChangeEvent<Record<string, ProjectsPayload>>) => {
@@ -160,7 +89,11 @@ export function Workflow(): JSX.Element {
 
       setProject(newProject);
 
-      await createWorkflow({ workflowProject: newProject, formData });
+      setWorkflowOptions(
+        await createWorkflow({ workflowProject: newProject, formData }),
+      );
+
+      setAssessmentStatus('complete');
 
       addProject(newProject);
     },

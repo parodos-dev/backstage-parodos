@@ -8,6 +8,7 @@ import {
   WorkflowStatus,
   WorkflowTask,
 } from '../../../models/workflowTaskSchema';
+import { pollWorkflowStatus } from './pollWorkflowStatus';
 import { getWorklfowsPayload } from './workflowsPayload';
 
 interface UseStartWorkflow {
@@ -47,6 +48,8 @@ export function useStartWorkflow({
 
       const response = (await data.json()) as WorkflowStatus;
       const executionId = response.workFlowExecutionId;
+
+      await pollWorkflowStatus(fetch, { workflowsUrl, executionId });
 
       navigate(
         `/parodos/onboarding/${projectId}/${executionId}/workflow-detail`,

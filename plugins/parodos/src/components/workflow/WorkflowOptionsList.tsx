@@ -13,9 +13,7 @@ import React from 'react';
 import { useCommonStyles } from '../../styles';
 import { Link } from 'react-router-dom';
 import { type Project } from '../../models/project';
-import { type WorkflowOptionItem } from '../../models/workflow';
-
-export type WorkflowOptionsListItem = WorkflowOptionItem & { type: string };
+import { WorkflowOptionsListItem } from './hooks/useCreateWorkflow';
 
 interface WorkflowOptionsListProps {
   project: Project;
