@@ -17,7 +17,11 @@ import { WorkflowOptionsList } from './WorkflowOptionsList';
 import { assert } from 'assert-ts';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import { ProjectPicker } from '../Form/extensions/ProjectPicker/ProjectPicker';
-import { ProjectsPayload, useCreateWorkflow, WorkflowOptionsListItem } from './hooks/useCreateWorkflow';
+import {
+  ProjectsPayload,
+  useCreateWorkflow,
+  WorkflowOptionsListItem,
+} from './hooks/useCreateWorkflow';
 
 export type AssessmentStatusType = 'none' | 'inprogress' | 'complete';
 
@@ -63,7 +67,8 @@ export function Workflow(): JSX.Element {
     workflows: { assessment, assessmentTask },
   });
 
-  const [{ error: createWorkflowError, loading: _ }, createWorkflow] = useCreateWorkflow({ assessment, assessmentTask })
+  const [{ error: createWorkflowError, loading: _ }, createWorkflow] =
+    useCreateWorkflow({ assessment, assessmentTask });
 
   const [{ error: startAssessmentError }, startAssessment] = useAsyncFn(
     async ({ formData }: IChangeEvent<Record<string, ProjectsPayload>>) => {
@@ -84,7 +89,9 @@ export function Workflow(): JSX.Element {
 
       setProject(newProject);
 
-      setWorkflowOptions(await createWorkflow({ workflowProject: newProject, formData }));
+      setWorkflowOptions(
+        await createWorkflow({ workflowProject: newProject, formData }),
+      );
 
       setAssessmentStatus('complete');
 

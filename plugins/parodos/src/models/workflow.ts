@@ -16,15 +16,15 @@ export const workflowOptions = z.object({
   continuationOptions: z.array(workflowOptionItem),
   otherOptions: z.array(workflowOptionItem),
   optionsAvailable: z.boolean(),
-})
+});
 
 export const workflowExecute = z.object({
   workFlowExecutionId: z.string(),
-})
+});
 
 export const workflowSchema = z.object({
   workFlowExecutionId: z.string(),
-  workFlowOptions: workflowOptions.partial()
+  workFlowOptions: workflowOptions.partial(),
 });
 
 export type Workflow = z.infer<typeof workflowSchema>;

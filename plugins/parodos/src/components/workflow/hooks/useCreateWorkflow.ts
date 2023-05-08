@@ -21,7 +21,13 @@ export interface ProjectsPayload {
   project?: Project;
 }
 
-export function useCreateWorkflow({assessment, assessmentTask}: { assessment: string; assessmentTask: string }) {
+export function useCreateWorkflow({
+  assessment,
+  assessmentTask,
+}: {
+  assessment: string;
+  assessmentTask: string;
+}) {
   const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
   const { fetch } = useApi(fetchApiRef);
 
@@ -64,8 +70,14 @@ export function useCreateWorkflow({assessment, assessmentTask}: { assessment: st
 
       const workflow = workflowExecute.parse(await workFlowResponse.json());
 
-      await pollWorkflowStatus(fetch, { workflowsUrl, executionId: workflow.workFlowExecutionId });
-      const workflowOptions = await getWorkflowOptions(fetch, { workflowsUrl, executionId: workflow.workFlowExecutionId });
+      await pollWorkflowStatus(fetch, {
+        workflowsUrl,
+        executionId: workflow.workFlowExecutionId,
+      });
+      const workflowOptions = await getWorkflowOptions(fetch, {
+        workflowsUrl,
+        executionId: workflow.workFlowExecutionId,
+      });
 
       const options = displayableWorkflowOptions.flatMap(option => {
         const items = workflowOptions[option] ?? [];
