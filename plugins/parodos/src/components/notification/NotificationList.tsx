@@ -26,6 +26,7 @@ import { getHumanReadableDate } from '../converters';
 import { NotificationContent } from '../../models/notification';
 import { errorApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { NotificationListItem } from './NotificationListItem';
+import { AccordionIcon } from '../icons/AccordionIcon';
 
 const ParodosAccordion = withStyles({
   root: {
@@ -57,6 +58,11 @@ const useStyles = makeStyles(theme => ({
     '& tr:last-child': {
       borderBottom: `1px solid ${theme.palette.grey.A100}`,
     },
+  },
+  accordionIcon: {
+    flexBasis: '4.5%',
+    position: 'relative',
+    top: '0.75rem',
   },
 }));
 
@@ -157,7 +163,7 @@ export const NotificationList: React.FC = () => {
 
   return (
     <>
-      <Grid container direction="column" spacing={2}>
+      <Grid container justifyContent="space-between" alignItems="center">
         <Grid item xs={3}>
           <Select
             onChange={onFilterNotifications}
@@ -169,6 +175,9 @@ export const NotificationList: React.FC = () => {
               { label: 'Archived', value: 'ARCHIVED' },
             ]}
           />
+        </Grid>
+        <Grid item xs={1} spacing={0} className={styles.accordionIcon}>
+          <AccordionIcon />
         </Grid>
       </Grid>
       <TableContainer component="div" className={styles.root}>

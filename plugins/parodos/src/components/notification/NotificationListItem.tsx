@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
 import Table from '@material-ui/core/Table';
@@ -17,11 +17,15 @@ const useRowStyles = makeStyles(theme => ({
   root: {
     backgroundColor: 'inherit !IMPORTANT',
     borderTop: `1px solid ${theme.palette.grey.A100}`,
+    '&$selected': {
+      backgroundColor: '#E8F1FA !IMPORTANT',
+    },
   },
   nested: {
     backgroundColor: 'inherit !IMPORTANT',
     borderBottom: `none !IMPORTANT`,
   },
+  selected: {},
 }));
 
 interface NotificationListItemProps {
@@ -31,12 +35,21 @@ interface NotificationListItemProps {
 export function NotificationListItem({
   notification,
 }: NotificationListItemProps): JSX.Element {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const styles = useRowStyles();
+
+  const clickHandler = useCallback(() => setOpen(!open), [open]);
 
   return (
     <>
-      <TableRow className={styles.root}>
+      <TableRow
+        classes={{
+          root: styles.root,
+          selected: styles.selected,
+        }}
+        onClick={clickHandler}
+        hover
+      >
         <TableCell padding="checkbox">
           <Checkbox />
         </TableCell>
@@ -54,7 +67,7 @@ export function NotificationListItem({
           <IconButton
             aria-label="expand row"
             size="small"
-            onClick={() => setOpen(!open)}
+            onClick={clickHandler}
           >
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
