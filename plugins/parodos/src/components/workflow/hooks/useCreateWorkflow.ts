@@ -1,14 +1,16 @@
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 import {
   displayableWorkflowOptions,
+  workflowExecute,
   WorkflowOptionItem,
-  workflowSchema,
 } from '../../../models/workflow';
 import * as urls from '../../../urls';
 import { taskDisplayName } from '../../../utils/string';
 import { type Project } from '../../../models/project';
 import { useStore } from '../../../stores/workflowStore/workflowStore';
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
+import { getWorkflowOptions } from './getWorkflowOptions';
+import { pollWorkflowStatus } from './pollWorkflowStatus';
 
 export type WorkflowOptionsListItem = WorkflowOptionItem & { type: string };
 
@@ -34,7 +36,6 @@ export function useCreateWorkflow({assessment, assessmentTask}: { assessment: st
       delete formData[assessmentTask].project;
 
       // TODO:  task here should be dynamic based on assessment workflow definition
-      // TODO Return execution id
       const workFlowResponse = await fetch(workflowsUrl, {
         method: 'POST',
         body: JSON.stringify({
@@ -61,10 +62,13 @@ export function useCreateWorkflow({assessment, assessmentTask}: { assessment: st
         throw new Error(workFlowResponse.statusText);
       }
 
-      const workflow = workflowSchema.parse(await workFlowResponse.json());
+      const workflow = workflowExecute.parse(await workFlowResponse.json());
+
+      await pollWorkflowStatus(fetch, { workflowsUrl, executionId: workflow.workFlowExecutionId });
+      const workflowOptions = await getWorkflowOptions(fetch, { workflowsUrl, executionId: workflow.workFlowExecutionId });
 
       const options = displayableWorkflowOptions.flatMap(option => {
-        const items = workflow.workFlowOptions[option];
+        const items = workflowOptions[option] ?? [];
 
         if (items.length === 0) {
           return items;

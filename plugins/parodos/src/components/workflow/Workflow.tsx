@@ -63,7 +63,7 @@ export function Workflow(): JSX.Element {
     workflows: { assessment, assessmentTask },
   });
 
-  const [{ error: createWorkflowError }, createWorkflow] = useCreateWorkflow({ assessment, assessmentTask })
+  const [{ error: createWorkflowError, loading: _ }, createWorkflow] = useCreateWorkflow({ assessment, assessmentTask })
 
   const [{ error: startAssessmentError }, startAssessment] = useAsyncFn(
     async ({ formData }: IChangeEvent<Record<string, ProjectsPayload>>) => {
