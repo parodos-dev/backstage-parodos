@@ -97,7 +97,7 @@ export const ProjectOverviewPage = (): JSX.Element => {
 
             <Grid item xs={12} md={8} lg={10}>
               <Link
-                to="/parodos/workflows/new"
+                to="/parodos/onboarding"
                 className={styles.addIcon}
                 data-testid="button-add-new-project"
               >

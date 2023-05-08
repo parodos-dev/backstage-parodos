@@ -47,7 +47,7 @@ describe('ProjectOverview', () => {
       expect(getByTestId('button-add-new-project')).toBeEnabled();
       expect(getByTestId('button-add-new-project')).toHaveAttribute(
         'href',
-        '/parodos/workflows/new',
+        '/parodos/onboarding',
       );
 
       // wait for re-render after receiving data

@@ -28,7 +28,7 @@ export const EmptyProjectsState = () => {
         assessment.
       </Typography>
       <Typography paragraph>
-        <Link to="/parodos/workflows/new">GET STARTED</Link>
+        <Link to="/parodos/onboarding">GET STARTED</Link>
       </Typography>
     </Box>
   );
