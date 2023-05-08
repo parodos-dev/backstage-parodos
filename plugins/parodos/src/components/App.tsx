@@ -5,11 +5,13 @@ import { Progress } from '@backstage/core-components';
 import { useStore } from '../stores/workflowStore/workflowStore';
 import { useInitializeStore } from '../hooks/useInitializeStore';
 import { PluginRouter } from './PluginRouter';
+import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 
 const POLLING_INTERVAL_MILLISECONDS = 5 * 1000;
 
 export const App = () => {
   const fetchProjects = useStore(state => state.fetchProjects);
+  const { fetch } = useApi(fetchApiRef);
 
   const { initialStateLoaded } = useInitializeStore();
 
