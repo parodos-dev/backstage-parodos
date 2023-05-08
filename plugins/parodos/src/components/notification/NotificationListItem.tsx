@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { type MouseEventHandler, useCallback, useState } from 'react';
 import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
 import Table from '@material-ui/core/Table';
@@ -30,10 +30,14 @@ const useRowStyles = makeStyles(theme => ({
 
 interface NotificationListItemProps {
   notification: NotificationContent;
+  checkboxClickHandler: MouseEventHandler<HTMLButtonElement>;
+  isSelected(id: string): boolean;
 }
 
 export function NotificationListItem({
   notification,
+  checkboxClickHandler,
+  isSelected,
 }: NotificationListItemProps): JSX.Element {
   const [open, setOpen] = useState(false);
   const styles = useRowStyles();
@@ -49,9 +53,10 @@ export function NotificationListItem({
         }}
         onClick={clickHandler}
         hover
+        selected={isSelected(notification.id)}
       >
         <TableCell padding="checkbox">
-          <Checkbox />
+          <Checkbox id={notification.id} onClick={checkboxClickHandler} />
         </TableCell>
         <TableCell
           component="th"

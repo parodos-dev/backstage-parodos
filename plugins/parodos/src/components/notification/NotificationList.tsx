@@ -1,53 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  type MouseEvent,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Button,
-  ButtonGroup,
-  Chip,
   Grid,
   makeStyles,
-  Paper,
   Table,
   TableBody,
   TableContainer,
   TablePagination,
-  Typography,
-  withStyles,
 } from '@material-ui/core';
-import { grey } from '@material-ui/core/colors';
-import { Progress, Select, SelectedItems } from '@backstage/core-components';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { SelectedItems } from '@backstage/core-components';
 
 import { NotificationOperation, NotificationState } from '../../stores/types';
 import { useStore } from '../../stores/workflowStore/workflowStore';
-import { getHumanReadableDate } from '../converters';
 import { NotificationContent } from '../../models/notification';
 import { errorApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { NotificationListItem } from './NotificationListItem';
-import { AccordionIcon } from '../icons/AccordionIcon';
-
-const ParodosAccordion = withStyles({
-  root: {
-    border: '1px solid',
-    borderLeftWidth: '0',
-    borderRightWidth: '0',
-    borderColor: grey.A100,
-    background: 'transparent',
-    boxShadow: 'none',
-    '&:not(:last-child)': {
-      borderBottom: 1,
-    },
-    '&:before': {
-      display: 'none',
-    },
-    '&$expanded': {
-      margin: 'auto',
-    },
-  },
-  expanded: {},
-})(Accordion);
+import { NotificationListHeader } from './NotificationListHeader';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -58,11 +30,6 @@ const useStyles = makeStyles(theme => ({
     '& tr:last-child': {
       borderBottom: `1px solid ${theme.palette.grey.A100}`,
     },
-  },
-  accordionIcon: {
-    flexBasis: '4.5%',
-    position: 'relative',
-    top: '0.75rem',
   },
 }));
 
@@ -80,6 +47,7 @@ export const NotificationList: React.FC = () => {
   const notificationsCount = useStore(state => state.notificationsCount);
   const loading = useStore(state => state.notificationsLoading);
   const { fetch } = useApi(fetchApiRef);
+  const [selected, setSelected] = useState<string[]>([]);
 
   const [notificationFilter, setNotificationFilter] =
     useState<NotificationState>('ALL');
@@ -107,8 +75,8 @@ export const NotificationList: React.FC = () => {
     setPage(0);
   };
 
-  const onFilterNotifications = (arg: SelectedItems) => {
-    setNotificationFilter(arg as NotificationState);
+  const filterChangeHandler = (filter: SelectedItems) => {
+    setNotificationFilter(filter as NotificationState);
     setPage(0);
   };
 
@@ -161,25 +129,33 @@ export const NotificationList: React.FC = () => {
       }
     };
 
+  const handleCheckBoxChange = useCallback(
+    (e: MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+
+      const { id, checked } = e.target as HTMLInputElement;
+
+      if (checked) {
+        setSelected(previous => [...previous, id]);
+      } else {
+        setSelected(previous => previous.filter(c => c !== id));
+      }
+    },
+    [],
+  );
+
+  const isSelected = useCallback(
+    (id: string) => selected.includes(id),
+    [selected],
+  );
+
   return (
     <>
-      <Grid container justifyContent="space-between" alignItems="center">
-        <Grid item xs={3}>
-          <Select
-            onChange={onFilterNotifications}
-            selected={notificationFilter}
-            label="Filter by"
-            items={[
-              { label: 'All', value: 'ALL' },
-              { label: 'Unread', value: 'UNREAD' },
-              { label: 'Archived', value: 'ARCHIVED' },
-            ]}
-          />
-        </Grid>
-        <Grid item xs={1} spacing={0} className={styles.accordionIcon}>
-          <AccordionIcon />
-        </Grid>
-      </Grid>
+      <NotificationListHeader
+        filterChangeHandler={filterChangeHandler}
+        filter={notificationFilter}
+        selected={selected.length}
+      />
       <TableContainer component="div" className={styles.root}>
         <Table aria-label="notifications table">
           <TableBody className={styles.tbody}>
@@ -187,6 +163,8 @@ export const NotificationList: React.FC = () => {
               <NotificationListItem
                 key={notification.id}
                 notification={notification}
+                checkboxClickHandler={handleCheckBoxChange}
+                isSelected={isSelected}
               />
             ))}
           </TableBody>
