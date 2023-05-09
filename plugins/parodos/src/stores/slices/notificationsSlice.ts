@@ -13,7 +13,6 @@ export const createNotificationsSlice: StateCreator<
   notificationsLoading: true,
   notificationsError: undefined,
   notifications: [],
-  notificationsCount: 0,
   async fetchNotifications({ state: stateParam, page, rowsPerPage, fetch }) {
     set(state => {
       state.notificationsLoading = true;
@@ -32,7 +31,6 @@ export const createNotificationsSlice: StateCreator<
 
       const notifications = (await response.json()) || ({} as Notifications);
 
-      const totalElements = notifications.page?.totalElements || 0;
       set(state => {
         unstable_batchedUpdates(() => {
           state.notifications =
@@ -41,7 +39,6 @@ export const createNotificationsSlice: StateCreator<
             notifications?._embedded?.notificationrecords ||
             [];
           state.notificationsLoading = false;
-          state.notificationsCount = totalElements;
         });
       });
     } catch (e: unknown) {

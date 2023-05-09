@@ -1,4 +1,9 @@
-import React, { type MouseEventHandler, useCallback, useState } from 'react';
+import React, {
+  type MouseEventHandler,
+  useCallback,
+  useState,
+  SyntheticEvent,
+} from 'react';
 import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
 import Table from '@material-ui/core/Table';
@@ -42,7 +47,14 @@ export function NotificationListItem({
   const [open, setOpen] = useState(false);
   const styles = useRowStyles();
 
-  const clickHandler = useCallback(() => setOpen(!open), [open]);
+  const clickHandler = useCallback(
+    (e: SyntheticEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setOpen(!open);
+    },
+    [open],
+  );
 
   return (
     <>
@@ -56,7 +68,11 @@ export function NotificationListItem({
         selected={isSelected(notification.id)}
       >
         <TableCell padding="checkbox">
-          <Checkbox id={notification.id} onClick={checkboxClickHandler} />
+          <Checkbox
+            id={notification.id}
+            onClick={checkboxClickHandler}
+            checked={isSelected(notification.id)}
+          />
         </TableCell>
         <TableCell
           component="th"

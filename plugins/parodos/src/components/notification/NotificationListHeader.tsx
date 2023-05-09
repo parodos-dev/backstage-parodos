@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import { Grid, IconButton, makeStyles, Typography } from '@material-ui/core';
 import { AccordionIcon } from '../icons/AccordionIcon';
 import { Select } from '@backstage/core-components';
@@ -15,6 +15,9 @@ interface NotificationListHeaderProps {
   filterChangeHandler: SelectProps['onChange'];
   filter: SelectProps['selected'];
   selected: number;
+  deleteHandler: MouseEventHandler<HTMLButtonElement>;
+  archiveHandler: MouseEventHandler<HTMLButtonElement>;
+  disableButtons?: boolean;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -32,20 +35,23 @@ const useStyles = makeStyles(theme => ({
     top: '0.75rem',
     display: 'flex',
     justifyContent: 'flex-end',
-    marginRight: theme.spacing(1)
+    marginRight: theme.spacing(1),
   },
   accordionIcon: {
     top: '1rem',
   },
   buttons: {
-    display: 'flex'
-  }
+    display: 'flex',
+  },
 }));
 
 export function NotificationListHeader({
   filterChangeHandler,
   filter,
   selected,
+  deleteHandler,
+  archiveHandler,
+  disableButtons,
 }: NotificationListHeaderProps): JSX.Element {
   const styles = useStyles();
   const view: View = selected === 0 ? 'Filter' : 'Actions';
@@ -88,10 +94,20 @@ export function NotificationListHeader({
           </span>
         ) : (
           <span className={styles.buttons}>
-            <IconButton aria-label="archive">
+            <IconButton
+              aria-label="archive"
+              onClick={archiveHandler}
+              disabled={disableButtons}
+            >
               <ArchiveIcon />
             </IconButton>
-            <IconButton size="medium" aria-label="delete" edge="end">
+            <IconButton
+              size="medium"
+              onClick={deleteHandler}
+              aria-label="delete"
+              edge="end"
+              disabled={disableButtons}
+            >
               <DeleteIcon />
             </IconButton>
           </span>
