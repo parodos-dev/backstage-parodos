@@ -1,9 +1,11 @@
 import React from 'react';
-import { Grid, makeStyles, Typography } from '@material-ui/core';
+import { Grid, IconButton, makeStyles, Typography } from '@material-ui/core';
 import { AccordionIcon } from '../icons/AccordionIcon';
 import { Select } from '@backstage/core-components';
 import { type PropsFromComponent } from '../types';
 import ArchiveIcon from '@material-ui/icons/Archive';
+import DeleteIcon from '@material-ui/icons/DeleteForever';
+import cs from 'classnames';
 
 type SelectProps = PropsFromComponent<typeof Select>;
 
@@ -19,14 +21,25 @@ const useStyles = makeStyles(theme => ({
   root: {
     minHeight: theme.spacing(12),
   },
-  accordionIcon: {
-    flexBasis: '4%',
+  selected: {
+    marginLeft: theme.spacing(2),
+    color: '#E20074',
     position: 'relative',
     top: '0.75rem',
   },
-  selected: {
-    marginLeft: theme.spacing(2),
+  actions: {
+    position: 'relative',
+    top: '0.75rem',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginRight: theme.spacing(1)
   },
+  accordionIcon: {
+    top: '1rem',
+  },
+  buttons: {
+    display: 'flex'
+  }
 }));
 
 export function NotificationListHeader({
@@ -62,14 +75,25 @@ export function NotificationListHeader({
           </Typography>
         )}
       </Grid>
-      <Grid item xs={1} className={styles.accordionIcon}>
+      <Grid
+        item
+        xs={1}
+        className={cs(styles.actions, {
+          [styles.accordionIcon]: view === 'Filter',
+        })}
+      >
         {view === 'Filter' ? (
           <span>
             <AccordionIcon />
           </span>
         ) : (
-          <span>
-            <ArchiveIcon />
+          <span className={styles.buttons}>
+            <IconButton aria-label="archive">
+              <ArchiveIcon />
+            </IconButton>
+            <IconButton size="medium" aria-label="delete" edge="end">
+              <DeleteIcon />
+            </IconButton>
           </span>
         )}
       </Grid>

@@ -9,10 +9,13 @@ import {
   makeStyles,
   Table,
   TableBody,
+  TableCell,
   TableContainer,
   TablePagination,
+  TableRow,
 } from '@material-ui/core';
 import { SelectedItems } from '@backstage/core-components';
+import cs from 'classnames';
 
 import { NotificationOperation, NotificationState } from '../../stores/types';
 import { useStore } from '../../stores/workflowStore/workflowStore';
@@ -22,6 +25,9 @@ import { NotificationListItem } from './NotificationListItem';
 import { NotificationListHeader } from './NotificationListHeader';
 
 const useStyles = makeStyles(theme => ({
+  container: {
+    maxWidth: theme.breakpoints.values.xl,
+  },
   root: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
@@ -150,38 +156,47 @@ export const NotificationList: React.FC = () => {
   );
 
   return (
-    <>
-      <NotificationListHeader
-        filterChangeHandler={filterChangeHandler}
-        filter={notificationFilter}
-        selected={selected.length}
-      />
-      <TableContainer component="div" className={styles.root}>
-        <Table aria-label="notifications table">
-          <TableBody className={styles.tbody}>
-            {notifications.map(notification => (
-              <NotificationListItem
-                key={notification.id}
-                notification={notification}
-                checkboxClickHandler={handleCheckBoxChange}
-                isSelected={isSelected}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      <Grid container direction="row" justifyContent="center">
-        <TablePagination
-          component="div"
-          count={notificationsCount || 0}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          rowsPerPageOptions={[5, 10, 20]}
-          onRowsPerPageChange={handleChangeRowsPerPage}
+    <Grid container direction="row">
+      <Grid item xs={12} xl={9} lg={11}>
+        <NotificationListHeader
+          filterChangeHandler={filterChangeHandler}
+          filter={notificationFilter}
+          selected={selected.length}
         />
+        <TableContainer component="div" className={styles.root}>
+          <Table aria-label="notifications table">
+            <TableBody className={styles.tbody}>
+              {notifications.length === 0 && (
+                <TableRow>
+                  <TableCell align="center" colSpan={4}>
+                    No notifications
+                  </TableCell>
+                </TableRow>
+              )}
+              {notifications.map(notification => (
+                <NotificationListItem
+                  key={notification.id}
+                  notification={notification}
+                  checkboxClickHandler={handleCheckBoxChange}
+                  isSelected={isSelected}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        <Grid container direction="row" justifyContent="center">
+          <TablePagination
+            component="div"
+            count={notificationsCount || 0}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            rowsPerPageOptions={[5, 10, 20]}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Grid>
       </Grid>
-    </>
+    </Grid>
   );
 };
