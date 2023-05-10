@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import {
   ContentHeader,
   EmptyState,
+  LinkButton,
   Progress,
   Select,
   SupportButton,
@@ -11,7 +12,6 @@ import { ParodosPage } from '../ParodosPage';
 import Star from '@material-ui/icons/StarOutline';
 import { Button, Grid, makeStyles } from '@material-ui/core';
 import { useStore } from '../../stores/workflowStore/workflowStore';
-import { useNavigate } from 'react-router-dom';
 import { pluginRoutePrefix } from '../ParodosPage/navigationMap';
 import { WorkflowsTable } from './WorkflowsTable';
 import { useWorkflows } from './hooks/useWorkflows';
@@ -35,11 +35,8 @@ const useStyles = makeStyles(_theme => ({
   },
 }));
 
-// TODO Remove project overview page and route
-
 export function WorkflowsOverview(): JSX.Element {
   const classes = useStyles();
-  const navigate = useNavigate();
   const projects = useStore(state => state.projects);
   const projectId = useStore(state => state.selectedProjectId);
   const selectProject = useStore(state => state.selectProject);
@@ -94,14 +91,15 @@ export function WorkflowsOverview(): JSX.Element {
           />
         </Grid>
         <Grid item className={classes.newProjectButton}>
-          <Button
+          <LinkButton
             variant="contained"
             type="button"
             color="primary"
-            onClick={() => navigate(`${pluginRoutePrefix}/onboarding`)}
+            data-testid="button-add-new-project"
+            to={`${pluginRoutePrefix}/onboarding`}
           >
             Add new project
-          </Button>
+          </LinkButton>
         </Grid>
       </Grid>
       {!loading && (!workflows || workflows.length === 0) && (

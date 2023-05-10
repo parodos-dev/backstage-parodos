@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { LinkButton, Table, TableColumn } from '@backstage/core-components';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import { pluginRoutePrefix } from '../ParodosPage/navigationMap';
-import { WorkflowStatus } from '../../models/workflowTaskSchema';
+import { ProjectWorkflow } from '../../models/workflowTaskSchema';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import {
   IconButton,
@@ -28,8 +28,8 @@ interface WorkflowTableData {
   processingType: 'SEQUENTIAL' | 'PARALLEL';
   status: string;
   author: string;
-  createDate: string;
-  modifyDate: string;
+  startDate: string;
+  endDate: string;
 }
 
 const columns: TableColumn<WorkflowTableData>[] = [
@@ -37,12 +37,12 @@ const columns: TableColumn<WorkflowTableData>[] = [
   { title: 'Type', field: 'type' },
   { title: 'Status', field: 'status' },
   { title: 'Author', field: 'author' },
-  { title: 'Created', field: 'createDate' },
-  { title: 'Modified', field: 'modifyDate' },
+  { title: 'Started', field: 'startDate' },
+  { title: 'Ended', field: 'endDate' },
   { title: 'View', field: 'view' },
 ];
 
-const statusMap: Record<WorkflowStatus['status'], string> = {
+const statusMap: Record<ProjectWorkflow['workStatus'], string> = {
   COMPLETED: 'Completed',
   FAILED: 'Failed',
   IN_PROGRESS: 'Running',
@@ -58,7 +58,7 @@ const formatDate = new Intl.DateTimeFormat('en', {
 
 export const WorkflowsTable: React.FC<{
   projectId: string;
-  workflows: WorkflowStatus[];
+  workflows: ProjectWorkflow[];
 }> = ({ projectId, workflows }) => {
   const classes = useStyles();
   const [search, setSearch] = useState('');
@@ -73,13 +73,11 @@ export const WorkflowsTable: React.FC<{
         name: workflow.workFlowName,
         type: definition?.type,
         processingType: definition?.processingType,
-        status: statusMap[workflow.status],
-        author: definition?.author,
-        createDate: definition?.createDate
-          ? formatDate.format(Date.parse(definition.createDate))
-          : undefined,
-        modifyDate: definition?.modifyDate
-          ? formatDate.format(Date.parse(definition.modifyDate))
+        status: statusMap[workflow.workStatus],
+        author: workflow.createUser,
+        startDate: formatDate.format(Date.parse(workflow.startDate)),
+        endDate: workflow.endDate
+          ? formatDate.format(Date.parse(workflow.endDate))
           : undefined,
       } as WorkflowTableData;
     })

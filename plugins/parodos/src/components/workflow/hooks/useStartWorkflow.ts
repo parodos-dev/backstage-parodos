@@ -4,17 +4,13 @@ import { type StrictRJSFSchema } from '@rjsf/utils';
 import { useNavigate } from 'react-router-dom';
 import useAsyncFn, { type AsyncFnReturn } from 'react-use/lib/useAsyncFn';
 import { WorkflowDefinition } from '../../../models/workflowDefinitionSchema';
-import {
-  WorkflowStatus,
-  WorkflowTask,
-} from '../../../models/workflowTaskSchema';
+import { WorkflowStatus } from '../../../models/workflowTaskSchema';
 import { getWorklfowsPayload } from './workflowsPayload';
 
 interface UseStartWorkflow {
   workflowsUrl: string;
   workflow: WorkflowDefinition;
   projectId: string;
-  tasks: WorkflowTask[];
   isNew: boolean;
 }
 
@@ -22,7 +18,6 @@ export function useStartWorkflow({
   workflowsUrl,
   workflow,
   projectId,
-  tasks,
   isNew,
 }: UseStartWorkflow): AsyncFnReturn<(e?: IChangeEvent) => Promise<void>> {
   const { fetch } = useApi(fetchApiRef);
@@ -51,10 +46,10 @@ export function useStartWorkflow({
       navigate(
         `/parodos/onboarding/${projectId}/${executionId}/workflow-detail`,
         {
-          state: { isNew: isNew, initTasks: tasks },
+          state: { isNew },
         },
       );
     },
-    [projectId, workflow, fetch, workflowsUrl, navigate, isNew, tasks],
+    [projectId, workflow, fetch, workflowsUrl, navigate, isNew],
   );
 }

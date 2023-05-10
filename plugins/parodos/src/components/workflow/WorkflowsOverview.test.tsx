@@ -4,8 +4,8 @@ import { render } from '@testing-library/react';
 import { useTheme } from '@material-ui/core';
 import { act } from 'react-dom/test-utils';
 
-import { ProjectOverviewPage } from './ProjectOverview';
 import { TestApp } from '../TestApp';
+import { WorkflowsOverview } from './WorkflowsOverview';
 
 jest.mock('@material-ui/core/styles', () => {
   const originalModule = jest.requireActual('@material-ui/core/styles');
@@ -16,7 +16,7 @@ jest.mock('@material-ui/core/styles', () => {
 });
 const useThemeMock = useTheme as jest.Mock;
 
-describe('ProjectOverview', () => {
+describe('WorkflowsOverview', () => {
   beforeEach(() => {
     useThemeMock.mockClear();
   });
@@ -35,7 +35,7 @@ describe('ProjectOverview', () => {
         wrapInTestApp(() => {
           return (
             <TestApp>
-              <ProjectOverviewPage />
+              <WorkflowsOverview />
             </TestApp>
           );
         }),

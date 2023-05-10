@@ -12,7 +12,6 @@ import { Button, Chip, makeStyles, Typography } from '@material-ui/core';
 import { useWorkflowDefinitionToJsonSchema } from '../../../hooks/useWorkflowDefinitionToJsonSchema/useWorkflowDefinitionToJsonSchema';
 import { assert } from 'assert-ts';
 import { Form } from '../../Form/Form';
-import { useGetWorkflowTasksForTopology } from '../../../hooks/useGetWorkflowDefinitions';
 import { type RJSFValidationError } from '@rjsf/utils';
 import * as urls from '../../../urls';
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
@@ -57,8 +56,6 @@ export function Onboarding({ isNew }: OnboardingProps): JSX.Element {
     'byName',
   );
 
-  const tasks = useGetWorkflowTasksForTopology(workflowName);
-
   assert(!!workflow);
   assert(!!projectId);
 
@@ -66,7 +63,6 @@ export function Onboarding({ isNew }: OnboardingProps): JSX.Element {
     workflowsUrl,
     workflow,
     projectId,
-    tasks,
     isNew,
   });
 
