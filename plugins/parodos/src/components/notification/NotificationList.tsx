@@ -18,7 +18,7 @@ import {
 } from '@material-ui/core';
 import type { NotificationsSlice, NotificationState } from '../../stores/types';
 import { NotificationContent } from '../../models/notification';
-import { errorApiRef, type FetchApi, fetchApiRef, useApi } from '@backstage/core-plugin-api';
+import { errorApiRef, type FetchApi, useApi } from '@backstage/core-plugin-api';
 import { NotificationListItem } from './NotificationListItem';
 import { NotificationListHeader } from './NotificationListHeader';
 import { Confirm } from './Confirm';
@@ -59,7 +59,7 @@ export function NotificationList({
   deleteNotification,
   notificationsLoading: loading,
   setNotificationState,
-  fetch
+  fetch,
 }: NotificationListProps): JSX.Element {
   const styles = useStyles();
   const [selectedNotifications, setSelectedNotifications] = useState<
