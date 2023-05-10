@@ -16,10 +16,9 @@ import {
   TablePagination,
   TableRow,
 } from '@material-ui/core';
-import { NotificationState } from '../../stores/types';
-import { useStore } from '../../stores/workflowStore/workflowStore';
+import type { NotificationsSlice, NotificationState } from '../../stores/types';
 import { NotificationContent } from '../../models/notification';
-import { errorApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
+import { errorApiRef, type FetchApi, fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { NotificationListItem } from './NotificationListItem';
 import { NotificationListHeader } from './NotificationListHeader';
 import { Confirm } from './Confirm';
@@ -45,14 +44,24 @@ const useStyles = makeStyles(theme => ({
 
 type Action = 'DELETE' | 'ARCHIVE';
 
-export function NotificationList(): JSX.Element {
+type NotificationListProps = Pick<
+  NotificationsSlice,
+  | 'notifications'
+  | 'fetchNotifications'
+  | 'deleteNotification'
+  | 'notificationsLoading'
+  | 'setNotificationState'
+> & { fetch: FetchApi['fetch'] };
+
+export function NotificationList({
+  notifications,
+  fetchNotifications,
+  deleteNotification,
+  notificationsLoading: loading,
+  setNotificationState,
+  fetch
+}: NotificationListProps): JSX.Element {
   const styles = useStyles();
-  const notifications = useStore(state => state.notifications);
-  const fetchNotifications = useStore(state => state.fetchNotifications);
-  const deleteNotification = useStore(state => state.deleteNotification);
-  const setNotificationState = useStore(state => state.setNotificationState);
-  const { fetch } = useApi(fetchApiRef);
-  const loading = useStore(state => state.notificationsLoading);
   const [selectedNotifications, setSelectedNotifications] = useState<
     NotificationContent[]
   >([]);
@@ -82,7 +91,7 @@ export function NotificationList(): JSX.Element {
       rowsPerPage,
       fetch,
     });
-  }, [fetch, notificationFilter, page, rowsPerPage, fetchNotifications]);
+  }, [notificationFilter, page, rowsPerPage, fetchNotifications, fetch]);
 
   const handleChangeRowsPerPage = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
