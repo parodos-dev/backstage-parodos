@@ -16,14 +16,14 @@ export const Notification = () => {
   const styles = useStyles();
 
   return (
-    <ParodosPage>
+    <ParodosPage stretch>
       <ContentHeader title="Notifications">
         <SupportButton title="Need help?">Lorem Ipsum</SupportButton>
       </ContentHeader>
       <Card className={styles.fullHeight}>
         <CardContent>
           <Grid container direction="row">
-            <Grid item xs={12}>
+            <Grid item xs={12} xl={9} lg={11}>
               <NotificationList />
             </Grid>
           </Grid>

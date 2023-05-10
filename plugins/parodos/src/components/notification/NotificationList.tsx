@@ -51,8 +51,8 @@ export function NotificationList(): JSX.Element {
   const fetchNotifications = useStore(state => state.fetchNotifications);
   const deleteNotification = useStore(state => state.deleteNotification);
   const setNotificationState = useStore(state => state.setNotificationState);
-  const loading = useStore(state => state.notificationsLoading);
   const { fetch } = useApi(fetchApiRef);
+  const loading = useStore(state => state.notificationsLoading);
   const [selectedNotifications, setSelectedNotifications] = useState<
     NotificationContent[]
   >([]);
@@ -76,7 +76,12 @@ export function NotificationList(): JSX.Element {
   };
 
   useEffect(() => {
-    fetchNotifications({ state: notificationFilter, page, rowsPerPage, fetch });
+    fetchNotifications({
+      filter: notificationFilter,
+      page,
+      rowsPerPage,
+      fetch,
+    });
   }, [fetch, notificationFilter, page, rowsPerPage, fetchNotifications]);
 
   const handleChangeRowsPerPage = (
@@ -128,7 +133,7 @@ export function NotificationList(): JSX.Element {
 
           await fetchNotifications({
             fetch,
-            state: notificationFilter,
+            filter: notificationFilter,
             page,
             rowsPerPage,
           });
@@ -189,72 +194,73 @@ export function NotificationList(): JSX.Element {
   return (
     <>
       {loading && <Progress />}
-      <Grid container direction="row">
-        <Grid item xs={12} xl={9} lg={11}>
-          <NotificationListHeader
-            filterChangeHandler={filterChangeHandler}
-            filter={notificationFilter}
-            selected={selectedNotifications.length}
-            archiveHandler={archiveNotificationsHandler}
-            deleteHandler={deleteNotificationsHandler}
-          />
-          <Confirm
-            open={dialogOpen}
-            content={`${action === 'ARCHIVE' ? 'archive' : 'delete'} ${
-              selectedNotifications.length
-            } notification(s)`}
-            closeHandler={() => setOpenDialog(false)}
-            noHandler={() => setOpenDialog(false)}
-            yesHandler={dialogYesHandler}
-          />
-          {showAlert && (
-            <Dialog
-              open={showAlert}
-              onClose={() => setShowAlert(false)}
-              aria-labelledby="alert-dialog-title"
-              aria-describedby="alert-dialog-description"
-            >
-              <DialogContent>
-                <Alert onClose={() => setShowAlert(false)}>{`successfully ${
-                  action === 'ARCHIVE' ? 'archived' : 'deleted'
-                }`}</Alert>
-              </DialogContent>
-            </Dialog>
-          )}
-          <TableContainer component="div" className={styles.root}>
-            <Table aria-label="notifications table">
-              <TableBody className={styles.tbody}>
-                {notifications.length === 0 && (
-                  <TableRow>
-                    <TableCell align="center" colSpan={4}>
-                      No notifications
-                    </TableCell>
-                  </TableRow>
-                )}
-                {notifications.map(notification => (
-                  <NotificationListItem
-                    key={notification.id}
-                    notification={notification}
-                    checkboxClickHandler={handleCheckBoxClick}
-                    isSelected={isSelected}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+      <NotificationListHeader
+        filterChangeHandler={filterChangeHandler}
+        filter={notificationFilter}
+        selected={selectedNotifications.length}
+        archiveHandler={archiveNotificationsHandler}
+        deleteHandler={deleteNotificationsHandler}
+      />
+      <Confirm
+        open={dialogOpen}
+        content={`${action === 'ARCHIVE' ? 'archive' : 'delete'} ${
+          selectedNotifications.length
+        } notification(s)`}
+        closeHandler={() => setOpenDialog(false)}
+        noHandler={() => setOpenDialog(false)}
+        yesHandler={dialogYesHandler}
+      />
+      {showAlert && (
+        <Dialog
+          open={showAlert}
+          onClose={() => setShowAlert(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogContent>
+            <Alert onClose={() => setShowAlert(false)}>{`successfully ${
+              action === 'ARCHIVE' ? 'archived' : 'deleted'
+            }`}</Alert>
+          </DialogContent>
+        </Dialog>
+      )}
+      <TableContainer
+        component="div"
+        classes={{
+          root: styles.root,
+        }}
+      >
+        <Table aria-label="notifications table">
+          <TableBody className={styles.tbody}>
+            {notifications.length === 0 && (
+              <TableRow>
+                <TableCell align="center" colSpan={4}>
+                  No notifications
+                </TableCell>
+              </TableRow>
+            )}
+            {notifications.map(notification => (
+              <NotificationListItem
+                key={notification.id}
+                notification={notification}
+                checkboxClickHandler={handleCheckBoxClick}
+                isSelected={isSelected}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
-          <Grid container direction="row" justifyContent="center">
-            <TablePagination
-              component="div"
-              count={notifications.length ?? 0}
-              page={page}
-              onPageChange={handleChangePage}
-              rowsPerPage={rowsPerPage}
-              rowsPerPageOptions={[5, 10, 20]}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </Grid>
-        </Grid>
+      <Grid container direction="row" justifyContent="center">
+        <TablePagination
+          component="div"
+          count={notifications.length ?? 0}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={[5, 10, 20]}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Grid>
     </>
   );

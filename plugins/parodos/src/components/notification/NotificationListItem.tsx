@@ -17,6 +17,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Box } from '@material-ui/core';
 import { getHumanReadableDate } from '../converters';
 import Checkbox from '@material-ui/core/Checkbox';
+import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
+import { useStore } from '../../stores/workflowStore/workflowStore';
+import cs from 'classnames';
 
 const useRowStyles = makeStyles(theme => ({
   root: {
@@ -25,12 +28,31 @@ const useRowStyles = makeStyles(theme => ({
     '&$selected': {
       backgroundColor: '#E8F1FA !IMPORTANT',
     },
+    '& [role="cell"]': {
+      fontWeight: 600,
+    },
+    '&.read [role="cell"]': {
+      fontWeight: 400,
+    },
+    '& [role="cell"]:first-of-type': {
+      width: '50%',
+      paddingLeft: 0,
+    },
+    '& [role="cell"]:nth-child(3)': {
+      width: 'auto',
+    },
+    '& [role="cell"]:nth-child(4)': {
+      width: '2rem',
+    },
   },
   nested: {
     backgroundColor: 'inherit !IMPORTANT',
     borderBottom: `none !IMPORTANT`,
   },
   selected: {},
+  body: {
+    fontWeight: 800,
+  },
 }));
 
 interface NotificationListItemProps {
@@ -46,14 +68,32 @@ export function NotificationListItem({
 }: NotificationListItemProps): JSX.Element {
   const [open, setOpen] = useState(false);
   const styles = useRowStyles();
+  const { fetch } = useApi(fetchApiRef);
+  const setNotificationState = useStore(state => state.setNotificationState);
+  const [read, setRead] = useState(notification.read);
+
+  const markNotificationRead = useCallback(async () => {
+    if (read) {
+      return;
+    }
+
+    await setNotificationState({
+      id: notification.id,
+      newState: 'READ',
+      fetch,
+    });
+
+    setRead(true);
+  }, [fetch, notification.id, read, setNotificationState]);
 
   const clickHandler = useCallback(
-    (e: SyntheticEvent) => {
+    async (e: SyntheticEvent) => {
       e.preventDefault();
       e.stopPropagation();
       setOpen(!open);
+      await markNotificationRead();
     },
-    [open],
+    [markNotificationRead, open],
   );
 
   return (
@@ -63,6 +103,7 @@ export function NotificationListItem({
           root: styles.root,
           selected: styles.selected,
         }}
+        className={cs(read && 'read')}
         onClick={clickHandler}
         hover
         selected={isSelected(notification.id)}
@@ -74,17 +115,13 @@ export function NotificationListItem({
             checked={isSelected(notification.id)}
           />
         </TableCell>
-        <TableCell
-          component="th"
-          scope="row"
-          style={{ width: '50%', paddingLeft: 0 }}
-        >
+        <TableCell component="th" scope="row">
           {notification.subject}
         </TableCell>
-        <TableCell style={{ width: 'auto' }}>
+        <TableCell component="th">
           {getHumanReadableDate(notification.createdOn)}
         </TableCell>
-        <TableCell padding="none" style={{ width: '2rem' }}>
+        <TableCell padding="none" component="td">
           <IconButton
             aria-label="expand row"
             size="small"

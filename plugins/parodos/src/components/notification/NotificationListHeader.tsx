@@ -23,6 +23,9 @@ interface NotificationListHeaderProps {
 const useStyles = makeStyles(theme => ({
   root: {
     minHeight: theme.spacing(12),
+    '&.actions': {
+      backgroundColor: theme.palette.background.default,
+    },
   },
   selected: {
     marginLeft: theme.spacing(2),
@@ -61,7 +64,7 @@ export function NotificationListHeader({
       container
       justifyContent="space-between"
       alignItems="center"
-      className={styles.root}
+      className={cs(styles.root, view === 'Actions' && 'actions')}
     >
       <Grid item xs={3}>
         {view === 'Filter' ? (

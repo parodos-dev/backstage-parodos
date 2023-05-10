@@ -51,7 +51,7 @@ export interface NotificationsSlice {
   notifications: NotificationContent[];
   fetchNotifications(params: {
     fetch: FetchApi['fetch'];
-    state: NotificationState;
+    filter: NotificationState;
     page: number;
     rowsPerPage: number;
   }): Promise<void>;

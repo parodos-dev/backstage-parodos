@@ -13,7 +13,7 @@ export const createNotificationsSlice: StateCreator<
   notificationsLoading: true,
   notificationsError: undefined,
   notifications: [],
-  async fetchNotifications({ state: stateParam, page, rowsPerPage, fetch }) {
+  async fetchNotifications({ filter = 'ALL', page, rowsPerPage, fetch }) {
     set(state => {
       state.notificationsLoading = true;
     });
@@ -21,23 +21,19 @@ export const createNotificationsSlice: StateCreator<
     try {
       // TODO: we can leverage searchTerm param later
       let urlQuery = `?page=${page}&size=${rowsPerPage}&sort=NotificationMessage_createdOn,desc`;
-      if (stateParam && stateParam !== 'ALL') {
-        urlQuery += `&state=${stateParam}`;
+      if (filter !== 'ALL') {
+        urlQuery += `&state=${filter}`;
       }
 
       const response = await fetch(
         `${get().baseUrl}${urls.Notifications}${urlQuery}`,
       );
 
-      const notifications = (await response.json()) || ({} as Notifications);
+      const notifications = (await response.json()) as Notifications;
 
       set(state => {
         unstable_batchedUpdates(() => {
-          state.notifications =
-            notifications.content ||
-            /* Hack: response does not conform swagger, TODO: https://issues.redhat.com/browse/FLPATH-260 */
-            notifications?._embedded?.notificationrecords ||
-            [];
+          state.notifications = notifications.content ?? [];
           state.notificationsLoading = false;
         });
       });
