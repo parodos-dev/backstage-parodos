@@ -1,7 +1,7 @@
 import React from 'react';
 import { ContentHeader, SupportButton } from '@backstage/core-components';
 import { Card, CardContent, Grid, makeStyles } from '@material-ui/core';
-import { NotificationList } from './NotificationList';
+import { NotificationList } from './NotificationsList';
 import { ParodosPage } from '../ParodosPage';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';

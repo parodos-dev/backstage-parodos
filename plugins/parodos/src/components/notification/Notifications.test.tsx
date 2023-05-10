@@ -4,7 +4,7 @@ import {
   renderInTestApp,
   TestApiProvider,
 } from '@backstage/test-utils';
-import { NotificationList } from './NotificationList';
+import { NotificationList } from './NotificationsList';
 import { NotificationContent } from '../../models/notification';
 import { fetchApiRef } from '@backstage/core-plugin-api';
 

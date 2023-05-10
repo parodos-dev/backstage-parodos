@@ -19,8 +19,8 @@ import {
 import type { NotificationsSlice, NotificationState } from '../../stores/types';
 import { NotificationContent } from '../../models/notification';
 import { errorApiRef, type FetchApi, useApi } from '@backstage/core-plugin-api';
-import { NotificationListItem } from './NotificationListItem';
-import { NotificationListHeader } from './NotificationListHeader';
+import { NotificationListItem } from './NotificationsListItem';
+import { NotificationListHeader } from './NotificationsListHeader';
 import { Confirm } from './Confirm';
 import { Progress, SelectedItems } from '@backstage/core-components';
 import { assert } from 'assert-ts';
