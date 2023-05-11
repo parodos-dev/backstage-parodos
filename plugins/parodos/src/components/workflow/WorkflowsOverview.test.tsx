@@ -53,7 +53,7 @@ describe('WorkflowsOverview', () => {
       // wait for re-render after receiving data
       await findByText('myProject');
       expect(
-        container.querySelector('td[value="In progress"]'),
+        container.querySelector('td[data-testid="511da8ce-4df7-438b-a9ec-0130f14884bd \'Running\'"]'),
       ).toBeInTheDocument();
     });
   });

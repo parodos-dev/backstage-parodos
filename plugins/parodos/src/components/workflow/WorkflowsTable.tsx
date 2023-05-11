@@ -91,7 +91,7 @@ export const WorkflowsTable: React.FC<{
   return (
     <Table
       title={
-        <>
+        <span>
           <IconButton>
             <FilterListIcon />
           </IconButton>
@@ -102,7 +102,7 @@ export const WorkflowsTable: React.FC<{
           >
             Filters
           </Typography>
-        </>
+        </span>
       }
       onSearchChange={setSearch}
       options={{ paging: false }}
@@ -122,7 +122,7 @@ export const WorkflowsTable: React.FC<{
               </TableCell>
             );
           }
-          return <TableCell>{rowData[columnDef.field]}</TableCell>;
+          return <TableCell data-testid={`${rowData.id} '${rowData[columnDef.field]}'`}>{rowData[columnDef.field]}</TableCell>;
         },
       }}
     />
