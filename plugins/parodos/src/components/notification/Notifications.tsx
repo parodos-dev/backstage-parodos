@@ -43,7 +43,7 @@ export const Notification = () => {
   const styles = useStyles();
   const notifications = useStore(state => state.notifications);
   const fetchNotifications = useStore(state => state.fetchNotifications);
-  const deleteNotification = useStore(state => state.deleteNotification);
+  const deleteNotification = useStore(state => state.deleteNotifications);
   const setNotificationState = useStore(state => state.setNotificationState);
   const loading = useStore(state => state.notificationsLoading);
   const notificationsCount = useStore(state => state.notificationsCount);
@@ -59,7 +59,13 @@ export const Notification = () => {
       rowsPerPage: state.rowsPerPage,
       fetch,
     });
-  }, [fetchNotifications, state.page, state.rowsPerPage, state.notificationFilter, fetch]);
+  }, [
+    fetchNotifications,
+    state.page,
+    state.rowsPerPage,
+    state.notificationFilter,
+    fetch,
+  ]);
 
   const filterChangeHandler = (filter: SelectedItems) => {
     dispatch({
@@ -111,19 +117,26 @@ export const Notification = () => {
       }
 
       try {
-        for (const notificationId of state.selectedNotifications) {
-          if (state.action === 'DELETE') {
-            await deleteNotification({ fetch, id: notificationId });
-          } else {
+        if (state.action === 'DELETE') {
+          await deleteNotification({ fetch, ids: state.selectedNotifications });
+        } else {
+          for (const notificationId of state.selectedNotifications) {
             await setNotificationState({
               fetch,
               id: notificationId,
               newState: 'ARCHIVE',
             });
           }
-
-          dispatch({ type: 'RESET' });
         }
+
+        dispatch({ type: 'RESET' });
+
+        fetchNotifications({
+          filter: state.notificationFilter,
+          page: state.page,
+          rowsPerPage: state.rowsPerPage,
+          fetch,
+        });
       } catch (err) {
         errorApi.post(new Error(`Action failed`));
       }
@@ -132,9 +145,14 @@ export const Notification = () => {
       deleteNotification,
       dispatch,
       errorApi,
+      fetch,
+      fetchNotifications,
       loading,
       setNotificationState,
       state.action,
+      state.notificationFilter,
+      state.page,
+      state.rowsPerPage,
       state.selectedNotifications,
     ],
   );

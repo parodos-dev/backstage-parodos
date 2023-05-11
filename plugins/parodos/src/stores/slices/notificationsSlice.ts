@@ -47,15 +47,13 @@ export const createNotificationsSlice: StateCreator<
       });
     }
   },
-  async deleteNotification({ id, fetch }) {
+  async deleteNotifications({ ids, fetch }) {
     try {
-      await fetch(`${get().baseUrl}${urls.Notifications}/${id}`, {
-        method: 'DELETE',
-      });
-
-      set(state => {
-        state.notifications = state.notifications.filter(n => n.id !== id);
-      });
+      for (const id of ids) {
+        await fetch(`${get().baseUrl}${urls.Notifications}/${id}`, {
+          method: 'DELETE',
+        });
+      }
     } catch (e: unknown) {
       set(state => {
         // eslint-disable-next-line no-console

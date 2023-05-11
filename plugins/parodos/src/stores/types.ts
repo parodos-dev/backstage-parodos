@@ -56,9 +56,9 @@ export interface NotificationsSlice {
     page: number;
     rowsPerPage: number;
   }): Promise<void>;
-  deleteNotification(params: {
+  deleteNotifications(params: {
     fetch: FetchApi['fetch'];
-    id: string;
+    ids: string[];
   }): Promise<void>;
   setNotificationState(params: {
     fetch: FetchApi['fetch'];
