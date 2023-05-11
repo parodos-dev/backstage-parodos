@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { LinkButton, Table, TableColumn } from '@backstage/core-components';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import { pluginRoutePrefix } from '../ParodosPage/navigationMap';
 import { ProjectWorkflow } from '../../models/workflowTaskSchema';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import {
+  ClickAwayListener,
+  Grow,
   IconButton,
   makeStyles,
+  MenuItem,
+  MenuList,
+  Paper,
+  Popper,
   TableCell,
   Typography,
 } from '@material-ui/core';
@@ -43,9 +49,9 @@ const columns: TableColumn<WorkflowTableData>[] = [
 ];
 
 const statusMap: Record<ProjectWorkflow['workStatus'], string> = {
+  IN_PROGRESS: 'Running',
   COMPLETED: 'Completed',
   FAILED: 'Failed',
-  IN_PROGRESS: 'Running',
   PENDING: 'Pending',
   REJECTED: 'Aborted',
 };
@@ -60,11 +66,35 @@ export const WorkflowsTable: React.FC<{
   projectId: string;
   workflows: ProjectWorkflow[];
 }> = ({ projectId, workflows }) => {
+  const filterIconRef = useRef<HTMLButtonElement>(null);
   const classes = useStyles();
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<ProjectWorkflow['workStatus']>();
+  const [openFilter, setOpenFilter] = useState(false);
   const getWorkDefinitionBy = useStore(state => state.getWorkDefinitionBy);
 
+  const handleFilterToggle = () => setOpenFilter((prevOpen) => !prevOpen)
+  const handleFilterClose = (event: React.MouseEvent<Node, MouseEvent>) => {
+    if (filterIconRef.current && filterIconRef.current.contains(event.target as Node)) {
+      return;
+    }
+
+    setOpenFilter(false);
+  };
+  const handleChangeFilter = (event: React.MouseEvent<Node, MouseEvent>, filter?: ProjectWorkflow['workStatus']) => {
+    handleFilterClose(event);
+    setStatusFilter(filter);
+  }
+
+  const handleListKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      setOpenFilter(false);
+    }
+  }
+
   const data = workflows
+    .filter(workflow => statusFilter ? workflow.workStatus === statusFilter : true)
     .map(workflow => {
       const definition = getWorkDefinitionBy('byName', workflow.workFlowName);
 
@@ -87,12 +117,11 @@ export const WorkflowsTable: React.FC<{
         : true,
     );
 
-  // TODO Add FilterList icon actions (filter by status)
   return (
     <Table
       title={
         <span>
-          <IconButton>
+          <IconButton ref={filterIconRef} onClick={handleFilterToggle}>
             <FilterListIcon />
           </IconButton>
           <Typography
@@ -102,6 +131,27 @@ export const WorkflowsTable: React.FC<{
           >
             Filters
           </Typography>
+          <Popper open={openFilter} anchorEl={filterIconRef.current} role={undefined} transition>
+          {({ TransitionProps, placement }) => (
+            <Grow
+              {...TransitionProps}
+              style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
+            >
+              <Paper>
+                <ClickAwayListener onClickAway={handleFilterClose}>
+                  <MenuList autoFocusItem={openFilter} id="status-filter-list" onKeyDown={handleListKeyDown}>
+                    <MenuItem onClick={handleChangeFilter}>All</MenuItem>
+                    {
+                      (Object.keys(statusMap) as ProjectWorkflow['workStatus'][]).map((status) => (
+                        <MenuItem key={status} onClick={(e) => handleChangeFilter(e, status)}>{statusMap[status]}</MenuItem>
+                      ))
+                    }
+                  </MenuList>
+                </ClickAwayListener>
+              </Paper>
+            </Grow>
+          )}
+        </Popper>
         </span>
       }
       onSearchChange={setSearch}
