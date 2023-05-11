@@ -20,7 +20,6 @@ export const createNotificationsSlice: StateCreator<
     });
 
     try {
-      // TODO: we can leverage searchTerm param later
       let urlQuery = `?page=${page}&size=${rowsPerPage}&sort=NotificationMessage_createdOn,desc`;
       if (filter !== 'ALL') {
         urlQuery += `&state=${filter}`;
@@ -53,6 +52,10 @@ export const createNotificationsSlice: StateCreator<
       await fetch(`${get().baseUrl}${urls.Notifications}/${id}`, {
         method: 'DELETE',
       });
+
+      set(state => {
+        state.notifications = state.notifications.filter(n => n.id !== id);
+      });
     } catch (e: unknown) {
       set(state => {
         // eslint-disable-next-line no-console
@@ -69,6 +72,16 @@ export const createNotificationsSlice: StateCreator<
           method: 'PUT',
         },
       );
+
+      set(state => {
+        state.notifications = state.notifications.map(n => {
+          if (newState !== 'READ' && n.id !== id) {
+            return n;
+          }
+
+          return { ...n, read: true };
+        });
+      });
     } catch (e: unknown) {
       // eslint-disable-next-line no-console
       console.error('Error setting notification "', id, '" to: ', newState, e);

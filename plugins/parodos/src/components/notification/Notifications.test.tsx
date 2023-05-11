@@ -39,7 +39,6 @@ describe('<NotifiationList />', () => {
         <NotificationList
           notifications={notifications}
           notificationsLoading={notificationsLoading}
-          fetch={m.fetch}
           checkBoxClickHandler={checkBoxClickHandler}
           selectedNotificationIds={notifications.map(n => n.id)}
         />

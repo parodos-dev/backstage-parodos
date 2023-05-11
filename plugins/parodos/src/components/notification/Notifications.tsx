@@ -2,7 +2,6 @@ import React, {
   type MouseEvent,
   type ChangeEvent,
   useCallback,
-  useState,
   useEffect,
 } from 'react';
 import {
@@ -22,15 +21,15 @@ import {
 import { NotificationList } from './NotificationsList';
 import { ParodosPage } from '../ParodosPage';
 import { useStore } from '../../stores/workflowStore/workflowStore';
-import { errorApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
+import { errorApiRef, useApi } from '@backstage/core-plugin-api';
 import { NotificationState } from '../../stores/types';
 import { NotificationListHeader } from './NotificationsListHeader';
 import { Confirm } from './Confirm';
 import { Alert } from '@material-ui/lab';
 import DialogContent from '@material-ui/core/DialogContent';
 import { assert } from 'assert-ts';
-
-type Action = 'DELETE' | 'ARCHIVE';
+import { useImmerReducer } from 'use-immer';
+import { reducer, initialState } from './reducer';
 
 export const useStyles = makeStyles(_theme => ({
   fullHeight: {
@@ -48,65 +47,63 @@ export const Notification = () => {
   const setNotificationState = useStore(state => state.setNotificationState);
   const loading = useStore(state => state.notificationsLoading);
   const notificationsCount = useStore(state => state.notificationsCount);
-  const { fetch } = useApi(fetchApiRef);
-  const [notificationFilter, setNotificationFilter] =
-    useState<NotificationState>('ALL');
-  const [dialogOpen, setOpenDialog] = useState(false);
-  const [action, setAction] = useState<Action>('ARCHIVE');
-  const [showAlert, setShowAlert] = useState(false);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [selectedNotificationIds, setSelectedNotificationIds] = useState<
-    string[]
-  >([]);
+  const [state, dispatch] = useImmerReducer(reducer, initialState);
+
   const errorApi = useApi(errorApiRef);
 
   useEffect(() => {
     fetchNotifications({
-      filter: notificationFilter,
-      page,
-      rowsPerPage,
+      filter: state.notificationFilter,
+      page: state.page,
+      rowsPerPage: state.rowsPerPage,
       fetch,
     });
-  }, [notificationFilter, page, rowsPerPage, fetchNotifications, fetch]);
+  }, [
+    fetchNotifications,
+    state.page,
+    state.rowsPerPage,
+    state.notificationFilter,
+  ]);
 
   const filterChangeHandler = (filter: SelectedItems) => {
-    setNotificationFilter(filter as NotificationState);
-    setPage(0);
+    dispatch({
+      type: 'CHANGE_FILTER',
+      payload: { filter: filter as NotificationState },
+    });
   };
 
   const handleChangePage = (
     _event: MouseEvent<HTMLButtonElement> | null,
     newPage: number,
   ) => {
-    setPage(newPage);
+    dispatch({ type: 'CHANGE_PAGE', payload: { page: newPage } });
   };
 
   const handleChangeRowsPerPage = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    dispatch({
+      type: 'CHANGE_ROWS_PER_PAGE',
+      payload: { rows: Number(event.target.value) },
+    });
   };
 
   const archiveNotificationsHandler = useCallback(
     async (e: MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
 
-      setAction('ARCHIVE');
-      setOpenDialog(true);
+      dispatch({ type: 'ARCHIVE' });
     },
-    [],
+    [dispatch],
   );
 
   const deleteNotificationsHandler = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
 
-      setAction('DELETE');
-      setOpenDialog(true);
+      dispatch({ type: 'DELETE' });
     },
-    [],
+    [dispatch],
   );
 
   const dialogYesHandler = useCallback(
@@ -118,8 +115,8 @@ export const Notification = () => {
       }
 
       try {
-        for (const notificationId of selectedNotificationIds) {
-          if (action === 'DELETE') {
+        for (const notificationId of state.selectedNotifications) {
+          if (state.action === 'DELETE') {
             await deleteNotification({ fetch, id: notificationId });
           } else {
             await setNotificationState({
@@ -129,30 +126,20 @@ export const Notification = () => {
             });
           }
 
-          setOpenDialog(false);
-          setShowAlert(true);
-
-          setSelectedNotificationIds([]);
-
-          // await fetchNotifications({
-          //   fetch,
-          //   filter: notificationFilter,
-          //   page,
-          //   rowsPerPage,
-          // });
+          dispatch({ type: 'RESET' });
         }
       } catch (err) {
         errorApi.post(new Error(`Action failed`));
       }
     },
     [
-      action,
       deleteNotification,
+      dispatch,
       errorApi,
-      fetch,
       loading,
-      selectedNotificationIds,
       setNotificationState,
+      state.action,
+      state.selectedNotifications,
     ],
   );
 
@@ -166,13 +153,15 @@ export const Notification = () => {
 
       assert(!!notification, `no notification found for ${id}`);
 
-      if (checked) {
-        setSelectedNotificationIds(previous => [...previous, notification.id]);
-      } else {
-        setSelectedNotificationIds(previous => previous.filter(n => n !== id));
-      }
+      dispatch({
+        type: 'CHECK',
+        payload: {
+          notificationId: id,
+          checked,
+        },
+      });
     },
-    [notifications],
+    [dispatch, notifications],
   );
 
   return (
@@ -187,30 +176,32 @@ export const Notification = () => {
               {loading && <Progress />}
               <NotificationListHeader
                 filterChangeHandler={filterChangeHandler}
-                filter={notificationFilter}
-                selected={selectedNotificationIds.length}
+                filter={state.notificationFilter}
+                selected={state.selectedNotifications.length}
                 archiveHandler={archiveNotificationsHandler}
                 deleteHandler={deleteNotificationsHandler}
               />
               <Confirm
-                open={dialogOpen}
-                content={`${action === 'ARCHIVE' ? 'archive' : 'delete'} ${
-                  selectedNotificationIds.length
-                } notification(s)`}
-                closeHandler={() => setOpenDialog(false)}
-                noHandler={() => setOpenDialog(false)}
+                open={state.dialogOpen}
+                content={`${
+                  state.action === 'ARCHIVE' ? 'archive' : 'delete'
+                } ${state.selectedNotifications.length} notification(s)`}
+                closeHandler={() => dispatch({ type: 'CLOSE_DIALOG' })}
+                noHandler={() => dispatch({ type: 'CLOSE_DIALOG' })}
                 yesHandler={dialogYesHandler}
               />
-              {showAlert && (
+              {state.showAlert && (
                 <Dialog
-                  open={showAlert}
-                  onClose={() => setShowAlert(false)}
+                  open={state.showAlert}
+                  onClose={() => dispatch({ type: 'CLOSE_ALERT' })}
                   aria-labelledby="alert-dialog-title"
                   aria-describedby="alert-dialog-description"
                 >
                   <DialogContent>
-                    <Alert onClose={() => setShowAlert(false)}>{`successfully ${
-                      action === 'ARCHIVE' ? 'archived' : 'deleted'
+                    <Alert
+                      onClose={() => dispatch({ type: 'CLOSE_ALERT' })}
+                    >{`successfully ${
+                      state.action === 'ARCHIVE' ? 'archived' : 'deleted'
                     }`}</Alert>
                   </DialogContent>
                 </Dialog>
@@ -218,18 +209,17 @@ export const Notification = () => {
               <NotificationList
                 notifications={notifications}
                 notificationsLoading={loading}
-                fetch={fetch}
                 checkBoxClickHandler={checkBoxClickHandler}
-                selectedNotificationIds={selectedNotificationIds}
+                selectedNotificationIds={state.selectedNotifications}
               />
 
               <Grid container direction="row" justifyContent="center">
                 <TablePagination
                   component="div"
                   count={notificationsCount}
-                  page={page}
+                  page={state.page}
                   onPageChange={handleChangePage}
-                  rowsPerPage={rowsPerPage}
+                  rowsPerPage={state.rowsPerPage}
                   rowsPerPageOptions={[5, 10, 20]}
                   onRowsPerPageChange={handleChangeRowsPerPage}
                 />

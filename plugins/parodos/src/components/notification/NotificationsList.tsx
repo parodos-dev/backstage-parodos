@@ -8,7 +8,6 @@ import {
   TableRow,
 } from '@material-ui/core';
 import type { NotificationsSlice } from '../../stores/types';
-import { type FetchApi } from '@backstage/core-plugin-api';
 import { NotificationListItem } from './NotificationsListItem';
 
 const useStyles = makeStyles(theme => ({
@@ -30,7 +29,6 @@ type NotificationListProps = Pick<
   NotificationsSlice,
   'notifications' | 'notificationsLoading'
 > & {
-  fetch: FetchApi['fetch'];
   selectedNotificationIds: string[];
   checkBoxClickHandler: MouseEventHandler<HTMLButtonElement>;
 };
