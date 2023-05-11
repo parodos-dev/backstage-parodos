@@ -37,8 +37,7 @@ export function NotificationList({
   notifications,
   checkBoxClickHandler,
   selectedNotificationIds,
-}: // fetchNotifications,
-NotificationListProps): JSX.Element {
+}: NotificationListProps): JSX.Element {
   const styles = useStyles();
 
   const isSelected = useCallback(

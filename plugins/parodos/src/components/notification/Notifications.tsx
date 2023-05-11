@@ -68,12 +68,12 @@ export const Notification = () => {
   ]);
 
   useEffect(() => {
-    if(notifications.length > 0 || state.page === 0) {
+    if (notifications.length > 0 || state.page === 0) {
       return;
     }
 
-    dispatch({type: 'CHANGE_PAGE', payload: { page: state.page -1 }})
-  }, [dispatch, notifications.length, state.page])
+    dispatch({ type: 'CHANGE_PAGE', payload: { page: state.page - 1 } });
+  }, [dispatch, notifications.length, state.page]);
 
   const filterChangeHandler = (filter: SelectedItems) => {
     dispatch({
