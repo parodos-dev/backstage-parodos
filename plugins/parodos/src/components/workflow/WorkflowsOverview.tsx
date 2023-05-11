@@ -41,7 +41,9 @@ export function WorkflowsOverview(): JSX.Element {
   const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
   const errorApi = useApi(errorApiRef);
 
-  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(projects[0]?.id);
+  const [selectedProjectId, setSelectedProjectId] = useState<
+    string | undefined
+  >(projects[0]?.id);
 
   const items = projects.map(project => ({
     label: project.name,
@@ -92,7 +94,9 @@ export function WorkflowsOverview(): JSX.Element {
             placeholder={selectedProjectId ? undefined : 'Project name'}
             items={items}
             selected={selectedProjectId}
-            onChange={item => typeof item === 'string' && setSelectedProjectId(item)}
+            onChange={item =>
+              typeof item === 'string' && setSelectedProjectId(item)
+            }
           />
         </Grid>
         <Grid item className={classes.newProjectButton}>
@@ -129,7 +133,10 @@ export function WorkflowsOverview(): JSX.Element {
           <Grid item xs={12}>
             {loading && <Progress />}
             {workflows && workflows.length > 0 && selectedProjectId && (
-              <WorkflowsTable projectId={selectedProjectId} workflows={workflows} />
+              <WorkflowsTable
+                projectId={selectedProjectId}
+                workflows={workflows}
+              />
             )}
           </Grid>
         </Grid>

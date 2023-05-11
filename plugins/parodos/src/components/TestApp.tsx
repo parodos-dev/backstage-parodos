@@ -52,7 +52,10 @@ export const TestApp: React.FC = ({ children }) => {
         });
       }
 
-      if (input === `${MOCK_BASE_URL}/${MOCK_CONTEXT_URL}/workflows?projectId=511da8ce-4df7-438b-a9ec-0130f14884bd`) {
+      if (
+        input ===
+        `${MOCK_BASE_URL}/${MOCK_CONTEXT_URL}/workflows?projectId=511da8ce-4df7-438b-a9ec-0130f14884bd`
+      ) {
         return new Promise(resolve => {
           resolve(
             new Response(

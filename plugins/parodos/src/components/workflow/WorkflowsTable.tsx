@@ -98,32 +98,41 @@ export const WorkflowsTable: React.FC<{
   const filterIconRef = useRef<HTMLButtonElement>(null);
   const classes = useStyles();
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<ProjectWorkflow['workStatus']>();
+  const [statusFilter, setStatusFilter] =
+    useState<ProjectWorkflow['workStatus']>();
   const [openFilter, setOpenFilter] = useState(false);
   const getWorkDefinitionBy = useStore(state => state.getWorkDefinitionBy);
 
-  const handleFilterToggle = () => setOpenFilter((prevOpen) => !prevOpen)
+  const handleFilterToggle = () => setOpenFilter(prevOpen => !prevOpen);
   const handleFilterClose = (event: React.MouseEvent<Node, MouseEvent>) => {
-    if (filterIconRef.current && filterIconRef.current.contains(event.target as Node)) {
+    if (
+      filterIconRef.current &&
+      filterIconRef.current.contains(event.target as Node)
+    ) {
       return;
     }
 
     setOpenFilter(false);
   };
-  const handleChangeFilter = (event: React.MouseEvent<Node, MouseEvent>, filter?: ProjectWorkflow['workStatus']) => {
+  const handleChangeFilter = (
+    event: React.MouseEvent<Node, MouseEvent>,
+    filter?: ProjectWorkflow['workStatus'],
+  ) => {
     handleFilterClose(event);
     setStatusFilter(filter);
-  }
+  };
 
   const handleListKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Tab') {
       event.preventDefault();
       setOpenFilter(false);
     }
-  }
+  };
 
   const data = workflows
-    .filter(workflow => statusFilter ? workflow.workStatus === statusFilter : true)
+    .filter(workflow =>
+      statusFilter ? workflow.workStatus === statusFilter : true,
+    )
     .map(workflow => {
       const definition = getWorkDefinitionBy('byName', workflow.workFlowName);
 
@@ -161,27 +170,46 @@ export const WorkflowsTable: React.FC<{
           >
             Filters
           </Typography>
-          <Popper open={openFilter} anchorEl={filterIconRef.current} role={undefined} transition>
-          {({ TransitionProps, placement }) => (
-            <Grow
-              {...TransitionProps}
-              style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
-            >
-              <Paper>
-                <ClickAwayListener onClickAway={handleFilterClose}>
-                  <MenuList autoFocusItem={openFilter} id="status-filter-list" onKeyDown={handleListKeyDown}>
-                    <MenuItem onClick={handleChangeFilter}>All</MenuItem>
-                    {
-                      (Object.keys(statusMap) as ProjectWorkflow['workStatus'][]).map((status) => (
-                        <MenuItem key={status} onClick={(e) => handleChangeFilter(e, status)}>{statusMap[status]}</MenuItem>
-                      ))
-                    }
-                  </MenuList>
-                </ClickAwayListener>
-              </Paper>
-            </Grow>
-          )}
-        </Popper>
+          <Popper
+            open={openFilter}
+            anchorEl={filterIconRef.current}
+            role={undefined}
+            transition
+          >
+            {({ TransitionProps, placement }) => (
+              <Grow
+                {...TransitionProps}
+                style={{
+                  transformOrigin:
+                    placement === 'bottom' ? 'center top' : 'center bottom',
+                }}
+              >
+                <Paper>
+                  <ClickAwayListener onClickAway={handleFilterClose}>
+                    <MenuList
+                      autoFocusItem={openFilter}
+                      id="status-filter-list"
+                      onKeyDown={handleListKeyDown}
+                    >
+                      <MenuItem onClick={handleChangeFilter}>All</MenuItem>
+                      {(
+                        Object.keys(
+                          statusMap,
+                        ) as ProjectWorkflow['workStatus'][]
+                      ).map(status => (
+                        <MenuItem
+                          key={status}
+                          onClick={e => handleChangeFilter(e, status)}
+                        >
+                          {statusMap[status]}
+                        </MenuItem>
+                      ))}
+                    </MenuList>
+                  </ClickAwayListener>
+                </Paper>
+              </Grow>
+            )}
+          </Popper>
         </span>
       }
       onSearchChange={setSearch}
@@ -204,10 +232,14 @@ export const WorkflowsTable: React.FC<{
           } else if (columnDef.field === 'status') {
             return (
               <TableCell data-testid={`${rowData.id} '${rowData.status}'`}>
-                <div className={`${classes.filterIcon} ${classes[rowData.statusColor as keyof typeof classes]}`} />
+                <div
+                  className={`${classes.filterIcon} ${
+                    classes[rowData.statusColor as keyof typeof classes]
+                  }`}
+                />
                 {rowData.status}
               </TableCell>
-            )
+            );
           }
           return <TableCell>{rowData[columnDef.field]}</TableCell>;
         },
