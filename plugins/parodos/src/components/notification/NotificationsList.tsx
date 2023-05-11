@@ -17,7 +17,6 @@ import {
   TableRow,
 } from '@material-ui/core';
 import type { NotificationsSlice, NotificationState } from '../../stores/types';
-import { NotificationContent } from '../../models/notification';
 import { errorApiRef, type FetchApi, useApi } from '@backstage/core-plugin-api';
 import { NotificationListItem } from './NotificationsListItem';
 import { NotificationListHeader } from './NotificationsListHeader';
@@ -62,8 +61,8 @@ export function NotificationList({
   fetch,
 }: NotificationListProps): JSX.Element {
   const styles = useStyles();
-  const [selectedNotifications, setSelectedNotifications] = useState<
-    NotificationContent[]
+  const [selectedNotificationIds, setSelectedNotificationIds] = useState<
+    string[]
   >([]);
   const [dialogOpen, setOpenDialog] = useState(false);
   const [action, setAction] = useState<Action>('ARCHIVE');
@@ -124,13 +123,13 @@ export function NotificationList({
       }
 
       try {
-        for (const notification of selectedNotifications) {
+        for (const notificationId of selectedNotificationIds) {
           if (action === 'DELETE') {
-            await deleteNotification({ fetch, id: notification.id });
+            await deleteNotification({ fetch, id: notificationId });
           } else {
             await setNotificationState({
               fetch,
-              id: notification.id,
+              id: notificationId,
               newState: 'ARCHIVE',
             });
           }
@@ -138,7 +137,7 @@ export function NotificationList({
           setOpenDialog(false);
           setShowAlert(true);
 
-          setSelectedNotifications([]);
+          setSelectedNotificationIds([]);
 
           await fetchNotifications({
             fetch,
@@ -161,7 +160,7 @@ export function NotificationList({
       notificationFilter,
       page,
       rowsPerPage,
-      selectedNotifications,
+      selectedNotificationIds,
       setNotificationState,
     ],
   );
@@ -187,17 +186,17 @@ export function NotificationList({
       assert(!!notification, `no notification found for ${id}`);
 
       if (checked) {
-        setSelectedNotifications(previous => [...previous, notification]);
+        setSelectedNotificationIds(previous => [...previous, notification.id]);
       } else {
-        setSelectedNotifications(previous => previous.filter(c => c.id !== id));
+        setSelectedNotificationIds(previous => previous.filter(n => n !== id));
       }
     },
     [notifications],
   );
 
   const isSelected = useCallback(
-    (id: string) => selectedNotifications.map(n => n.id).includes(id),
-    [selectedNotifications],
+    (id: string) => selectedNotificationIds.includes(id),
+    [selectedNotificationIds],
   );
 
   return (
@@ -206,14 +205,14 @@ export function NotificationList({
       <NotificationListHeader
         filterChangeHandler={filterChangeHandler}
         filter={notificationFilter}
-        selected={selectedNotifications.length}
+        selected={selectedNotificationIds.length}
         archiveHandler={archiveNotificationsHandler}
         deleteHandler={deleteNotificationsHandler}
       />
       <Confirm
         open={dialogOpen}
         content={`${action === 'ARCHIVE' ? 'archive' : 'delete'} ${
-          selectedNotifications.length
+          selectedNotificationIds.length
         } notification(s)`}
         closeHandler={() => setOpenDialog(false)}
         noHandler={() => setOpenDialog(false)}
