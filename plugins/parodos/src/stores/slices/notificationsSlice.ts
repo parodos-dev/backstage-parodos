@@ -14,34 +14,28 @@ export const createNotificationsSlice: StateCreator<
   notificationsError: undefined,
   notifications: [],
   notificationsCount: 0,
-  async fetchNotifications({ state: stateParam, page, rowsPerPage, fetch }) {
+  async fetchNotifications({ filter = 'ALL', page, rowsPerPage, fetch }) {
     set(state => {
       state.notificationsLoading = true;
     });
 
     try {
-      // TODO: we can leverage searchTerm param later
       let urlQuery = `?page=${page}&size=${rowsPerPage}&sort=NotificationMessage_createdOn,desc`;
-      if (stateParam && stateParam !== 'ALL') {
-        urlQuery += `&state=${stateParam}`;
+      if (filter !== 'ALL') {
+        urlQuery += `&state=${filter}`;
       }
 
       const response = await fetch(
         `${get().baseUrl}${urls.Notifications}${urlQuery}`,
       );
 
-      const notifications = (await response.json()) || ({} as Notifications);
+      const notifications = (await response.json()) as Notifications;
 
-      const totalElements = notifications.page?.totalElements || 0;
       set(state => {
         unstable_batchedUpdates(() => {
-          state.notifications =
-            notifications.content ||
-            /* Hack: response does not conform swagger, TODO: https://issues.redhat.com/browse/FLPATH-260 */
-            notifications?._embedded?.notificationrecords ||
-            [];
+          state.notifications = notifications.content ?? [];
           state.notificationsLoading = false;
-          state.notificationsCount = totalElements;
+          state.notificationsCount = notifications.totalElements ?? 0;
         });
       });
     } catch (e: unknown) {
@@ -53,11 +47,13 @@ export const createNotificationsSlice: StateCreator<
       });
     }
   },
-  async deleteNotification({ id, fetch }) {
+  async deleteNotifications({ ids, fetch }) {
     try {
-      await fetch(`${get().baseUrl}${urls.Notifications}/${id}`, {
-        method: 'DELETE',
-      });
+      for (const id of ids) {
+        await fetch(`${get().baseUrl}${urls.Notifications}/${id}`, {
+          method: 'DELETE',
+        });
+      }
     } catch (e: unknown) {
       set(state => {
         // eslint-disable-next-line no-console
@@ -74,6 +70,16 @@ export const createNotificationsSlice: StateCreator<
           method: 'PUT',
         },
       );
+
+      set(state => {
+        state.notifications = state.notifications.map(n => {
+          if (newState !== 'READ' && n.id !== id) {
+            return n;
+          }
+
+          return { ...n, read: true };
+        });
+      });
     } catch (e: unknown) {
       // eslint-disable-next-line no-console
       console.error('Error setting notification "', id, '" to: ', newState, e);

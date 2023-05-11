@@ -52,13 +52,13 @@ export interface NotificationsSlice {
   notificationsCount: number;
   fetchNotifications(params: {
     fetch: FetchApi['fetch'];
-    state: NotificationState;
+    filter: NotificationState;
     page: number;
     rowsPerPage: number;
   }): Promise<void>;
-  deleteNotification(params: {
+  deleteNotifications(params: {
     fetch: FetchApi['fetch'];
-    id: string;
+    ids: string[];
   }): Promise<void>;
   setNotificationState(params: {
     fetch: FetchApi['fetch'];

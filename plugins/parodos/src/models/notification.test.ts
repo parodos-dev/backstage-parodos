@@ -43,6 +43,7 @@ describe('notification', () => {
           ],
         },
       ],
+      totalElements: 1,
       page: {
         size: 1,
         totalElements: 1,
@@ -58,6 +59,7 @@ describe('notification', () => {
     const result = notificationsSchema.safeParse({
       links: [],
       content: [],
+      totalElements: 0,
       page: {
         size: 0,
         totalElements: 0,
