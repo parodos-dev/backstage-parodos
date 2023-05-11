@@ -26,6 +26,7 @@ export const notificationContentSchema = z.object({
 
 export const notificationsSchema = z.object({
   content: z.array(notificationContentSchema),
+  totalElements: z.number(),
   page: z.object({
     size: z.number(),
     totalElements: z.number(),

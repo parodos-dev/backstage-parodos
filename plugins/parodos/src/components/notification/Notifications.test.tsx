@@ -24,10 +24,8 @@ const notifications: NotificationContent[] = [
 
 describe('<NotifiationList />', () => {
   it('can render a list of notifications', async () => {
-    const fetchNotifications = jest.fn();
-    const deleteNotification = jest.fn();
+    const checkBoxClickHandler = jest.fn();
     const notificationsLoading = false;
-    const setNotificationState = jest.fn();
 
     const mockFetch = jest.fn().mockName('fetch');
     const m: MockFetchApi = new MockFetchApi({
@@ -39,12 +37,11 @@ describe('<NotifiationList />', () => {
     const { getByRole, getByText } = await renderInTestApp(
       <TestApiProvider apis={apis}>
         <NotificationList
-          fetchNotifications={fetchNotifications}
-          deleteNotification={deleteNotification}
           notifications={notifications}
           notificationsLoading={notificationsLoading}
-          setNotificationState={setNotificationState}
           fetch={m.fetch}
+          checkBoxClickHandler={checkBoxClickHandler}
+          selectedNotificationIds={notifications.map(n => n.id)}
         />
       </TestApiProvider>,
     );
