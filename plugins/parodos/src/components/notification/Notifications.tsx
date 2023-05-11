@@ -21,7 +21,7 @@ import {
 import { NotificationList } from './NotificationsList';
 import { ParodosPage } from '../ParodosPage';
 import { useStore } from '../../stores/workflowStore/workflowStore';
-import { errorApiRef, useApi } from '@backstage/core-plugin-api';
+import { errorApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { NotificationState } from '../../stores/types';
 import { NotificationListHeader } from './NotificationsListHeader';
 import { Confirm } from './Confirm';
@@ -48,6 +48,7 @@ export const Notification = () => {
   const loading = useStore(state => state.notificationsLoading);
   const notificationsCount = useStore(state => state.notificationsCount);
   const [state, dispatch] = useImmerReducer(reducer, initialState);
+  const { fetch } = useApi(fetchApiRef);
 
   const errorApi = useApi(errorApiRef);
 
@@ -58,12 +59,7 @@ export const Notification = () => {
       rowsPerPage: state.rowsPerPage,
       fetch,
     });
-  }, [
-    fetchNotifications,
-    state.page,
-    state.rowsPerPage,
-    state.notificationFilter,
-  ]);
+  }, [fetchNotifications, state.page, state.rowsPerPage, state.notificationFilter, fetch]);
 
   const filterChangeHandler = (filter: SelectedItems) => {
     dispatch({
