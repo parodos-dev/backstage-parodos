@@ -137,7 +137,7 @@ export const Notification = () => {
           }
         }
 
-        dispatch({ type: 'RESET' });
+        dispatch({ type: 'FINISH_ACTION' });
 
         fetchNotifications({
           filter: state.notificationFilter,
@@ -212,22 +212,20 @@ export const Notification = () => {
                 noHandler={() => dispatch({ type: 'CLOSE_DIALOG' })}
                 yesHandler={dialogYesHandler}
               />
-              {state.showAlert && (
-                <Dialog
-                  open={state.showAlert}
-                  onClose={() => dispatch({ type: 'CLOSE_ALERT' })}
-                  aria-labelledby="alert-dialog-title"
-                  aria-describedby="alert-dialog-description"
-                >
-                  <DialogContent>
-                    <Alert
-                      onClose={() => dispatch({ type: 'CLOSE_ALERT' })}
-                    >{`successfully ${
-                      state.action === 'ARCHIVE' ? 'archived' : 'deleted'
-                    }`}</Alert>
-                  </DialogContent>
-                </Dialog>
-              )}
+              <Dialog
+                open={state.showAlert}
+                onClose={() => dispatch({ type: 'CLOSE_ALERT' })}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+              >
+                <DialogContent>
+                  <Alert
+                    onClose={() => dispatch({ type: 'CLOSE_ALERT' })}
+                  >{`successfully ${
+                    state.action === 'ARCHIVE' ? 'archived' : 'deleted'
+                  }`}</Alert>
+                </DialogContent>
+              </Dialog>
               <NotificationList
                 notifications={notifications}
                 notificationsLoading={loading}

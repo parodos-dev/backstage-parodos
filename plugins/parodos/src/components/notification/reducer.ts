@@ -10,7 +10,7 @@ type Actions =
       type: 'ARCHIVE';
     }
   | {
-      type: 'RESET';
+      type: 'FINISH_ACTION';
     }
   | {
       type: 'CHECK';
@@ -70,9 +70,9 @@ export const reducer = (draft: State, action: Actions) => {
 
       break;
     }
-    case 'RESET': {
+    case 'FINISH_ACTION': {
       draft.dialogOpen = false;
-      draft.showAlert = false;
+      draft.showAlert = true;
       draft.selectedNotifications = [];
 
       break;
