@@ -17,13 +17,35 @@ import {
   Typography,
 } from '@material-ui/core';
 
-const useStyles = makeStyles(_theme => ({
+const useStyles = makeStyles(theme => ({
   searchInput: {
     marginLeft: 'auto',
     alignSelf: 'flex-end',
   },
   filterHeader: {
     marginLeft: '16px',
+  },
+  filterIcon: {
+    display: 'inline-block',
+    width: '8px',
+    height: '8px',
+    borderRadius: '50%',
+    marginRight: '8px',
+  },
+  runningStatus: {
+    backgroundColor: theme.palette.info.main,
+  },
+  completedStatus: {
+    backgroundColor: theme.palette.success.main,
+  },
+  failedStatus: {
+    backgroundColor: theme.palette.error.main,
+  },
+  pendingStatus: {
+    backgroundColor: theme.palette.warning.main,
+  },
+  abortedStatus: {
+    backgroundColor: theme.palette.grey[500],
   },
 }));
 
@@ -39,13 +61,12 @@ interface WorkflowTableData {
 }
 
 const columns: TableColumn<WorkflowTableData>[] = [
-  { title: 'Name', field: 'name', id: 'column-workflow-name' },
-  { title: 'Type', field: 'type' },
-  { title: 'Status', field: 'status' },
-  { title: 'Author', field: 'author' },
-  { title: 'Started', field: 'startDate' },
-  { title: 'Ended', field: 'endDate' },
-  { title: 'View', field: 'view' },
+  { title: 'Name', field: 'name', id: 'column-workflow-name', width: '20%' },
+  { title: 'Status', field: 'status', width: '10%' },
+  { title: 'initiated by', field: 'author', width: '10%' },
+  { title: 'Started', field: 'startDate', width: '10%' },
+  { title: 'Ended', field: 'endDate', width: '10%' },
+  { title: '', field: 'view', width: '5%' },
 ];
 
 const statusMap: Record<ProjectWorkflow['workStatus'], string> = {
@@ -54,6 +75,14 @@ const statusMap: Record<ProjectWorkflow['workStatus'], string> = {
   FAILED: 'Failed',
   PENDING: 'Pending',
   REJECTED: 'Aborted',
+};
+
+const statusColorMap: Record<ProjectWorkflow['workStatus'], string> = {
+  IN_PROGRESS: 'runningStatus',
+  COMPLETED: 'completedStatus',
+  FAILED: 'failedStatus',
+  PENDING: 'pendingStatus',
+  REJECTED: 'abortedStatus',
 };
 
 const formatDate = new Intl.DateTimeFormat('en', {
@@ -104,6 +133,7 @@ export const WorkflowsTable: React.FC<{
         type: definition?.type,
         processingType: definition?.processingType,
         status: statusMap[workflow.workStatus],
+        statusColor: statusColorMap[workflow.workStatus],
         author: workflow.createUser,
         startDate: formatDate.format(Date.parse(workflow.startDate)),
         endDate: workflow.endDate
@@ -165,14 +195,21 @@ export const WorkflowsTable: React.FC<{
               <TableCell>
                 <LinkButton
                   color="primary"
-                  to={`${pluginRoutePrefix}/onboarding/${projectId}/${rowData?.id}/workflow-detail`}
+                  to={`${pluginRoutePrefix}/onboarding/${projectId}/${rowData.id}/workflow-detail`}
                 >
                   VIEW
                 </LinkButton>
               </TableCell>
             );
+          } else if (columnDef.field === 'status') {
+            return (
+              <TableCell data-testid={`${rowData.id} '${rowData.status}'`}>
+                <div className={`${classes.filterIcon} ${classes[rowData.statusColor as keyof typeof classes]}`} />
+                {rowData.status}
+              </TableCell>
+            )
           }
-          return <TableCell data-testid={`${rowData.id} '${rowData[columnDef.field]}'`}>{rowData[columnDef.field]}</TableCell>;
+          return <TableCell>{rowData[columnDef.field]}</TableCell>;
         },
       }}
     />
