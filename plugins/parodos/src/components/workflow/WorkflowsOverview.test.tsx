@@ -1,8 +1,7 @@
 import React from 'react';
 import { wrapInTestApp } from '@backstage/test-utils';
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { useTheme } from '@material-ui/core';
-import { act } from 'react-dom/test-utils';
 
 import { TestApp } from '../TestApp';
 import { WorkflowsOverview } from './WorkflowsOverview';
@@ -29,29 +28,25 @@ describe('WorkflowsOverview', () => {
         },
       },
     });
-
-    await act(async () => {
-      const rendered = render(
-        wrapInTestApp(() => {
-          return (
-            <TestApp>
-              <WorkflowsOverview />
-            </TestApp>
-          );
-        }),
-      );
-      const { getByTestId, findByText, container } = rendered;
-      expect(getByTestId('button-add-new-project').textContent).toBe(
-        'Add new project',
-      );
-      expect(getByTestId('button-add-new-project')).toBeEnabled();
-      expect(getByTestId('button-add-new-project')).toHaveAttribute(
-        'href',
-        '/parodos/onboarding',
-      );
-
-      // wait for re-render after receiving data
-      await findByText('myProject');
+    const rendered = render(
+      wrapInTestApp(() => {
+        return (
+          <TestApp>
+            <WorkflowsOverview />
+          </TestApp>
+        );
+      }),
+    );
+    const { getByTestId, container } = rendered;
+    expect(getByTestId('button-add-new-project').textContent).toBe(
+      'Add new project',
+    );
+    expect(getByTestId('button-add-new-project')).toBeEnabled();
+    expect(getByTestId('button-add-new-project')).toHaveAttribute(
+      'href',
+      '/parodos/onboarding',
+    );
+    waitFor(() => {
       expect(
         container.querySelector(
           'td[data-testid="511da8ce-4df7-438b-a9ec-0130f14884bd \'Running\'"]',
