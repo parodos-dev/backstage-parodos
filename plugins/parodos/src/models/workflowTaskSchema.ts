@@ -46,6 +46,20 @@ export const workflowStatusSchema = z.object({
   status: transformedStatus,
 });
 
+export const projectWorkflowSchema = z.object({
+  workFlowExecutionId: z.string(),
+  projectId: z.string(),
+  workFlowName: z.string(),
+  workStatus: transformedStatus,
+  startDate: z.string(),
+  endDate: z.string().optional(),
+  createUser: z.string(),
+});
+
+export const projectWorkflowsSchema = z.array(projectWorkflowSchema);
+
+export type ProjectWorkflow = z.infer<typeof projectWorkflowSchema>;
+
 export type WorkflowTask = z.infer<typeof workflowTaskSchema>;
 
 export type WorkflowStatus = z.infer<typeof workflowStatusSchema>;

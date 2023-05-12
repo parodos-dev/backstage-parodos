@@ -1,4 +1,3 @@
-export * from './ProjectsIcon';
 export * from './AssessmentIcon';
 export * from './OnboardingIcon';
 export * from './DeployIcon';

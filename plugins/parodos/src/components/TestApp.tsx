@@ -53,6 +53,29 @@ export const TestApp: React.FC = ({ children }) => {
       }
 
       if (
+        input ===
+        `${MOCK_BASE_URL}/${MOCK_CONTEXT_URL}/workflows?projectId=511da8ce-4df7-438b-a9ec-0130f14884bd`
+      ) {
+        return new Promise(resolve => {
+          resolve(
+            new Response(
+              JSON.stringify([
+                {
+                  workFlowExecutionId: '511da8ce-4df7-438b-a9ec-0130f14884bd',
+                  projectId: '511da8ce-4df7-438b-a9ec-0130f14884bd',
+                  workFlowName: 'myWorkflow',
+                  workStatus: 'IN_PROGRESS',
+                  startDate: '2023-04-14T07:55:38.144+00:00',
+                  endDate: '2023-04-14T07:55:38.144+00:00',
+                  createUser: 'test',
+                },
+              ]),
+            ),
+          );
+        });
+      }
+
+      if (
         input === `${MOCK_BASE_URL}/${MOCK_CONTEXT_URL}/workflowdefinitions`
       ) {
         return new Promise(resolve => {

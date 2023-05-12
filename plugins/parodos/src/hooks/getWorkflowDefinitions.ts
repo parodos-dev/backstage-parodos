@@ -4,15 +4,10 @@ import {
 } from '../models/workflowDefinitionSchema';
 import { taskDisplayName } from '../utils/string';
 import { WorkflowTask } from '../models/workflowTaskSchema';
-import { useStore } from '../stores/workflowStore/workflowStore';
 
-export function useGetWorkflowTasksForTopology(
-  selectedWorkFlowName: string,
+export function getWorkflowTasksForTopology(
+  workflowDefinition: WorkflowDefinition,
 ): WorkflowTask[] {
-  const rootWorkflowDefinition = useStore(state =>
-    state.getWorkDefinitionBy('byName', selectedWorkFlowName),
-  );
-
   const result: WorkflowTask[] = [];
 
   result.push({
@@ -23,8 +18,7 @@ export function useGetWorkflowTasksForTopology(
     runAfterTasks: [],
   });
 
-  if (rootWorkflowDefinition)
-    addTasks(result, rootWorkflowDefinition, [result[0].id]);
+  if (workflowDefinition) addTasks(result, workflowDefinition, [result[0].id]);
 
   return result;
 }

@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ContentHeader,
   EmptyState,
+  LinkButton,
   Progress,
   Select,
   SupportButton,
@@ -11,7 +12,6 @@ import { ParodosPage } from '../ParodosPage';
 import Star from '@material-ui/icons/StarOutline';
 import { Button, Grid, makeStyles } from '@material-ui/core';
 import { useStore } from '../../stores/workflowStore/workflowStore';
-import { useNavigate } from 'react-router-dom';
 import { pluginRoutePrefix } from '../ParodosPage/navigationMap';
 import { WorkflowsTable } from './WorkflowsTable';
 import { useWorkflows } from './hooks/useWorkflows';
@@ -35,16 +35,15 @@ const useStyles = makeStyles(_theme => ({
   },
 }));
 
-// TODO Remove project overview page and route
-
 export function WorkflowsOverview(): JSX.Element {
   const classes = useStyles();
-  const navigate = useNavigate();
   const projects = useStore(state => state.projects);
-  const projectId = useStore(state => state.selectedProjectId);
-  const selectProject = useStore(state => state.selectProject);
   const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
   const errorApi = useApi(errorApiRef);
+
+  const [selectedProjectId, setSelectedProjectId] = useState<
+    string | undefined
+  >(projects[0]?.id);
 
   const items = projects.map(project => ({
     label: project.name,
@@ -55,10 +54,16 @@ export function WorkflowsOverview(): JSX.Element {
     useWorkflows(workflowsUrl);
 
   useEffect(() => {
-    if (projectId) {
-      getWorkflows(projectId);
+    if (selectedProjectId) {
+      getWorkflows(selectedProjectId);
     }
-  }, [projectId, getWorkflows]);
+  }, [selectedProjectId, getWorkflows]);
+
+  useEffect(() => {
+    if (!selectedProjectId && projects.length > 0) {
+      setSelectedProjectId(projects[0].id);
+    }
+  }, [projects, selectedProjectId]);
 
   useEffect(() => {
     if (error) {
@@ -84,24 +89,26 @@ export function WorkflowsOverview(): JSX.Element {
       </Grid>
       <Grid container spacing={3} direction="row">
         <Grid item xs={4}>
-          {/* TODO Tooltip? */}
           <Select
             label={'Select a project'.toUpperCase()}
-            placeholder={projectId ? undefined : 'Project name'}
+            placeholder={selectedProjectId ? undefined : 'Project name'}
             items={items}
-            selected={projectId}
-            onChange={item => typeof item === 'string' && selectProject(item)}
+            selected={selectedProjectId}
+            onChange={item =>
+              typeof item === 'string' && setSelectedProjectId(item)
+            }
           />
         </Grid>
         <Grid item className={classes.newProjectButton}>
-          <Button
+          <LinkButton
             variant="contained"
             type="button"
             color="primary"
-            onClick={() => navigate(`${pluginRoutePrefix}/onboarding`)}
+            data-testid="button-add-new-project"
+            to={`${pluginRoutePrefix}/onboarding`}
           >
             Add new project
-          </Button>
+          </LinkButton>
         </Grid>
       </Grid>
       {!loading && (!workflows || workflows.length === 0) && (
@@ -125,8 +132,11 @@ export function WorkflowsOverview(): JSX.Element {
         >
           <Grid item xs={12}>
             {loading && <Progress />}
-            {workflows && workflows.length > 0 && projectId && (
-              <WorkflowsTable projectId={projectId} workflows={workflows} />
+            {workflows && workflows.length > 0 && selectedProjectId && (
+              <WorkflowsTable
+                projectId={selectedProjectId}
+                workflows={workflows}
+              />
             )}
           </Grid>
         </Grid>

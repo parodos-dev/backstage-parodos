@@ -20,6 +20,7 @@ import {
 import { useStore } from '../../../stores/workflowStore/workflowStore';
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { Project } from '../../../models/project';
+import { getWorkflowTasksForTopology } from '../../../hooks/getWorkflowDefinitions';
 
 const useStyles = makeStyles(_theme => ({
   container: {
@@ -43,11 +44,11 @@ const useStyles = makeStyles(_theme => ({
 
 export const WorkFlowDetail = () => {
   const { projectId, executionId } = useParams();
-  const { state } = useLocation();
-  const { isNew, initTasks } = state;
+  const { isNew = false } = useLocation().state ?? {};
+  const getWorkDefinitionBy = useStore(state => state.getWorkDefinitionBy);
   const [selectedTask, setSelectedTask] = useState<string | null>('');
   const [workflowName, setWorkflowName] = useState<string>('');
-  const [allTasks, setAllTasks] = useState<WorkflowTask[]>(initTasks);
+  const [allTasks, setAllTasks] = useState<WorkflowTask[]>([]);
   const [log, setLog] = useState<string>(``);
   const [countlog, setCountlog] = useState<number>(0);
   const workflowsUrl = useStore(store => store.getApiUrl(urls.Workflows));
@@ -93,6 +94,9 @@ export const WorkFlowDetail = () => {
         (await data.json()) as WorkflowStatus,
       );
 
+      const workflow = getWorkDefinitionBy('byName', response.workFlowName);
+      if (workflow && allTasks.length === 0)
+        setAllTasks(getWorkflowTasksForTopology(workflow));
       setWorkflowName(response.workFlowName);
       updateWorks(response.works);
 
@@ -104,7 +108,7 @@ export const WorkFlowDetail = () => {
     }, 5000);
     updateWorksFromApi();
     return () => clearInterval(taskInterval);
-  }, [allTasks, executionId, fetch, workflowsUrl]);
+  }, [allTasks, executionId, fetch, workflowsUrl, getWorkDefinitionBy]);
 
   // update log of selected task regularly
   useEffect(() => {

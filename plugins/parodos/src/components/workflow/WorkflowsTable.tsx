@@ -1,23 +1,51 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { LinkButton, Table, TableColumn } from '@backstage/core-components';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import { pluginRoutePrefix } from '../ParodosPage/navigationMap';
-import { WorkflowStatus } from '../../models/workflowTaskSchema';
+import { ProjectWorkflow } from '../../models/workflowTaskSchema';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import {
+  ClickAwayListener,
+  Grow,
   IconButton,
   makeStyles,
+  MenuItem,
+  MenuList,
+  Paper,
+  Popper,
   TableCell,
   Typography,
 } from '@material-ui/core';
 
-const useStyles = makeStyles(_theme => ({
+const useStyles = makeStyles(theme => ({
   searchInput: {
     marginLeft: 'auto',
     alignSelf: 'flex-end',
   },
   filterHeader: {
     marginLeft: '16px',
+  },
+  filterIcon: {
+    display: 'inline-block',
+    width: '8px',
+    height: '8px',
+    borderRadius: '50%',
+    marginRight: '8px',
+  },
+  runningStatus: {
+    backgroundColor: theme.palette.info.main,
+  },
+  completedStatus: {
+    backgroundColor: theme.palette.success.main,
+  },
+  failedStatus: {
+    backgroundColor: theme.palette.error.main,
+  },
+  pendingStatus: {
+    backgroundColor: theme.palette.warning.main,
+  },
+  abortedStatus: {
+    backgroundColor: theme.palette.grey[500],
   },
 }));
 
@@ -28,26 +56,33 @@ interface WorkflowTableData {
   processingType: 'SEQUENTIAL' | 'PARALLEL';
   status: string;
   author: string;
-  createDate: string;
-  modifyDate: string;
+  startDate: string;
+  endDate: string;
 }
 
 const columns: TableColumn<WorkflowTableData>[] = [
-  { title: 'Name', field: 'name', id: 'column-workflow-name' },
-  { title: 'Type', field: 'type' },
-  { title: 'Status', field: 'status' },
-  { title: 'Author', field: 'author' },
-  { title: 'Created', field: 'createDate' },
-  { title: 'Modified', field: 'modifyDate' },
-  { title: 'View', field: 'view' },
+  { title: 'Name', field: 'name', id: 'column-workflow-name', width: '20%' },
+  { title: 'Status', field: 'status', width: '10%' },
+  { title: 'initiated by', field: 'author', width: '10%' },
+  { title: 'Started', field: 'startDate', width: '10%' },
+  { title: 'Ended', field: 'endDate', width: '10%' },
+  { title: '', field: 'view', width: '5%' },
 ];
 
-const statusMap: Record<WorkflowStatus['status'], string> = {
+const statusMap: Record<ProjectWorkflow['workStatus'], string> = {
+  IN_PROGRESS: 'Running',
   COMPLETED: 'Completed',
   FAILED: 'Failed',
-  IN_PROGRESS: 'Running',
   PENDING: 'Pending',
   REJECTED: 'Aborted',
+};
+
+const statusColorMap: Record<ProjectWorkflow['workStatus'], string> = {
+  IN_PROGRESS: 'runningStatus',
+  COMPLETED: 'completedStatus',
+  FAILED: 'failedStatus',
+  PENDING: 'pendingStatus',
+  REJECTED: 'abortedStatus',
 };
 
 const formatDate = new Intl.DateTimeFormat('en', {
@@ -58,13 +93,46 @@ const formatDate = new Intl.DateTimeFormat('en', {
 
 export const WorkflowsTable: React.FC<{
   projectId: string;
-  workflows: WorkflowStatus[];
+  workflows: ProjectWorkflow[];
 }> = ({ projectId, workflows }) => {
+  const filterIconRef = useRef<HTMLButtonElement>(null);
   const classes = useStyles();
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] =
+    useState<ProjectWorkflow['workStatus']>();
+  const [openFilter, setOpenFilter] = useState(false);
   const getWorkDefinitionBy = useStore(state => state.getWorkDefinitionBy);
 
+  const handleFilterToggle = () => setOpenFilter(prevOpen => !prevOpen);
+  const handleFilterClose = (event: React.MouseEvent<Node, MouseEvent>) => {
+    if (
+      filterIconRef.current &&
+      filterIconRef.current.contains(event.target as Node)
+    ) {
+      return;
+    }
+
+    setOpenFilter(false);
+  };
+  const handleChangeFilter = (
+    event: React.MouseEvent<Node, MouseEvent>,
+    filter?: ProjectWorkflow['workStatus'],
+  ) => {
+    handleFilterClose(event);
+    setStatusFilter(filter);
+  };
+
+  const handleListKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      setOpenFilter(false);
+    }
+  };
+
   const data = workflows
+    .filter(workflow =>
+      statusFilter ? workflow.workStatus === statusFilter : true,
+    )
     .map(workflow => {
       const definition = getWorkDefinitionBy('byName', workflow.workFlowName);
 
@@ -73,13 +141,12 @@ export const WorkflowsTable: React.FC<{
         name: workflow.workFlowName,
         type: definition?.type,
         processingType: definition?.processingType,
-        status: statusMap[workflow.status],
-        author: definition?.author,
-        createDate: definition?.createDate
-          ? formatDate.format(Date.parse(definition.createDate))
-          : undefined,
-        modifyDate: definition?.modifyDate
-          ? formatDate.format(Date.parse(definition.modifyDate))
+        status: statusMap[workflow.workStatus],
+        statusColor: statusColorMap[workflow.workStatus],
+        author: workflow.createUser,
+        startDate: formatDate.format(Date.parse(workflow.startDate)),
+        endDate: workflow.endDate
+          ? formatDate.format(Date.parse(workflow.endDate))
           : undefined,
       } as WorkflowTableData;
     })
@@ -89,12 +156,11 @@ export const WorkflowsTable: React.FC<{
         : true,
     );
 
-  // TODO Add FilterList icon actions (filter by status)
   return (
     <Table
       title={
-        <>
-          <IconButton>
+        <span>
+          <IconButton ref={filterIconRef} onClick={handleFilterToggle}>
             <FilterListIcon />
           </IconButton>
           <Typography
@@ -104,7 +170,47 @@ export const WorkflowsTable: React.FC<{
           >
             Filters
           </Typography>
-        </>
+          <Popper
+            open={openFilter}
+            anchorEl={filterIconRef.current}
+            role={undefined}
+            transition
+          >
+            {({ TransitionProps, placement }) => (
+              <Grow
+                {...TransitionProps}
+                style={{
+                  transformOrigin:
+                    placement === 'bottom' ? 'center top' : 'center bottom',
+                }}
+              >
+                <Paper>
+                  <ClickAwayListener onClickAway={handleFilterClose}>
+                    <MenuList
+                      autoFocusItem={openFilter}
+                      id="status-filter-list"
+                      onKeyDown={handleListKeyDown}
+                    >
+                      <MenuItem onClick={handleChangeFilter}>All</MenuItem>
+                      {(
+                        Object.keys(
+                          statusMap,
+                        ) as ProjectWorkflow['workStatus'][]
+                      ).map(status => (
+                        <MenuItem
+                          key={status}
+                          onClick={e => handleChangeFilter(e, status)}
+                        >
+                          {statusMap[status]}
+                        </MenuItem>
+                      ))}
+                    </MenuList>
+                  </ClickAwayListener>
+                </Paper>
+              </Grow>
+            )}
+          </Popper>
+        </span>
       }
       onSearchChange={setSearch}
       options={{ paging: false }}
@@ -117,10 +223,21 @@ export const WorkflowsTable: React.FC<{
               <TableCell>
                 <LinkButton
                   color="primary"
-                  to={`${pluginRoutePrefix}/onboarding/${projectId}/${rowData?.id}/workflow-detail`}
+                  to={`${pluginRoutePrefix}/onboarding/${projectId}/${rowData.id}/workflow-detail`}
                 >
                   VIEW
                 </LinkButton>
+              </TableCell>
+            );
+          } else if (columnDef.field === 'status') {
+            return (
+              <TableCell data-testid={`${rowData.id} '${rowData.status}'`}>
+                <div
+                  className={`${classes.filterIcon} ${
+                    classes[rowData.statusColor as keyof typeof classes]
+                  }`}
+                />
+                {rowData.status}
               </TableCell>
             );
           }
