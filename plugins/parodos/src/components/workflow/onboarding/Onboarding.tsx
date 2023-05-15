@@ -106,7 +106,7 @@ export function Onboarding({ isNew }: OnboardingProps): JSX.Element {
               variant="text"
               component={Link}
               color="primary"
-              to="/parodos/project-overview"
+              to="/parodos/workflows"
               className={styles.cancel}
             >
               Cancel and exit onboarding

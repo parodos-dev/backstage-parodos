@@ -6,6 +6,7 @@ import {
   WorkType,
 } from '../../models/workflowDefinitionSchema';
 import { mockDeepRecursiveWorks } from '../../mocks/workflowDefinitions/deepRecursiveWorks';
+import { mockTasksWithNoParams } from '../../mocks/workflowDefinitions/tasksWithNoParameters';
 
 describe('jsonSchemaFromWorkflowDefinition', () => {
   it('transforms a workflow definition with recursive works', () => {
@@ -80,5 +81,20 @@ describe('jsonSchemaFromWorkflowDefinition', () => {
     );
 
     expect(valueProviderName).toBe('complexWorkFlowValueProvider');
+  });
+
+  it('work items with no parameters and every child works has workType WORKFLOW', () => {
+    const result = jsonSchemaFromWorkflowDefinition(mockTasksWithNoParams, {
+      steps: [],
+    });
+
+    expect(result.steps).toHaveLength(1);
+
+    const stepUI = get(
+      result.steps[0]?.schema,
+      'properties.getSources.properties.works.items[0].properties.gitCloneTask.properties',
+    );
+
+    expect(Object.keys(stepUI ?? {})).toEqual(['credentials', 'uri', 'branch']);
   });
 });
