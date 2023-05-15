@@ -103,6 +103,23 @@ export function getUiSchema(type: ParameterFormat) {
 function* transformWorkToStep(work: WorkType) {
   const title = taskDisplayName(work.name); // TODO: task label would be good here
 
+  const childWorks = (work.works ?? []).filter(worksWithParameter);
+
+  const workHasUiElements =
+    Object.keys(work.parameters ?? {}).length > 0 ||
+    childWorks.filter(w => w.workType === 'TASK').length > 0;
+
+  if (!workHasUiElements) {
+    for (const childWork of childWorks) {
+      let childStep: Step;
+      for (childStep of transformWorkToStep(childWork)) {
+        yield childStep;
+      }
+    }
+
+    return;
+  }
+
   const schema: StrictRJSFSchema = {
     type: 'object',
     title,
@@ -169,9 +186,7 @@ function* transformWorkToStep(work: WorkType) {
     }
   }
 
-  const works = work.works ?? [];
-
-  if (works.length > 0) {
+  if (childWorks.length > 0) {
     assert(!!schema.properties);
 
     const key = Object.keys(schema.properties)[0];
@@ -183,8 +198,6 @@ function* transformWorkToStep(work: WorkType) {
     });
 
     set(uiSchema, `${key}.works.items`, []);
-
-    const childWorks = work.works ?? [];
 
     for (const [index, childWork] of childWorks.entries()) {
       let childStep: Step;
@@ -250,8 +263,11 @@ function worksWithParameter(work: WorkType): boolean {
     return Object.keys(work.parameters ?? {}).length > 0;
   }
 
-  for (const subWork of work.works ?? [])
-    if (worksWithParameter(subWork)) return true;
+  for (const subWork of work.works ?? []) {
+    if (worksWithParameter(subWork)) {
+      return true;
+    }
+  }
 
   return false;
 }
