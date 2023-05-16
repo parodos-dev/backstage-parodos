@@ -30,6 +30,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import { assert } from 'assert-ts';
 import { useImmerReducer } from 'use-immer';
 import { reducer, initialState } from './reducer';
+import { useEventSource } from '../../hooks/useEventSource';
 
 export const useStyles = makeStyles(_theme => ({
   fullHeight: {
@@ -42,7 +43,7 @@ export const useStyles = makeStyles(_theme => ({
 export const Notification = () => {
   const styles = useStyles();
   const notifications = useStore(state => state.notifications);
-  const fetchNotifications = useStore(state => state.fetchNotifications);
+  // const fetchNotifications = useStore(state => state.fetchNotifications);
   const deleteNotification = useStore(state => state.deleteNotifications);
   const setNotificationState = useStore(state => state.setNotificationState);
   const loading = useStore(state => state.notificationsLoading);
@@ -52,20 +53,24 @@ export const Notification = () => {
 
   const errorApi = useApi(errorApiRef);
 
-  useEffect(() => {
-    fetchNotifications({
-      filter: state.notificationFilter,
-      page: state.page,
-      rowsPerPage: state.rowsPerPage,
-      fetch,
-    });
-  }, [
-    fetchNotifications,
-    state.page,
-    state.rowsPerPage,
-    state.notificationFilter,
-    fetch,
-  ]);
+  const newNotifications = useEventSource('http://localhost:7007/api/sse/v2/notifications/eventstream');
+
+  console.log(newNotifications);
+
+  // useEffect(() => {
+  //   fetchNotifications({
+  //     filter: state.notificationFilter,
+  //     page: state.page,
+  //     rowsPerPage: state.rowsPerPage,
+  //     fetch,
+  //   });
+  // }, [
+  //   fetchNotifications,
+  //   state.page,
+  //   state.rowsPerPage,
+  //   state.notificationFilter,
+  //   fetch,
+  // ]);
 
   useEffect(() => {
     if (notifications.length > 0 || state.page === 0) {
@@ -139,12 +144,12 @@ export const Notification = () => {
 
         dispatch({ type: 'FINISH_ACTION' });
 
-        fetchNotifications({
-          filter: state.notificationFilter,
-          page: state.page,
-          rowsPerPage: state.rowsPerPage,
-          fetch,
-        });
+        // fetchNotifications({
+        //   filter: state.notificationFilter,
+        //   page: state.page,
+        //   rowsPerPage: state.rowsPerPage,
+        //   fetch,
+        // });
       } catch (err) {
         errorApi.post(new Error(`Action failed`));
       }
@@ -154,13 +159,9 @@ export const Notification = () => {
       dispatch,
       errorApi,
       fetch,
-      fetchNotifications,
       loading,
       setNotificationState,
       state.action,
-      state.notificationFilter,
-      state.page,
-      state.rowsPerPage,
       state.selectedNotifications,
     ],
   );

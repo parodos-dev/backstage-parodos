@@ -48,12 +48,13 @@ export type NotificationOperation = 'READ' | 'ARCHIVE';
 export interface NotificationsSlice {
   notifications: NotificationContent[];
   notificationsCount: number;
-  fetchNotifications(params: {
-    fetch: FetchApi['fetch'];
-    filter: NotificationState;
-    page: number;
-    rowsPerPage: number;
-  }): Promise<void>;
+  setNotifications(notifications: NotificationContent[]): void;
+  // fetchNotifications(params: {
+  //   fetch: FetchApi['fetch'];
+  //   filter: NotificationState;
+  //   page: number;
+  //   rowsPerPage: number;
+  // }): Promise<void>;
   deleteNotifications(params: {
     fetch: FetchApi['fetch'];
     ids: string[];
