@@ -8,19 +8,22 @@ import { NotificationList } from './NotificationsList';
 import { NotificationContent } from '../../models/notification';
 import { fetchApiRef } from '@backstage/core-plugin-api';
 
-const notifications: NotificationContent[] = [
-  {
-    id: '75bc63d7-5a7f-43be-92e9-a1b5a23e7952',
-    subject: 'subject',
-    createdOn: new Date('2023-05-10T13:40:15.202319Z'),
-    messageType: 'test-type',
-    body: 'test-body',
-    fromuser: 'test',
-    read: true,
-    tags: [],
-    folder: '',
-  },
-];
+const notifications: Map<string, NotificationContent> = new Map([
+  [
+    '75bc63d7-5a7f-43be-92e9-a1b5a23e7952',
+    {
+      id: '75bc63d7-5a7f-43be-92e9-a1b5a23e7952',
+      subject: 'subject',
+      createdOn: new Date('2023-05-10T13:40:15.202319Z'),
+      messageType: 'test-type',
+      body: 'test-body',
+      fromuser: 'test',
+      read: true,
+      tags: [],
+      folder: '',
+    },
+  ],
+]);
 
 describe('<NotifiationList />', () => {
   it('can render a list of notifications', async () => {
@@ -40,7 +43,7 @@ describe('<NotifiationList />', () => {
           notifications={notifications}
           notificationsLoading={notificationsLoading}
           checkBoxClickHandler={checkBoxClickHandler}
-          selectedNotificationIds={notifications.map(n => n.id)}
+          selectedNotificationIds={[...notifications.keys()]}
         />
       </TestApiProvider>,
     );

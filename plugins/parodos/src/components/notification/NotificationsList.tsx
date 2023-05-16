@@ -55,14 +55,14 @@ export function NotificationList({
       >
         <Table aria-label="notifications table">
           <TableBody className={styles.tbody}>
-            {notifications.length === 0 && (
+            {notifications.size === 0 && (
               <TableRow>
                 <TableCell align="center" colSpan={4}>
                   No notifications
                 </TableCell>
               </TableRow>
             )}
-            {notifications.map(notification => (
+            {[...notifications.values()].map(notification => (
               <NotificationListItem
                 key={notification.id}
                 notification={notification}

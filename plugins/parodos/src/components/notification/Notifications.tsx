@@ -31,6 +31,9 @@ import { assert } from 'assert-ts';
 import { useImmerReducer } from 'use-immer';
 import { reducer, initialState } from './reducer';
 
+// NOTE: The name of the archive folder https://github.com/parodos-dev/parodos/blob/b2961b136f4fe754b990a957ecaf2fd519cd7a98/notification-service/src/main/java/com/redhat/parodos/notification/service/impl/NotificationRecordServiceImpl.java#L54
+const ARCHIVE_FOLDER = 'archive';
+
 export const useStyles = makeStyles(_theme => ({
   fullHeight: {
     display: 'flex',
@@ -38,6 +41,12 @@ export const useStyles = makeStyles(_theme => ({
     height: '100%',
   },
 }));
+
+const actionLabelMap = {
+  ARCHIVE: 'archive',
+  UNARCHIVE: 'unarchive',
+  DELETE: 'delete',
+};
 
 export const Notification = () => {
   const styles = useStyles();
@@ -68,12 +77,12 @@ export const Notification = () => {
   ]);
 
   useEffect(() => {
-    if (notifications.length > 0 || state.page === 0) {
+    if (notifications.size > 0 || state.page === 0) {
       return;
     }
 
     dispatch({ type: 'CHANGE_PAGE', payload: { page: state.page - 1 } });
-  }, [dispatch, notifications.length, state.page]);
+  }, [dispatch, notifications.size, state.page]);
 
   const filterChangeHandler = (filter: SelectedItems) => {
     dispatch({
@@ -106,6 +115,14 @@ export const Notification = () => {
     },
     [dispatch],
   );
+  const unarchiveNotificationsHandler = useCallback(
+    async (e: MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+
+      dispatch({ type: 'UNARCHIVE' });
+    },
+    [dispatch],
+  );
 
   const deleteNotificationsHandler = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
@@ -128,12 +145,23 @@ export const Notification = () => {
         if (state.action === 'DELETE') {
           await deleteNotification({ fetch, ids: state.selectedNotifications });
         } else {
-          for (const notificationId of state.selectedNotifications) {
-            await setNotificationState({
-              fetch,
-              id: notificationId,
-              newState: 'ARCHIVE',
-            });
+          const ids = state.selectedNotifications.filter(id => {
+            const notification = notifications.get(id);
+            if (!notification) return false;
+            if (state.action === 'ARCHIVE')
+              return notification.folder !== ARCHIVE_FOLDER;
+            else if (state.action === 'UNARCHIVE')
+              return notification.folder === ARCHIVE_FOLDER;
+            return false;
+          });
+          if (ids.length > 0) {
+            for (const notificationId of ids) {
+              await setNotificationState({
+                fetch,
+                id: notificationId,
+                newState: state.action,
+              });
+            }
           }
         }
 
@@ -157,6 +185,7 @@ export const Notification = () => {
       fetchNotifications,
       loading,
       setNotificationState,
+      notifications,
       state.action,
       state.notificationFilter,
       state.page,
@@ -171,7 +200,7 @@ export const Notification = () => {
 
       const { id, checked } = e.target as HTMLInputElement;
 
-      const notification = notifications.find(n => n.id === id);
+      const notification = notifications.get(id);
 
       assert(!!notification, `no notification found for ${id}`);
 
@@ -201,13 +230,14 @@ export const Notification = () => {
                 filter={state.notificationFilter}
                 selected={state.selectedNotifications.length}
                 archiveHandler={archiveNotificationsHandler}
+                unarchiveHandler={unarchiveNotificationsHandler}
                 deleteHandler={deleteNotificationsHandler}
               />
               <Confirm
                 open={state.dialogOpen}
-                content={`${
-                  state.action === 'ARCHIVE' ? 'archive' : 'delete'
-                } ${state.selectedNotifications.length} notification(s)`}
+                content={`${actionLabelMap[state.action]} ${
+                  state.selectedNotifications.length
+                } notification(s)`}
                 closeHandler={() => dispatch({ type: 'CLOSE_DIALOG' })}
                 noHandler={() => dispatch({ type: 'CLOSE_DIALOG' })}
                 yesHandler={dialogYesHandler}
@@ -221,9 +251,7 @@ export const Notification = () => {
                 <DialogContent>
                   <Alert
                     onClose={() => dispatch({ type: 'CLOSE_ALERT' })}
-                  >{`successfully ${
-                    state.action === 'ARCHIVE' ? 'archived' : 'deleted'
-                  }`}</Alert>
+                  >{`successfully ${actionLabelMap[state.action]}d`}</Alert>
                 </DialogContent>
               </Dialog>
               <NotificationList
