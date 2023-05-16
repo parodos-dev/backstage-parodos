@@ -16,7 +16,6 @@ export const projectSchema = z.object({
   description: z.string().nullable(),
   createDate: z.coerce.date(),
   modifyDate: z.coerce.date(),
-  username: z.string().nullable(),
   status: projectStatus
     .default('IN_PROGRESS')
     .transform(value => value.split('_').join(' ')),

@@ -8,7 +8,6 @@ describe('project', () => {
       description: null,
       createDate: '2023-03-09T20:43:05.061+00:00',
       modifyDate: '2023-03-09T20:43:05.061+00:00',
-      username: null,
     });
 
     expect(result.success).toBe(true);
