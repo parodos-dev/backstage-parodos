@@ -53,7 +53,7 @@ export const projectWorkflowSchema = z.object({
   workStatus: transformedStatus,
   startDate: z.string(),
   endDate: z.string().optional(),
-  createUser: z.string(),
+  executeBy: z.string(),
 });
 
 export const projectWorkflowsSchema = z.array(projectWorkflowSchema);
