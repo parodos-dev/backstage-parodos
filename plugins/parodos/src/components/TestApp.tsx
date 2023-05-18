@@ -67,7 +67,7 @@ export const TestApp: React.FC = ({ children }) => {
                   workStatus: 'IN_PROGRESS',
                   startDate: '2023-04-14T07:55:38.144+00:00',
                   endDate: '2023-04-14T07:55:38.144+00:00',
-                  createUser: 'test',
+                  executeBy: 'test',
                 },
               ]),
             ),

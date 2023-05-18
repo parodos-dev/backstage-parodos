@@ -143,7 +143,7 @@ export const WorkflowsTable: React.FC<{
         processingType: definition?.processingType,
         status: statusMap[workflow.workStatus],
         statusColor: statusColorMap[workflow.workStatus],
-        author: workflow.createUser,
+        author: workflow.executeBy,
         startDate: formatDate.format(Date.parse(workflow.startDate)),
         endDate: workflow.endDate
           ? formatDate.format(Date.parse(workflow.endDate))
