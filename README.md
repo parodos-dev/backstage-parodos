@@ -7,6 +7,18 @@ yarn install
 yarn dev
 ```
 
+To start the app using `podman` or `docker`, with the development profile (omit the --config for production)
+
+```sh
+podman run \
+    -it --rm \
+    -p 7007:7007 \
+    --entrypoint node \
+    --name backstage-parodos \
+    quay.io/parodos-dev/backstage-parodos \
+    packages/backend --config /app/app-config.yaml
+```
+
 ## Local development
 
 The Parodos username is `test`, password `test`.
