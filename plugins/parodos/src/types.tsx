@@ -4,4 +4,5 @@ export interface ParodosConfig {
     assessment: string;
     assessmentTask: string;
   };
+  pollingInterval: number;
 }

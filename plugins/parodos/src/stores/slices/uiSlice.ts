@@ -10,6 +10,7 @@ export const createUISlice: StateCreator<
 > = (set, get) => ({
   baseUrl: '',
   initiallyLoaded: false,
+  pollingInterval: 0,
   workflows: {
     assessment: '',
     assessmentTask: '',
@@ -23,6 +24,7 @@ export const createUISlice: StateCreator<
         state.baseUrl = config.backendUrl;
         state.workflows.assessment = config.workflows.assessment;
         state.workflows.assessmentTask = config.workflows.assessmentTask;
+        state.pollingInterval = config.pollingInterval;
       }, false);
     });
   },

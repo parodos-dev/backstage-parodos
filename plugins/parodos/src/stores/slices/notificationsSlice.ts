@@ -14,13 +14,14 @@ export const createNotificationsSlice: StateCreator<
   notificationsError: undefined,
   notifications: new Map(),
   notificationsCount: 0,
+  notificationPollingInterval: 5000,
   async fetchNotifications({ filter = 'ALL', page, rowsPerPage, fetch }) {
     set(state => {
       state.notificationsLoading = true;
     });
 
     try {
-      let urlQuery = `?page=${page}&size=${rowsPerPage}&sort=NotificationMessage_createdOn,desc`;
+      let urlQuery = `?page=${page}&size=${rowsPerPage}&sort=notificationMessage.createdOn,notificationMessage.subject`;
       if (filter !== 'ALL') {
         urlQuery += `&state=${filter}`;
       }

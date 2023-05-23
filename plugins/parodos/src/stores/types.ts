@@ -12,6 +12,7 @@ export interface UISlice {
   getApiUrl(url: string): string;
   workflows: Pick<ParodosConfig, 'workflows'>['workflows'];
   initialized(): boolean;
+  pollingInterval: number;
 }
 
 export const predicates = {

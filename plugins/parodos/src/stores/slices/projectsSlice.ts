@@ -14,6 +14,7 @@ export const createProjectsSlice: StateCreator<
   projectsLoading: true,
   projectsError: undefined,
   initiallyLoaded: false,
+  projectsPollingInterval: 5000,
   hasProjects() {
     return get().projects.length > 0;
   },
