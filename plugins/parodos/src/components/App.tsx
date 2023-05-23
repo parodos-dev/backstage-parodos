@@ -18,7 +18,7 @@ export const App = () => {
   const { initialStateLoaded } = useInitializeStore();
 
   useEffect(() => {
-    if(!projectError) {
+    if (!projectError) {
       return;
     }
 
@@ -26,7 +26,7 @@ export const App = () => {
     console.error(projectError);
 
     errorApi.post(new Error(`Internal server error.`));
-  }, [errorApi, projectError])
+  }, [errorApi, projectError]);
 
   useInterval(() => {
     if (!initialStateLoaded) {

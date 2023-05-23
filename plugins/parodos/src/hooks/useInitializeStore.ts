@@ -12,9 +12,7 @@ export const useInitializeStore = () => {
   const initialized = useStore(state => state.initialized());
   const { fetch } = useApi(fetchApiRef);
   const workflowDefinitions = useStore(state => state.workflowDefinitions);
-  const getWorkDefinitionBy = useStore(state =>
-    state.getWorkDefinitionBy,
-  );
+  const getWorkDefinitionBy = useStore(state => state.getWorkDefinitionBy);
 
   useEffect(() => {
     setAppConfig(appConfig);
@@ -26,9 +24,8 @@ export const useInitializeStore = () => {
     initialiseStore();
   }, [appConfig, fetch, fetchDefinitions, fetchProjects, setAppConfig]);
 
-
   useEffect(() => {
-    if(workflowDefinitions.length === 0) {
+    if (workflowDefinitions.length === 0) {
       return;
     }
 
@@ -36,12 +33,20 @@ export const useInitializeStore = () => {
 
     const assessmentWorkflow = getWorkDefinitionBy('byName', assessment);
 
-    assert(!!assessmentWorkflow, `invalid workflow config for assessment ${assessment}`);
-    
-    const assessmentWorkflowTask = assessmentWorkflow?.works.find(w => w.name === assessmentTask);
-    
-    assert(!!assessmentWorkflowTask, `no assessment task named ${assessmentTask} found in ${assessment} works array`);
-  }, [appConfig.workflows, getWorkDefinitionBy, workflowDefinitions])
+    assert(
+      !!assessmentWorkflow,
+      `invalid workflow config for assessment ${assessment}`,
+    );
+
+    const assessmentWorkflowTask = assessmentWorkflow?.works.find(
+      w => w.name === assessmentTask,
+    );
+
+    assert(
+      !!assessmentWorkflowTask,
+      `no assessment task named ${assessmentTask} found in ${assessment} works array`,
+    );
+  }, [appConfig.workflows, getWorkDefinitionBy, workflowDefinitions]);
 
   return {
     initialStateLoaded: initialized,
