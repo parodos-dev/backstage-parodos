@@ -4,6 +4,7 @@ import { AccordionIcon } from '../icons/AccordionIcon';
 import { Select } from '@backstage/core-components';
 import { type PropsFromComponent } from '../types';
 import ArchiveIcon from '@material-ui/icons/Archive';
+import UnarchiveIcon from '@material-ui/icons/Unarchive';
 import DeleteIcon from '@material-ui/icons/DeleteForever';
 import cs from 'classnames';
 
@@ -17,6 +18,7 @@ interface NotificationListHeaderProps {
   selected: number;
   deleteHandler: MouseEventHandler<HTMLButtonElement>;
   archiveHandler: MouseEventHandler<HTMLButtonElement>;
+  unarchiveHandler: MouseEventHandler<HTMLButtonElement>;
   disableButtons?: boolean;
 }
 
@@ -54,6 +56,7 @@ export function NotificationListHeader({
   selected,
   deleteHandler,
   archiveHandler,
+  unarchiveHandler,
   disableButtons,
 }: NotificationListHeaderProps): JSX.Element {
   const styles = useStyles();
@@ -97,13 +100,24 @@ export function NotificationListHeader({
           </span>
         ) : (
           <span className={styles.buttons}>
-            <IconButton
-              aria-label="archive"
-              onClick={archiveHandler}
-              disabled={disableButtons}
-            >
-              <ArchiveIcon />
-            </IconButton>
+            {filter !== 'ARCHIVED' && (
+              <IconButton
+                aria-label="archive"
+                onClick={archiveHandler}
+                disabled={disableButtons}
+              >
+                <ArchiveIcon />
+              </IconButton>
+            )}
+            {filter !== 'UNREAD' && (
+              <IconButton
+                aria-label="unarchive"
+                onClick={unarchiveHandler}
+                disabled={disableButtons}
+              >
+                <UnarchiveIcon />
+              </IconButton>
+            )}
             <IconButton
               size="medium"
               onClick={deleteHandler}

@@ -1,6 +1,6 @@
 import { NotificationState } from '../../stores/types';
 
-type Action = 'DELETE' | 'ARCHIVE';
+type Action = 'DELETE' | 'ARCHIVE' | 'UNARCHIVE';
 
 type Actions =
   | {
@@ -8,6 +8,9 @@ type Actions =
     }
   | {
       type: 'ARCHIVE';
+    }
+  | {
+      type: 'UNARCHIVE';
     }
   | {
       type: 'FINISH_ACTION';
@@ -66,6 +69,12 @@ export const reducer = (draft: State, action: Actions) => {
     }
     case 'ARCHIVE': {
       draft.action = 'ARCHIVE';
+      draft.dialogOpen = true;
+
+      break;
+    }
+    case 'UNARCHIVE': {
+      draft.action = 'UNARCHIVE';
       draft.dialogOpen = true;
 
       break;

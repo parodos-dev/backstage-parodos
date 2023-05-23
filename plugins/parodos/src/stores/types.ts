@@ -44,9 +44,9 @@ export interface ProjectsSlice {
 }
 
 export type NotificationState = 'ALL' | 'UNREAD' | 'ARCHIVED';
-export type NotificationOperation = 'READ' | 'ARCHIVE';
+export type NotificationOperation = 'READ' | 'ARCHIVE' | 'UNARCHIVE';
 export interface NotificationsSlice {
-  notifications: NotificationContent[];
+  notifications: Map<string, NotificationContent>;
   notificationsCount: number;
   fetchNotifications(params: {
     fetch: FetchApi['fetch'];

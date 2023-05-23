@@ -12,7 +12,7 @@ export const createNotificationsSlice: StateCreator<
 > = (set, get) => ({
   notificationsLoading: true,
   notificationsError: undefined,
-  notifications: [],
+  notifications: new Map(),
   notificationsCount: 0,
   async fetchNotifications({ filter = 'ALL', page, rowsPerPage, fetch }) {
     set(state => {
@@ -33,7 +33,9 @@ export const createNotificationsSlice: StateCreator<
 
       set(state => {
         unstable_batchedUpdates(() => {
-          state.notifications = notifications.content ?? [];
+          state.notifications = new Map(
+            (notifications.content ?? []).map(n => [n.id, n]),
+          );
           state.notificationsLoading = false;
           state.notificationsCount = notifications.totalElements ?? 0;
         });
@@ -42,7 +44,7 @@ export const createNotificationsSlice: StateCreator<
       // eslint-disable-next-line no-console
       console.error('Error fetching notifications', e);
       set(state => {
-        state.notifications = [];
+        state.notifications = new Map();
         state.notificationsError = e as Error;
       });
     }
@@ -72,13 +74,13 @@ export const createNotificationsSlice: StateCreator<
       );
 
       set(state => {
-        state.notifications = state.notifications.map(n => {
-          if (newState !== 'READ' && n.id !== id) {
-            return n;
-          }
-
-          return { ...n, read: true };
-        });
+        const notification = state.notifications.get(id);
+        if (newState === 'READ' && notification) {
+          state.notifications = state.notifications.set(id, {
+            ...notification,
+            read: true,
+          });
+        }
       });
     } catch (e: unknown) {
       // eslint-disable-next-line no-console
