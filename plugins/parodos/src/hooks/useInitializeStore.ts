@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { useStore } from '../stores/workflowStore/workflowStore';
 import { useGetAppConfig } from '../components/api';
+import { assert } from 'assert-ts';
 
 export const useInitializeStore = () => {
   const appConfig = useGetAppConfig();
@@ -10,6 +11,10 @@ export const useInitializeStore = () => {
   const fetchDefinitions = useStore(state => state.fetchDefinitions);
   const initialized = useStore(state => state.initialized());
   const { fetch } = useApi(fetchApiRef);
+  const workflowDefinitions = useStore(state => state.workflowDefinitions);
+  const getWorkDefinitionBy = useStore(state =>
+    state.getWorkDefinitionBy,
+  );
 
   useEffect(() => {
     setAppConfig(appConfig);
@@ -20,6 +25,23 @@ export const useInitializeStore = () => {
 
     initialiseStore();
   }, [appConfig, fetch, fetchDefinitions, fetchProjects, setAppConfig]);
+
+
+  useEffect(() => {
+    if(workflowDefinitions.length === 0) {
+      return;
+    }
+
+    const { assessment, assessmentTask } = appConfig.workflows;
+
+    const assessmentWorkflow = getWorkDefinitionBy('byName', assessment);
+
+    assert(!!assessmentWorkflow, `invalid workflow config for assessment ${assessment}`);
+    
+    const assessmentWorkflowTask = assessmentWorkflow?.works.find(w => w.name === assessmentTask);
+    
+    assert(!!assessmentWorkflowTask, `no assessment task named ${assessmentTask} found in ${assessment} works array`);
+  }, [appConfig.workflows, getWorkDefinitionBy, workflowDefinitions])
 
   return {
     initialStateLoaded: initialized,
