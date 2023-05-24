@@ -14,8 +14,12 @@ export const createNotificationsSlice: StateCreator<
   notificationsError: undefined,
   notifications: new Map(),
   notificationsCount: 0,
-  notificationPollingInterval: 5000,
+  unReadNotifications: 0,
   async fetchNotifications({ filter = 'ALL', page, rowsPerPage, fetch }) {
+    if (get().notificationsLoading) {
+      return;
+    }
+
     set(state => {
       state.notificationsLoading = true;
     });
@@ -32,6 +36,18 @@ export const createNotificationsSlice: StateCreator<
 
       const notifications = (await response.json()) as Notifications;
 
+      const existing = get().notifications;
+
+      const newNotifications = new Set(notifications.content.map(p => p.id));
+
+      if (
+        get().initiallyLoaded &&
+        existing.size === newNotifications.size &&
+        [...newNotifications].every(id => existing.has(id))
+      ) {
+        return;
+      }
+
       set(state => {
         unstable_batchedUpdates(() => {
           state.notifications = new Map(
@@ -39,6 +55,10 @@ export const createNotificationsSlice: StateCreator<
           );
           state.notificationsLoading = false;
           state.notificationsCount = notifications.totalElements ?? 0;
+          state.unReadNotifications = [...state.notifications.values()].reduce(
+            (acc, n) => (n.read ? acc + 1 : acc),
+            0,
+          );
         });
       });
     } catch (e: unknown) {

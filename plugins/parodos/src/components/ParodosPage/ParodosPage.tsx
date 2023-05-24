@@ -27,6 +27,7 @@ export const ParodosPage: FC<ParodosPageProps> = ({ children, ...props }) => {
     [pathname],
   );
   const hasProjects = useStore(state => state.hasProjects());
+  const unreadNotificaitons = useStore(state => state.unReadNotifications);
   const error = useStore(state => state.error());
 
   const navigate = useNavigate();

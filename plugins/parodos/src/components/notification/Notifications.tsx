@@ -224,7 +224,6 @@ export const Notification = () => {
         <CardContent>
           <Grid container direction="row">
             <Grid item xs={12} xl={9} lg={11}>
-              {loading && <Progress />}
               <NotificationListHeader
                 filterChangeHandler={filterChangeHandler}
                 filter={state.notificationFilter}

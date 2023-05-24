@@ -4,9 +4,9 @@ app:
 
 parodos:
   workflows:
-    assessment: 'onboardingAssessment_ASSESSMENT_WORKFLOW'
-    assessmentTask: 'onboardingAssessmentTask'
-  pollingInterval: 5000
+    assessment: 'vmMigrationAssessmentTask_ASSESSMENT_WORKFLOW'
+    assessmentTask: 'assessPlanWorkFlowTask'
+  pollingInterval: 10000
 
 organization:
   name: My Company

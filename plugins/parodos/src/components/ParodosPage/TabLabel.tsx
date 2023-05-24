@@ -1,6 +1,7 @@
 import React, { forwardRef, type ReactNode } from 'react';
 import { makeStyles } from '@material-ui/core';
 import StarIcon from '@material-ui/icons/Star';
+import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
 
 const useStyles = makeStyles({
   highlightedTab: {
@@ -32,6 +33,7 @@ export const tabLabelCreator = ({
         {icon}
         {highlighted && <StarIcon className={styles.highlightedTab} />}
         {children}
+        <NotificationImportantIcon />
       </span>
     );
   });

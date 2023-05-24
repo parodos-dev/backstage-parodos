@@ -1,4 +1,4 @@
-import { errorApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
+import { alertApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { useStore } from '../../../stores/workflowStore/workflowStore';
 import { useInterval } from '@patternfly/react-core';
 import { useEffect } from 'react';
@@ -6,12 +6,10 @@ import { useEffect } from 'react';
 export function usePollApi() {
   const { fetch } = useApi(fetchApiRef);
   const fetchNotifications = useStore(state => state.fetchNotifications);
-  const pollingInterval = useStore(
-    state => state.pollingInterval,
-  );
+  const pollingInterval = useStore(state => state.pollingInterval);
   const initialized = useStore(state => state.initialized());
   const notificationsError = useStore(state => state.notificationsError);
-  const errorApi = useApi(errorApiRef);
+  const alertApi = useApi(alertApiRef);
   const projectError = useStore(state => state.projectsError);
   const fetchProjects = useStore(state => state.fetchProjects);
 
@@ -24,8 +22,12 @@ export function usePollApi() {
     // eslint-disable-next-line no-console
     console.error(error);
 
-    errorApi.post(new Error(`Internal server error.`));
-  }, [errorApi, notificationsError, projectError]);
+    alertApi.post({
+      message: 'Internal Server error',
+      display: 'transient',
+      severity: 'error',
+    });
+  }, [alertApi, notificationsError, projectError]);
 
   useInterval(() => {
     if (!initialized) {
@@ -34,7 +36,7 @@ export function usePollApi() {
 
     fetchNotifications({
       filter: 'ALL',
-      page: 1,
+      page: 0,
       rowsPerPage: 50,
       fetch,
     });

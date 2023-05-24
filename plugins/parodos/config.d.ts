@@ -12,10 +12,10 @@ export interface Config {
        */
       assessmentTask: string;
     };
-  /**
-   * TODO: description
-   * @visibility frontend
-   */
+    /**
+     * TODO: description
+     * @visibility frontend
+     */
     pollingInterval: number;
   };
 }
