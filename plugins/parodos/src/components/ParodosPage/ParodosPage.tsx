@@ -17,7 +17,7 @@ export const ParodosPage: FC<ParodosPageProps> = ({ children, ...props }) => {
   return (
     <Page themeId="tool">
       <PageHeader />
-      <Tabs/>
+      <Tabs />
       <Content {...props}>
         {error && <ErrorMessage error={error as Error} />}
         {children}

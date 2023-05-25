@@ -2,22 +2,17 @@ import React, { forwardRef, type ReactNode, useCallback, useMemo } from 'react';
 import { navigationMap, pluginRoutePrefix } from './navigationMap';
 import StarIcon from '@material-ui/icons/Star';
 import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
-import { makeStyles } from '@material-ui/core';
+import { Badge, makeStyles } from '@material-ui/core';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import { HeaderTabs } from '@backstage/core-components';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(_theme => ({
   highlightedTab: {
     position: 'absolute',
     top: '1rem',
     right: 0,
     color: '#F70D1A',
-  },
-  unreadNotification: {
-    '& path': {
-      fill: theme.palette.error.main,
-    },
   },
 }));
 
@@ -69,9 +64,9 @@ export function Tabs(): JSX.Element {
                   )}
                   {tabChildren}
                   {notifyIcon && (
-                    <NotificationImportantIcon
-                      className={styles.unreadNotification}
-                    />
+                    <Badge color="secondary" badgeContent={unreadNotificaitons}>
+                      <NotificationImportantIcon color="secondary" />
+                    </Badge>
                   )}
                 </span>
               ),
@@ -79,13 +74,7 @@ export function Tabs(): JSX.Element {
           },
         };
       }),
-    [
-      hasProjects,
-      selectedTab,
-      styles.highlightedTab,
-      styles.unreadNotification,
-      unreadNotificaitons,
-    ],
+    [hasProjects, selectedTab, styles.highlightedTab, unreadNotificaitons],
   );
 
   return (
