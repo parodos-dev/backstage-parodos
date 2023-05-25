@@ -1,8 +1,17 @@
 import type { StateCreator } from 'zustand';
 import { unstable_batchedUpdates } from 'react-dom';
 import type { NotificationsSlice, State, StateMiddleware } from '../types';
-import { Notifications } from '../../models/notification';
+import { NotificationContent, Notifications } from '../../models/notification';
 import * as urls from '../../urls';
+
+function getUnreadNotifications(
+  notifications: Map<string, NotificationContent>,
+): number {
+  return [...notifications.values()].reduce(
+    (acc, n) => (!n.read ? acc + 1 : acc),
+    0,
+  );
+}
 
 export const createNotificationsSlice: StateCreator<
   State,
@@ -10,7 +19,7 @@ export const createNotificationsSlice: StateCreator<
   [],
   NotificationsSlice
 > = (set, get) => ({
-  notificationsLoading: true,
+  notificationsLoading: false,
   notificationsError: undefined,
   notifications: new Map(),
   notificationsCount: 0,
@@ -45,6 +54,12 @@ export const createNotificationsSlice: StateCreator<
         existing.size === newNotifications.size &&
         [...newNotifications].every(id => existing.has(id))
       ) {
+        if (get().notificationsLoading) {
+          set(state => {
+            state.notificationsLoading = false;
+          });
+        }
+
         return;
       }
 
@@ -55,9 +70,8 @@ export const createNotificationsSlice: StateCreator<
           );
           state.notificationsLoading = false;
           state.notificationsCount = notifications.totalElements ?? 0;
-          state.unReadNotifications = [...state.notifications.values()].reduce(
-            (acc, n) => (n.read ? acc + 1 : acc),
-            0,
+          state.unReadNotifications = getUnreadNotifications(
+            state.notifications,
           );
         });
       });
@@ -67,10 +81,15 @@ export const createNotificationsSlice: StateCreator<
       set(state => {
         state.notifications = new Map();
         state.notificationsError = e as Error;
+        state.notificationsLoading = false;
       });
     }
   },
   async deleteNotifications({ ids, fetch }) {
+    set(state => {
+      state.notificationsLoading = true;
+    });
+
     try {
       for (const id of ids) {
         await fetch(`${get().baseUrl}${urls.Notifications}/${id}`, {
@@ -83,9 +102,22 @@ export const createNotificationsSlice: StateCreator<
         console.error('Error fetching notifications', e);
         state.notificationsError = e as Error;
       });
+    } finally {
+      set(state => {
+        unstable_batchedUpdates(() => {
+          state.notificationsLoading = false;
+          state.unReadNotifications = getUnreadNotifications(
+            state.notifications,
+          );
+        });
+      });
     }
   },
   async setNotificationState({ id, newState, fetch }) {
+    set(state => {
+      state.notificationsLoading = true;
+    });
+
     try {
       await fetch(
         `${get().baseUrl}${urls.Notifications}/${id}?operation=${newState}`,
@@ -97,9 +129,15 @@ export const createNotificationsSlice: StateCreator<
       set(state => {
         const notification = state.notifications.get(id);
         if (newState === 'READ' && notification) {
-          state.notifications = state.notifications.set(id, {
-            ...notification,
-            read: true,
+          unstable_batchedUpdates(() => {
+            state.notifications = state.notifications.set(id, {
+              ...notification,
+              read: true,
+            });
+            state.notificationsLoading = false;
+            state.unReadNotifications = getUnreadNotifications(
+              state.notifications,
+            );
           });
         }
       });
@@ -108,6 +146,7 @@ export const createNotificationsSlice: StateCreator<
       console.error('Error setting notification "', id, '" to: ', newState, e);
       set(state => {
         state.notificationsError = e as Error;
+        state.notificationsLoading = false;
       });
     }
   },

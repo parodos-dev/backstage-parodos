@@ -25,10 +25,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-type NotificationListProps = Pick<
-  NotificationsSlice,
-  'notifications' | 'notificationsLoading'
-> & {
+type NotificationListProps = Pick<NotificationsSlice, 'notifications'> & {
   selectedNotificationIds: string[];
   checkBoxClickHandler: MouseEventHandler<HTMLButtonElement>;
 };

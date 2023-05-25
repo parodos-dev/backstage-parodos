@@ -28,7 +28,6 @@ const notifications: Map<string, NotificationContent> = new Map([
 describe('<NotifiationList />', () => {
   it('can render a list of notifications', async () => {
     const checkBoxClickHandler = jest.fn();
-    const notificationsLoading = false;
 
     const mockFetch = jest.fn().mockName('fetch');
     const m: MockFetchApi = new MockFetchApi({
@@ -41,7 +40,6 @@ describe('<NotifiationList />', () => {
       <TestApiProvider apis={apis}>
         <NotificationList
           notifications={notifications}
-          notificationsLoading={notificationsLoading}
           checkBoxClickHandler={checkBoxClickHandler}
           selectedNotificationIds={[...notifications.keys()]}
         />
