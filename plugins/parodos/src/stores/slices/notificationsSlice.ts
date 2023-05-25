@@ -1,17 +1,8 @@
 import type { StateCreator } from 'zustand';
 import { unstable_batchedUpdates } from 'react-dom';
 import type { NotificationsSlice, State, StateMiddleware } from '../types';
-import { NotificationContent, Notifications } from '../../models/notification';
+import { Notifications } from '../../models/notification';
 import * as urls from '../../urls';
-
-function getUnreadNotifications(
-  notifications: Map<string, NotificationContent>,
-): number {
-  return [...notifications.values()].reduce(
-    (acc, n) => (!n.read ? acc + 1 : acc),
-    0,
-  );
-}
 
 export const createNotificationsSlice: StateCreator<
   State,
@@ -23,7 +14,6 @@ export const createNotificationsSlice: StateCreator<
   notificationsError: undefined,
   notifications: new Map(),
   notificationsCount: 0,
-  unReadNotifications: 0,
   async fetchNotifications({ filter = 'ALL', page, rowsPerPage, fetch }) {
     if (get().notificationsLoading) {
       return;
@@ -70,9 +60,6 @@ export const createNotificationsSlice: StateCreator<
           );
           state.notificationsLoading = false;
           state.notificationsCount = notifications.totalElements ?? 0;
-          state.unReadNotifications = getUnreadNotifications(
-            state.notifications,
-          );
         });
       });
     } catch (e: unknown) {
@@ -104,12 +91,7 @@ export const createNotificationsSlice: StateCreator<
       });
     } finally {
       set(state => {
-        unstable_batchedUpdates(() => {
-          state.notificationsLoading = false;
-          state.unReadNotifications = getUnreadNotifications(
-            state.notifications,
-          );
-        });
+        state.notificationsLoading = false;
       });
     }
   },
@@ -135,9 +117,6 @@ export const createNotificationsSlice: StateCreator<
               read: true,
             });
             state.notificationsLoading = false;
-            state.unReadNotifications = getUnreadNotifications(
-              state.notifications,
-            );
           });
         }
       });

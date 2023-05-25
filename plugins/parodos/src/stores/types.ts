@@ -66,7 +66,6 @@ export interface NotificationsSlice {
   }): Promise<void>;
   notificationsLoading: boolean;
   notificationsError: Error | undefined;
-  unReadNotifications: number;
 }
 
 export type StateMiddleware = [

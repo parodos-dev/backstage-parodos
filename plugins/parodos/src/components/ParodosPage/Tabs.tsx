@@ -20,8 +20,17 @@ export function Tabs(): JSX.Element {
   const styles = useStyles();
   const { pathname } = useLocation();
   const hasProjects = useStore(state => state.hasProjects());
-  const unreadNotificaitons = useStore(state => state.unReadNotifications);
+  const notifications = useStore(state => state.notifications);
   const navigate = useNavigate();
+
+  const unreadNotificaitons = useMemo(
+    () =>
+      [...notifications.values()].reduce(
+        (acc, n) => (!n.read ? acc + 1 : acc),
+        0,
+      ),
+    [notifications],
+  );
 
   const onChangeTab = useCallback(
     tabIndex => {
