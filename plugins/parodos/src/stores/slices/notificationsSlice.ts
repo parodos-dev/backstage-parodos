@@ -122,10 +122,9 @@ export const createNotificationsSlice: StateCreator<
       });
     } catch (e: unknown) {
       // eslint-disable-next-line no-console
-      console.error('Error setting notification "', id, '" to: ', newState, e);
+      console.error(`Error setting notification ${id} to: ${newState}`, e);
       set(state => {
         state.notificationsError = e as Error;
-        state.notificationsLoading = false;
       });
     } finally {
       set(state => {

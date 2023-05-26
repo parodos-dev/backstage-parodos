@@ -73,7 +73,7 @@ export function Tabs(): JSX.Element {
                   )}
                   {tabChildren}
                   {notifyIcon && (
-                    <Badge color="secondary" badgeContent={unreadNotificaitons}>
+                    <Badge color="secondary" badgeContent={unreadNotificaitons} overlap="rectangular">
                       <NotificationImportantIcon color="secondary" />
                     </Badge>
                   )}
