@@ -58,7 +58,6 @@ export const createNotificationsSlice: StateCreator<
           state.notifications = new Map(
             (notifications.content ?? []).map(n => [n.id, n]),
           );
-          state.notificationsLoading = false;
           state.notificationsCount = notifications.totalElements ?? 0;
         });
       });
@@ -68,6 +67,10 @@ export const createNotificationsSlice: StateCreator<
       set(state => {
         state.notifications = new Map();
         state.notificationsError = e as Error;
+        state.notificationsLoading = false;
+      });
+    } finally {
+      set(state => {
         state.notificationsLoading = false;
       });
     }
@@ -111,12 +114,9 @@ export const createNotificationsSlice: StateCreator<
       set(state => {
         const notification = state.notifications.get(id);
         if (newState === 'READ' && notification) {
-          unstable_batchedUpdates(() => {
-            state.notifications = state.notifications.set(id, {
-              ...notification,
-              read: true,
-            });
-            state.notificationsLoading = false;
+          state.notifications = state.notifications.set(id, {
+            ...notification,
+            read: true,
           });
         }
       });
@@ -125,6 +125,10 @@ export const createNotificationsSlice: StateCreator<
       console.error('Error setting notification "', id, '" to: ', newState, e);
       set(state => {
         state.notificationsError = e as Error;
+        state.notificationsLoading = false;
+      });
+    } finally {
+      set(state => {
         state.notificationsLoading = false;
       });
     }
