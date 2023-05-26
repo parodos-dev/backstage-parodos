@@ -61,7 +61,7 @@ export function Tabs(): JSX.Element {
           id: index.toString(),
           label,
           tabProps: {
-            component: forwardRef<HTMLSpanElement, any>(
+            component: forwardRef<HTMLSpanElement, HTMLSpanElement>(
               (
                 { children: tabChildren, ...tabProps }: { children: ReactNode },
                 ref,
@@ -73,7 +73,11 @@ export function Tabs(): JSX.Element {
                   )}
                   {tabChildren}
                   {notifyIcon && (
-                    <Badge color="secondary" badgeContent={unreadNotificaitons} overlap="rectangular">
+                    <Badge
+                      color="secondary"
+                      badgeContent={unreadNotificaitons}
+                      overlap="rectangular"
+                    >
                       <NotificationImportantIcon color="secondary" />
                     </Badge>
                   )}
