@@ -10,17 +10,21 @@ export const createNotificationsSlice: StateCreator<
   [],
   NotificationsSlice
 > = (set, get) => ({
-  notificationsLoading: true,
+  notificationsLoading: false,
   notificationsError: undefined,
   notifications: new Map(),
   notificationsCount: 0,
   async fetchNotifications({ filter = 'ALL', page, rowsPerPage, fetch }) {
+    if (get().notificationsLoading) {
+      return;
+    }
+
     set(state => {
       state.notificationsLoading = true;
     });
 
     try {
-      let urlQuery = `?page=${page}&size=${rowsPerPage}&sort=NotificationMessage_createdOn,desc`;
+      let urlQuery = `?page=${page}&size=${rowsPerPage}&sort=notificationMessage.createdOn,notificationMessage.subject`;
       if (filter !== 'ALL') {
         urlQuery += `&state=${filter}`;
       }
@@ -31,12 +35,29 @@ export const createNotificationsSlice: StateCreator<
 
       const notifications = (await response.json()) as Notifications;
 
+      const existing = get().notifications;
+
+      const newNotifications = new Set(notifications.content.map(p => p.id));
+
+      if (
+        get().initiallyLoaded &&
+        existing.size === newNotifications.size &&
+        [...newNotifications].every(id => existing.has(id))
+      ) {
+        if (get().notificationsLoading) {
+          set(state => {
+            state.notificationsLoading = false;
+          });
+        }
+
+        return;
+      }
+
       set(state => {
         unstable_batchedUpdates(() => {
           state.notifications = new Map(
             (notifications.content ?? []).map(n => [n.id, n]),
           );
-          state.notificationsLoading = false;
           state.notificationsCount = notifications.totalElements ?? 0;
         });
       });
@@ -46,10 +67,19 @@ export const createNotificationsSlice: StateCreator<
       set(state => {
         state.notifications = new Map();
         state.notificationsError = e as Error;
+        state.notificationsLoading = false;
+      });
+    } finally {
+      set(state => {
+        state.notificationsLoading = false;
       });
     }
   },
   async deleteNotifications({ ids, fetch }) {
+    set(state => {
+      state.notificationsLoading = true;
+    });
+
     try {
       for (const id of ids) {
         await fetch(`${get().baseUrl}${urls.Notifications}/${id}`, {
@@ -62,9 +92,17 @@ export const createNotificationsSlice: StateCreator<
         console.error('Error fetching notifications', e);
         state.notificationsError = e as Error;
       });
+    } finally {
+      set(state => {
+        state.notificationsLoading = false;
+      });
     }
   },
   async setNotificationState({ id, newState, fetch }) {
+    set(state => {
+      state.notificationsLoading = true;
+    });
+
     try {
       await fetch(
         `${get().baseUrl}${urls.Notifications}/${id}?operation=${newState}`,
@@ -84,9 +122,13 @@ export const createNotificationsSlice: StateCreator<
       });
     } catch (e: unknown) {
       // eslint-disable-next-line no-console
-      console.error('Error setting notification "', id, '" to: ', newState, e);
+      console.error(`Error setting notification ${id} to: ${newState}`, e);
       set(state => {
         state.notificationsError = e as Error;
+      });
+    } finally {
+      set(state => {
+        state.notificationsLoading = false;
       });
     }
   },

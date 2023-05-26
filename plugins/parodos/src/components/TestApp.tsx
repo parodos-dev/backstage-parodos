@@ -25,6 +25,7 @@ export const TestApp: React.FC = ({ children }) => {
         assessment: 'onboardingAssessment_ASSESSMENT_WORKFLOW',
         assessmentTask: 'onboardingAssessmentTask',
       },
+      pollingInterval: 5000,
     },
   });
   const mockFetch = new MockFetchApi({

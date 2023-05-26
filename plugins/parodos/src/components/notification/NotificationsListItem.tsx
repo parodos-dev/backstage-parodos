@@ -28,11 +28,12 @@ const useRowStyles = makeStyles(theme => ({
     '&$selected': {
       backgroundColor: '#E8F1FA !IMPORTANT',
     },
-    '& [role="cell"]': {
+    '&:not(.read) [role="cell"]': {
       fontWeight: 600,
     },
     '&.read [role="cell"]': {
       fontWeight: 400,
+      color: '#BABABA',
     },
     '& [role="cell"]:first-of-type': {
       width: '50%',

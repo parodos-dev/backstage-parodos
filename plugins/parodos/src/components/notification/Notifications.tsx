@@ -6,7 +6,6 @@ import React, {
 } from 'react';
 import {
   ContentHeader,
-  Progress,
   SelectedItems,
   SupportButton,
 } from '@backstage/core-components';
@@ -54,7 +53,6 @@ export const Notification = () => {
   const fetchNotifications = useStore(state => state.fetchNotifications);
   const deleteNotification = useStore(state => state.deleteNotifications);
   const setNotificationState = useStore(state => state.setNotificationState);
-  const loading = useStore(state => state.notificationsLoading);
   const notificationsCount = useStore(state => state.notificationsCount);
   const [state, dispatch] = useImmerReducer(reducer, initialState);
   const { fetch } = useApi(fetchApiRef);
@@ -137,10 +135,6 @@ export const Notification = () => {
     async (e: MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
 
-      if (loading) {
-        return;
-      }
-
       try {
         if (state.action === 'DELETE') {
           await deleteNotification({ fetch, ids: state.selectedNotifications });
@@ -183,7 +177,6 @@ export const Notification = () => {
       errorApi,
       fetch,
       fetchNotifications,
-      loading,
       setNotificationState,
       notifications,
       state.action,
@@ -224,7 +217,6 @@ export const Notification = () => {
         <CardContent>
           <Grid container direction="row">
             <Grid item xs={12} xl={9} lg={11}>
-              {loading && <Progress />}
               <NotificationListHeader
                 filterChangeHandler={filterChangeHandler}
                 filter={state.notificationFilter}
@@ -256,7 +248,6 @@ export const Notification = () => {
               </Dialog>
               <NotificationList
                 notifications={notifications}
-                notificationsLoading={loading}
                 checkBoxClickHandler={checkBoxClickHandler}
                 selectedNotificationIds={state.selectedNotifications}
               />

@@ -3,6 +3,9 @@ import {
   createRoutableExtension,
 } from '@backstage/core-plugin-api';
 import { rootRouteRef } from './routes';
+import { enableMapSet } from 'immer';
+
+enableMapSet();
 
 export const parodosPlugin = createPlugin({
   id: 'parodos',
