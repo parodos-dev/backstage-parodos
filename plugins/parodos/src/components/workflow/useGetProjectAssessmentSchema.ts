@@ -101,5 +101,7 @@ export function useGetProjectAssessmentSchema({
     12,
   );
 
+  console.log(formSchema);
+
   return formSchema;
 }

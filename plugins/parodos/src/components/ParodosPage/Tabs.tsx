@@ -58,8 +58,8 @@ export function Tabs(): JSX.Element {
   const tabs = useMemo(
     () =>
       navigationMap.map(({ label }, index) => {
-        const highlighted = selectedTab === 0 && index === 1 && !hasProjects;
-        const notifyIcon = index === 2 && unreadNotificaitons > 0;
+        const highlighted = selectedTab === 0 && index === 2 && !hasProjects;
+        const notifyIcon = index === 3 && unreadNotificaitons > 0;
 
         return {
           id: index.toString(),
