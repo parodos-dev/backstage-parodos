@@ -16,6 +16,10 @@ const useStyles = makeStyles(_theme => ({
   },
 }));
 
+export interface TabLabelProps {
+  children: ReactNode;
+}
+
 export function Tabs(): JSX.Element {
   const styles = useStyles();
   const { pathname } = useLocation();
@@ -61,7 +65,7 @@ export function Tabs(): JSX.Element {
           id: index.toString(),
           label,
           tabProps: {
-            component: forwardRef<HTMLSpanElement, HTMLSpanElement>(
+            component: forwardRef<HTMLSpanElement, TabLabelProps>(
               (
                 { children: tabChildren, ...tabProps }: { children: ReactNode },
                 ref,
