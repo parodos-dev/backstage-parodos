@@ -182,7 +182,17 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
       data={tableData}
       components={{
         Cell: ({ columnDef, rowData }) => {
-          if (columnDef.field === 'view') {
+          if (columnDef.field === 'accessRole') {
+            return rowData.accessRole ? (
+              <TableCell>{rowData.accessRole}</TableCell>
+            ) : (
+              <TableCell>
+                <LinkButton color="primary" to="#">
+                  Request Access
+                </LinkButton>
+              </TableCell>
+            );
+          } else if (columnDef.field === 'view') {
             return (
               <TableCell>
                 <LinkButton
