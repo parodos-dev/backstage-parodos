@@ -75,6 +75,8 @@ export function WorkflowsOverview(): JSX.Element {
     }
   }, [errorApi, error]);
 
+  const noWorkflows = (workflows ?? []).length === 0;
+
   return (
     <ParodosPage>
       <Grid container spacing={2} direction="row">
@@ -89,7 +91,7 @@ export function WorkflowsOverview(): JSX.Element {
         </Grid>
       </Grid>
       <Grid container spacing={3} direction="row">
-        <Grid item xs={2}>
+        <Grid item xs={5} md={4} lg={3}>
           <Select
             label={'Select a project'.toUpperCase()}
             placeholder={selectedProjectId ? undefined : 'Project name'}
@@ -107,11 +109,12 @@ export function WorkflowsOverview(): JSX.Element {
             type="button"
             color="primary"
             data-testid="button-add-new-project"
+            disabled={!selectedProjectId}
             to={`${pluginRoutePrefix}/onboarding?project=${selectedProjectId}&isnew=${
               (workflows ?? []).length === 0
             }`}
           >
-            Add new workflow
+            {noWorkflows ? 'Add Assessment workflow' : 'Add new workflow'}
           </LinkButton>
         </Grid>
       </Grid>
