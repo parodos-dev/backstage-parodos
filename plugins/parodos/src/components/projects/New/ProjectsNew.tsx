@@ -16,12 +16,14 @@ import { projectSchema } from '../../../models/project';
 import { assert } from 'assert-ts';
 import { ProjectsPayload } from '../../workflow/hooks/useCreateWorkflow';
 import * as urls from '../../../urls';
+import { useNavigate } from 'react-router-dom';
 
 export function ProjectsNew(): JSX.Element {
   const projectsUrl = useStore(state => state.getApiUrl(urls.Projects));
   const addProject = useStore(state => state.addProject);
   const { fetch } = useApi(fetchApiRef);
   const errorApi = useApi(errorApiRef);
+  const navigate = useNavigate();
 
   const [{ error, loading }, createNewProject] = useAsyncFn(
     async ({
@@ -29,6 +31,7 @@ export function ProjectsNew(): JSX.Element {
     }: IChangeEvent<
       Record<string, Pick<ProjectsPayload, 'name' | 'description'>>
     >) => {
+      console.log(formData);
       assert(!!formData, `no formData`);
 
       const newProjectResponse = await fetch(projectsUrl, {
@@ -43,8 +46,10 @@ export function ProjectsNew(): JSX.Element {
       const newProject = projectSchema.parse(await newProjectResponse.json());
 
       addProject(newProject);
+
+      navigate('/parodos/projects');
     },
-    [addProject, fetch, projectsUrl],
+    [addProject, fetch, navigate, projectsUrl],
   );
 
   useEffect(() => {
@@ -69,8 +74,16 @@ export function ProjectsNew(): JSX.Element {
           formSchema={{ steps: [newProjectStep] }}
           onSubmit={createNewProject}
           disabled={loading}
+          stepLess
         >
-          <Button>Fuck</Button>
+          <Button
+            type="submit"
+            disabled={loading}
+            variant="contained"
+            color="primary"
+          >
+            CREATE PROJECT
+          </Button>
         </Form>
       </InfoCard>
     </ParodosPage>

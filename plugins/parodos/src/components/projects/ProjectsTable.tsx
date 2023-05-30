@@ -52,10 +52,10 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-type ProjectsTableData = Pick<
-  Project,
-  'name' | 'createdBy' | 'createdDate' | 'accessRole'
->;
+type ProjectsTableData = {
+  [K in Pick<Project, 'name' | 'createdBy' | 'createdDate' | 'accessRole'> &
+    string]: string;
+};
 
 const columns: TableColumn<ProjectsTableData>[] = [
   { title: 'PROJECT NAME', field: 'name', width: '20%' },

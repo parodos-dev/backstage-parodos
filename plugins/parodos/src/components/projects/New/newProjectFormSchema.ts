@@ -8,10 +8,9 @@ interface FormSchema {
 
 const newProjectFormSchema: FormSchema = {
   schema: {
-    title: 'A registration form',
-    description: 'A simple form example.',
+    title: 'New project form',
     type: 'object',
-    required: ['firstName', 'lastName'],
+    required: ['name', 'description'],
     properties: {
       name: {
         type: 'string',
@@ -19,7 +18,7 @@ const newProjectFormSchema: FormSchema = {
       },
       description: {
         type: 'string',
-        title: 'Last name',
+        title: 'Description',
       },
     },
   },
