@@ -9,7 +9,6 @@ import { WorkFlowLogViewer } from './WorkFlowLogViewer';
 import React, { useEffect, useState } from 'react';
 import { WorkFlowStepper } from './topology/WorkFlowStepper';
 import { useLocation, useParams } from 'react-router-dom';
-import { mockLog } from './topology/mock/mockLog';
 import * as urls from '../../../urls';
 import {
   WorkflowStatus,
@@ -50,20 +49,11 @@ export const WorkFlowDetail = () => {
   const [workflowName, setWorkflowName] = useState<string>('');
   const [allTasks, setAllTasks] = useState<WorkflowTask[]>([]);
   const [log, setLog] = useState<string>(``);
-  const [countlog, setCountlog] = useState<number>(0);
   const workflowsUrl = useStore(store => store.getApiUrl(urls.Workflows));
   const projects = useStore(store => store.projects);
   const [project, setProject] = useState<Project>();
   const styles = useStyles();
   const { fetch } = useApi(fetchApiRef);
-
-  const getSelectedTaskLog = React.useCallback(
-    (templog: string) => {
-      // TODO  api call to get a task log from Workflow Execution Id
-      if (selectedTask !== '') setLog(templog);
-    },
-    [selectedTask],
-  );
 
   // get project name
   useEffect(() => {
@@ -108,26 +98,38 @@ export const WorkFlowDetail = () => {
     }, 5000);
     updateWorksFromApi();
     return () => clearInterval(taskInterval);
-  }, [allTasks, executionId, fetch, workflowsUrl, getWorkDefinitionBy]);
+  }, [
+    allTasks,
+    executionId,
+    fetch,
+    workflowsUrl,
+    getWorkDefinitionBy,
+    selectedTask,
+  ]);
 
   // update log of selected task regularly
   useEffect(() => {
-    getSelectedTaskLog(
-      `checking logs for ${selectedTask?.toUpperCase()}:${countlog} in execution: ${executionId}\n${mockLog}`,
-    );
-    const logInterval = setInterval(() => {
-      let test: string = '';
-      for (let i = 0; i < countlog; i++) {
-        test = `${test}\nmock log line ${i}`;
+    const updateWorkFlowLogs = async () => {
+      if (selectedTask === '') {
+        setLog('');
+        return;
       }
-      getSelectedTaskLog(
-        `checking logs for ${selectedTask?.toUpperCase()}:${countlog} in execution: ${executionId}\n${mockLog}${test}`,
+
+      const data = await fetch(
+        `${workflowsUrl}/${executionId}/log?task=${selectedTask}`,
       );
-      setCountlog(countlog + 1);
+      const response = await data.text();
+      setLog(
+        `checking logs for ${selectedTask?.toUpperCase()} in execution: ${executionId}\n${response}`,
+      );
+    };
+    const logInterval = setInterval(() => {
+      updateWorkFlowLogs();
     }, 3000);
+    updateWorkFlowLogs();
 
     return () => clearInterval(logInterval);
-  }, [countlog, executionId, getSelectedTaskLog, selectedTask]);
+  }, [executionId, selectedTask, fetch, workflowsUrl]);
 
   return (
     <ParodosPage className={styles.container}>
