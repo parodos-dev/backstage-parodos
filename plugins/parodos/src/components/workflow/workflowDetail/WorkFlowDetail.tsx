@@ -116,7 +116,7 @@ export const WorkFlowDetail = () => {
       }
 
       const data = await fetch(
-        `${workflowsUrl}/${executionId}/log?task=${selectedTask}`,
+        `${workflowsUrl}/${executionId}/log?taskName=${selectedTask}`,
       );
       const response = await data.text();
       setLog(
