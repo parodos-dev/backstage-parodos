@@ -33,8 +33,6 @@ export const useInitializeStore = () => {
 
     const assessmentWorkflow = getWorkDefinitionBy('byName', assessment);
 
-    console.log(assessmentWorkflow);
-
     assert(
       !!assessmentWorkflow,
       `invalid workflow config for assessment ${assessment}`,

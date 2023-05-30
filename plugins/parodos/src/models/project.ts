@@ -14,6 +14,8 @@ const accessRole = z.union([
   z.literal('Admin'),
 ]);
 
+export type AccessRole = z.infer<typeof accessRole>;
+
 export type ProjectStatus = z.infer<typeof projectStatus>;
 
 export const projectSchema = z.object({

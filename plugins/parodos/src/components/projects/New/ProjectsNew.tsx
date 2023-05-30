@@ -17,6 +17,7 @@ import { assert } from 'assert-ts';
 import { ProjectsPayload } from '../../workflow/hooks/useCreateWorkflow';
 import * as urls from '../../../urls';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export function ProjectsNew(): JSX.Element {
   const projectsUrl = useStore(state => state.getApiUrl(urls.Projects));
@@ -31,7 +32,6 @@ export function ProjectsNew(): JSX.Element {
     }: IChangeEvent<
       Record<string, Pick<ProjectsPayload, 'name' | 'description'>>
     >) => {
-      console.log(formData);
       assert(!!formData, `no formData`);
 
       const newProjectResponse = await fetch(projectsUrl, {
@@ -83,6 +83,15 @@ export function ProjectsNew(): JSX.Element {
             color="primary"
           >
             CREATE PROJECT
+          </Button>
+          <Button
+            variant="text"
+            component={Link}
+            color="primary"
+            to="/parodos/projects"
+            // className={styles.cancel}
+          >
+            Cancel
           </Button>
         </Form>
       </InfoCard>

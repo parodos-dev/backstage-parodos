@@ -2,7 +2,6 @@ import {
   ContentHeader,
   EmptyState,
   LinkButton,
-  Progress,
   SupportButton,
 } from '@backstage/core-components';
 import { Button, Grid, makeStyles } from '@material-ui/core';
@@ -23,8 +22,7 @@ const useStyles = makeStyles(_theme => ({
     marginLeft: 'auto',
   },
   newProjectButton: {
-    marginLeft: 'auto',
-    alignSelf: 'flex-end',
+    alignSelf: 'flex-start',
   },
   tableContainer: {
     marginTop: '2em',

@@ -107,7 +107,7 @@ export function WorkflowsOverview(): JSX.Element {
             data-testid="button-add-new-project"
             to={`${pluginRoutePrefix}/onboarding`}
           >
-            Add new project
+            Add new workflow
           </LinkButton>
         </Grid>
       </Grid>

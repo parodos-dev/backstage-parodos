@@ -39,7 +39,7 @@ describe('WorkflowsOverview', () => {
     );
     const { getByTestId, container } = rendered;
     expect(getByTestId('button-add-new-project').textContent).toBe(
-      'Add new project',
+      'Add new workflow',
     );
     expect(getByTestId('button-add-new-project')).toBeEnabled();
     expect(getByTestId('button-add-new-project')).toHaveAttribute(

@@ -1,9 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { LinkButton, Table, TableColumn } from '@backstage/core-components';
 import FilterListIcon from '@material-ui/icons/FilterList';
-import { pluginRoutePrefix } from '../ParodosPage/navigationMap';
-import { ProjectWorkflow } from '../../models/workflowTaskSchema';
-import { useStore } from '../../stores/workflowStore/workflowStore';
 import {
   ClickAwayListener,
   Grow,
@@ -16,8 +13,7 @@ import {
   TableCell,
   Typography,
 } from '@material-ui/core';
-import { Project } from '../../models/project';
-import cs from 'classnames';
+import { AccessRole, Project } from '../../models/project';
 import { getHumanReadableDate } from '../converters';
 
 const useStyles = makeStyles(theme => ({
@@ -65,29 +61,65 @@ const columns: TableColumn<ProjectsTableData>[] = [
   { title: '', field: 'view', width: '5%' },
 ];
 
-const formatDate = new Intl.DateTimeFormat('en', {
-  month: 'short',
-  day: 'numeric',
-  year: 'numeric',
-});
+type AccessRoleFilter = AccessRole | 'All';
+
+const accessRoleMap: Record<AccessRoleFilter, string> = {
+  All: 'All',
+  Admin: 'Admin',
+  Owner: 'Owner',
+  Developer: 'Developer',
+} as const;
+
+type AccessRoleMapKeys = keyof typeof accessRoleMap;
 
 export function ProjectsTable({ projects }: { projects: Project[] }) {
   const classes = useStyles();
   const filterIconRef = useRef<HTMLButtonElement>(null);
   const [openFilter, setOpenFilter] = useState(false);
   const handleFilterToggle = () => setOpenFilter(prevOpen => !prevOpen);
-  // const handleFilterClose = () => setOpenFilter(false)
+  const handleFilterClose = (event: React.MouseEvent<Node, MouseEvent>) => {
+    if (filterIconRef.current?.contains(event.target as Node)) {
+      return;
+    }
+
+    setOpenFilter(false);
+  };
+  const [search, setSearch] = useState('');
+  const [accessRoleFilter, setAccessRoleFilter] =
+    useState<AccessRoleFilter>('All');
+
+  const handleListKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      setOpenFilter(false);
+    }
+  };
+
+  const handleChangeFilter = (
+    event: React.MouseEvent<Node, MouseEvent>,
+    filter: AccessRoleFilter,
+  ) => {
+    handleFilterClose(event);
+    setAccessRoleFilter(filter);
+  };
 
   const tableData = useMemo(
     () =>
-      projects.map(project => ({
-        id: project.id,
-        name: project.name,
-        createdBy: project.createdBy,
-        createdDate: getHumanReadableDate(project.createdDate),
-        accessRole: project.accessRole,
-      })),
-    [projects],
+      projects
+        .filter(p =>
+          accessRoleFilter === 'All' ? true : p.accessRole === accessRoleFilter,
+        )
+        .filter(p =>
+          search ? p.name.toLocaleLowerCase().includes(search) : true,
+        )
+        .map(project => ({
+          id: project.id,
+          name: project.name,
+          createdBy: project.createdBy,
+          createdDate: getHumanReadableDate(project.createdDate),
+          accessRole: project.accessRole,
+        })),
+    [accessRoleFilter, projects, search],
   );
 
   return (
@@ -104,7 +136,7 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
           >
             Filters
           </Typography>
-          {/* <Popper
+          <Popper
             open={openFilter}
             anchorEl={filterIconRef.current}
             role={undefined}
@@ -125,28 +157,25 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
                       id="status-filter-list"
                       onKeyDown={handleListKeyDown}
                     >
-                      <MenuItem onClick={handleChangeFilter}>All</MenuItem>
-                      {(
-                        Object.keys(
-                          statusMap,
-                        ) as ProjectWorkflow['workStatus'][]
-                      ).map(status => (
-                        <MenuItem
-                          key={status}
-                          onClick={e => handleChangeFilter(e, status)}
-                        >
-                          {statusMap[status]}
-                        </MenuItem>
-                      ))}
+                      {(Object.keys(accessRoleMap) as AccessRoleMapKeys[]).map(
+                        accessRole => (
+                          <MenuItem
+                            key={accessRole}
+                            onClick={e => handleChangeFilter(e, accessRole)}
+                          >
+                            {accessRoleMap[accessRole]}
+                          </MenuItem>
+                        ),
+                      )}
                     </MenuList>
                   </ClickAwayListener>
                 </Paper>
               </Grow>
             )}
-          </Popper> */}
+          </Popper>
         </span>
       }
-      // onSearchChange={setSearch}
+      onSearchChange={setSearch}
       options={{ paging: false }}
       columns={columns}
       data={tableData}
