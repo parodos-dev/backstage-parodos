@@ -4,24 +4,22 @@ import {
   InfoCard,
   SupportButton,
 } from '@backstage/core-components';
-import { errorApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
+import { errorApiRef, useApi } from '@backstage/core-plugin-api';
 import { Form } from '../Form/Form';
 import { ParodosPage } from '../ParodosPage';
 import { Button, Grid, makeStyles, Typography } from '@material-ui/core';
 import { useGetProjectAssessmentSchema } from './useGetProjectAssessmentSchema';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 import { IChangeEvent } from '@rjsf/core-v5';
-import * as urls from '../../urls';
-import { type Project, projectSchema } from '../../models/project';
 import { WorkflowOptionsList } from './WorkflowOptionsList';
 import { assert } from 'assert-ts';
 import { useStore } from '../../stores/workflowStore/workflowStore';
-import { ProjectPicker } from '../Form/extensions/ProjectPicker/ProjectPicker';
 import {
   ProjectsPayload,
   useCreateWorkflow,
   WorkflowOptionsListItem,
 } from './hooks/useCreateWorkflow';
+import { useSearchParams } from 'react-router-dom';
 
 export type AssessmentStatusType = 'none' | 'inprogress' | 'complete';
 
@@ -40,20 +38,15 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function isProject(input?: string | Project): input is Project {
-  return typeof input !== 'string' && typeof input?.id === 'string';
-}
-
 export function Workflow(): JSX.Element {
-  const projectsUrl = useStore(state => state.getApiUrl(urls.Projects));
-  const addProject = useStore(state => state.addProject);
-  const hasProjects = useStore(state => state.hasProjects());
-  const [isNewProject, setIsNewProject] = useState(true);
   const assessment = useStore(state => state.workflows.assessment);
   const assessmentTask = useStore(state => state.workflows.assessmentTask);
-  const { fetch } = useApi(fetchApiRef);
+  const [searchParams] = useSearchParams();
+  const selectedProject = useStore(state =>
+    state.getProjectById(searchParams.get('project')),
+  );
+  const isNewProject = searchParams.get('isnew') === 'true';
 
-  const [project, setProject] = useState<Project | undefined>();
   const [assessmentStatus, setAssessmentStatus] =
     useState<AssessmentStatusType>('none');
   const [workflowOptions, setWorkflowOptions] = useState<
@@ -61,11 +54,7 @@ export function Workflow(): JSX.Element {
   >([]);
   const styles = useStyles();
 
-  const formSchema = useGetProjectAssessmentSchema({
-    hasProjects,
-    newProject: isNewProject,
-    workflows: { assessment, assessmentTask },
-  });
+  const formSchema = useGetProjectAssessmentSchema();
 
   const [{ error: createWorkflowError, loading: _ }, createWorkflow] =
     useCreateWorkflow({ assessment, assessmentTask });
@@ -76,28 +65,13 @@ export function Workflow(): JSX.Element {
 
       setAssessmentStatus('inprogress');
 
-      const newProjectResponse = await fetch(projectsUrl, {
-        method: 'POST',
-        body: JSON.stringify(formData[assessmentTask]),
-      });
-
-      if (!newProjectResponse.ok) {
-        throw new Error(newProjectResponse.statusText);
-      }
-
-      const newProject = projectSchema.parse(await newProjectResponse.json());
-
-      setProject(newProject);
-
       setWorkflowOptions(
-        await createWorkflow({ workflowProject: newProject, formData }),
+        await createWorkflow({ workflowProject: selectedProject, formData }),
       );
 
       setAssessmentStatus('complete');
-
-      addProject(newProject);
     },
-    [addProject, assessmentTask, createWorkflow, fetch, projectsUrl],
+    [createWorkflow, selectedProject],
   );
 
   const errorApi = useApi(errorApiRef);
@@ -116,22 +90,12 @@ export function Workflow(): JSX.Element {
         return;
       }
 
-      const { newProject: nextIsNewProject, project: selectedProject } =
-        e.formData[assessmentTask];
-
-      if (nextIsNewProject !== isNewProject) {
-        setProject(undefined);
-        setIsNewProject(nextIsNewProject);
-      }
-
-      if (nextIsNewProject === false && isProject(selectedProject)) {
-        await createWorkflow({
-          workflowProject: selectedProject,
-          formData: e.formData,
-        });
-      }
+      await createWorkflow({
+        workflowProject: selectedProject,
+        formData: e.formData,
+      });
     },
-    [assessmentTask, createWorkflow, isNewProject],
+    [assessmentTask, createWorkflow, selectedProject],
   );
 
   const inProgress = assessmentStatus === 'inprogress';
@@ -139,7 +103,7 @@ export function Workflow(): JSX.Element {
 
   const disableForm = inProgress || complete;
 
-  const displayOptions = assessmentStatus === 'complete' && project;
+  const displayOptions = assessmentStatus === 'complete';
 
   return (
     <ParodosPage stretch>
@@ -161,28 +125,22 @@ export function Workflow(): JSX.Element {
                 onChange={changeHandler}
                 hideTitle
                 stepLess
-                // TODO: fix typing with fields
-                fields={{ ProjectPicker: ProjectPicker as any }}
               >
-                {isNewProject ? (
-                  <Button
-                    type="submit"
-                    disabled={disableForm ?? inProgress}
-                    variant="contained"
-                    color="primary"
-                  >
-                    {inProgress ? 'IN PROGRESS' : 'START ASSESSMENT'}
-                  </Button>
-                ) : (
-                  <></>
-                )}
+                <Button
+                  type="submit"
+                  disabled={disableForm ?? inProgress}
+                  variant="contained"
+                  color="primary"
+                >
+                  {inProgress ? 'IN PROGRESS' : 'START ASSESSMENT'}
+                </Button>
               </Form>
             </Grid>
             <Grid item xs={12}>
               {displayOptions && (
                 <WorkflowOptionsList
                   isNew={isNewProject}
-                  project={project}
+                  project={selectedProject}
                   workflowOptions={workflowOptions}
                 />
               )}

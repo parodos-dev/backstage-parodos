@@ -4,6 +4,7 @@ import * as urls from '../../urls';
 import { unstable_batchedUpdates } from 'react-dom';
 import { type Project, projectSchema } from '../../models/project';
 import { FetchApi } from '@backstage/core-plugin-api';
+import { assert } from 'assert-ts';
 
 export const createProjectsSlice: StateCreator<
   State,
@@ -17,6 +18,15 @@ export const createProjectsSlice: StateCreator<
   projectsPollingInterval: 5000,
   hasProjects() {
     return get().projects.length > 0;
+  },
+  getProjectById(projectId: string | null) {
+    assert(!!projectId, `no project search param`);
+
+    const project = get().projects.find(p => p.id === projectId);
+
+    assert(!!project, `no project found for id ${projectId}`);
+
+    return project;
   },
   projects: [],
   async fetchProjects(fetch: FetchApi['fetch']) {

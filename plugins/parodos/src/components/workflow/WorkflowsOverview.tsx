@@ -16,6 +16,7 @@ import { pluginRoutePrefix } from '../ParodosPage/navigationMap';
 import { WorkflowsTable } from './WorkflowsTable';
 import { useWorkflows } from './hooks/useWorkflows';
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
+import { useSearchParams } from 'react-router-dom';
 
 const useStyles = makeStyles(_theme => ({
   titleIcon: {
@@ -27,7 +28,6 @@ const useStyles = makeStyles(_theme => ({
     marginLeft: 'auto',
   },
   newProjectButton: {
-    marginLeft: 'auto',
     alignSelf: 'flex-end',
   },
   tableContainer: {
@@ -40,10 +40,11 @@ export function WorkflowsOverview(): JSX.Element {
   const projects = useStore(state => state.projects);
   const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
   const errorApi = useApi(errorApiRef);
+  const [searchParams] = useSearchParams();
 
   const [selectedProjectId, setSelectedProjectId] = useState<
     string | undefined
-  >(projects[0]?.id);
+  >(searchParams.get('project') ?? projects[0]?.id);
 
   const items = projects.map(project => ({
     label: project.name,
@@ -88,7 +89,7 @@ export function WorkflowsOverview(): JSX.Element {
         </Grid>
       </Grid>
       <Grid container spacing={3} direction="row">
-        <Grid item xs={4}>
+        <Grid item xs={2}>
           <Select
             label={'Select a project'.toUpperCase()}
             placeholder={selectedProjectId ? undefined : 'Project name'}
@@ -97,6 +98,7 @@ export function WorkflowsOverview(): JSX.Element {
             onChange={item =>
               typeof item === 'string' && setSelectedProjectId(item)
             }
+            margin="none"
           />
         </Grid>
         <Grid item className={classes.newProjectButton}>
@@ -105,7 +107,9 @@ export function WorkflowsOverview(): JSX.Element {
             type="button"
             color="primary"
             data-testid="button-add-new-project"
-            to={`${pluginRoutePrefix}/onboarding`}
+            to={`${pluginRoutePrefix}/onboarding?project=${selectedProjectId}&isnew=${
+              (workflows ?? []).length === 0
+            }`}
           >
             Add new workflow
           </LinkButton>

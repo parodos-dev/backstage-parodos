@@ -15,6 +15,7 @@ import {
 } from '@material-ui/core';
 import { AccessRole, Project } from '../../models/project';
 import { getHumanReadableDate } from '../converters';
+import { pluginRoutePrefix } from '../ParodosPage/navigationMap';
 
 const useStyles = makeStyles(theme => ({
   searchInput: {
@@ -184,7 +185,10 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
           if (columnDef.field === 'view') {
             return (
               <TableCell>
-                <LinkButton color="primary" to="/workflows">
+                <LinkButton
+                  color="primary"
+                  to={`${pluginRoutePrefix}/workflows?project=${rowData.id}`}
+                >
                   VIEW
                 </LinkButton>
               </TableCell>

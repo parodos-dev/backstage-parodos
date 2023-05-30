@@ -18,6 +18,7 @@ import { ProjectsPayload } from '../../workflow/hooks/useCreateWorkflow';
 import * as urls from '../../../urls';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { pluginRoutePrefix } from '../../ParodosPage/navigationMap';
 
 export function ProjectsNew(): JSX.Element {
   const projectsUrl = useStore(state => state.getApiUrl(urls.Projects));
@@ -47,7 +48,7 @@ export function ProjectsNew(): JSX.Element {
 
       addProject(newProject);
 
-      navigate('/parodos/projects');
+      navigate(`${pluginRoutePrefix}/workflows?project=${newProject.id}`);
     },
     [addProject, fetch, navigate, projectsUrl],
   );
