@@ -18,7 +18,7 @@ import { useWorkflows } from './hooks/useWorkflows';
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
 import { useSearchParams } from 'react-router-dom';
 
-const useStyles = makeStyles(_theme => ({
+const useStyles = makeStyles(theme => ({
   titleIcon: {
     alignSelf: 'center',
     height: '3.5em',
@@ -32,6 +32,14 @@ const useStyles = makeStyles(_theme => ({
   },
   tableContainer: {
     marginTop: '2em',
+  },
+  addProjectButton: {
+    marginRight: theme.spacing(1),
+  },
+  selectContainer: {
+    '& div[class^="MuiFormControl-root"]': {
+      maxWidth: '100%',
+    },
   },
 }));
 
@@ -91,7 +99,7 @@ export function WorkflowsOverview(): JSX.Element {
         </Grid>
       </Grid>
       <Grid container spacing={3} direction="row">
-        <Grid item xs={5} md={4} lg={3}>
+        <Grid item xs={5} md={3} lg={2} className={classes.selectContainer}>
           <Select
             label={'Select a project'.toUpperCase()}
             placeholder={selectedProjectId ? undefined : 'Project name'}
@@ -124,7 +132,7 @@ export function WorkflowsOverview(): JSX.Element {
           title="There are no project workflows to display."
           description="Want to learn more about Parodos? Check out our documentation."
           action={
-            <Button variant="contained" type="button" color="primary">
+            <Button variant="contained" type="button" color="secondary">
               Docs
             </Button>
           }

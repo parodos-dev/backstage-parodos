@@ -40,6 +40,13 @@ export function ProjectsNew(): JSX.Element {
         body: JSON.stringify(formData),
       });
 
+      if (newProjectResponse.status === 409) {
+        errorApi.post(
+          new Error(`A project with name ${formData.name} already exists`),
+        );
+        return;
+      }
+
       if (!newProjectResponse.ok) {
         throw new Error(newProjectResponse.statusText);
       }
@@ -50,7 +57,7 @@ export function ProjectsNew(): JSX.Element {
 
       navigate(`${pluginRoutePrefix}/workflows?project=${newProject.id}`);
     },
-    [addProject, fetch, navigate, projectsUrl],
+    [addProject, errorApi, fetch, navigate, projectsUrl],
   );
 
   useEffect(() => {
@@ -89,8 +96,7 @@ export function ProjectsNew(): JSX.Element {
             variant="text"
             component={Link}
             color="primary"
-            to="/parodos/projects"
-            // className={styles.cancel}
+            to={`${pluginRoutePrefix}/projects`}
           >
             Cancel
           </Button>
