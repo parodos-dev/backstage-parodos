@@ -123,8 +123,6 @@ export function Workflow(): JSX.Element {
                 onSubmit={startAssessment}
                 disabled={disableForm}
                 onChange={changeHandler}
-                hideTitle
-                stepLess
               >
                 <Button
                   type="submit"
