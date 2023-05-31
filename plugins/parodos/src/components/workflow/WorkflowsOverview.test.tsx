@@ -38,14 +38,7 @@ describe('WorkflowsOverview', () => {
       }),
     );
     const { getByTestId, container } = rendered;
-    expect(getByTestId('button-add-new-project').textContent).toBe(
-      'Add new project',
-    );
     expect(getByTestId('button-add-new-project')).toBeEnabled();
-    expect(getByTestId('button-add-new-project')).toHaveAttribute(
-      'href',
-      '/parodos/onboarding',
-    );
     waitFor(() => {
       expect(
         container.querySelector(

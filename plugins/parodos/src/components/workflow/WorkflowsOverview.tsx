@@ -16,8 +16,9 @@ import { pluginRoutePrefix } from '../ParodosPage/navigationMap';
 import { WorkflowsTable } from './WorkflowsTable';
 import { useWorkflows } from './hooks/useWorkflows';
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
+import { useSearchParams } from 'react-router-dom';
 
-const useStyles = makeStyles(_theme => ({
+const useStyles = makeStyles(theme => ({
   titleIcon: {
     alignSelf: 'center',
     height: '3.5em',
@@ -27,11 +28,18 @@ const useStyles = makeStyles(_theme => ({
     marginLeft: 'auto',
   },
   newProjectButton: {
-    marginLeft: 'auto',
     alignSelf: 'flex-end',
   },
   tableContainer: {
     marginTop: '2em',
+  },
+  addProjectButton: {
+    marginRight: theme.spacing(1),
+  },
+  selectContainer: {
+    '& div[class^="MuiFormControl-root"]': {
+      maxWidth: '100%',
+    },
   },
 }));
 
@@ -40,10 +48,11 @@ export function WorkflowsOverview(): JSX.Element {
   const projects = useStore(state => state.projects);
   const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
   const errorApi = useApi(errorApiRef);
+  const [searchParams] = useSearchParams();
 
   const [selectedProjectId, setSelectedProjectId] = useState<
     string | undefined
-  >(projects[0]?.id);
+  >(searchParams.get('project') ?? projects[0]?.id);
 
   const items = projects.map(project => ({
     label: project.name,
@@ -74,6 +83,8 @@ export function WorkflowsOverview(): JSX.Element {
     }
   }, [errorApi, error]);
 
+  const noWorkflows = (workflows ?? []).length === 0;
+
   return (
     <ParodosPage>
       <Grid container spacing={2} direction="row">
@@ -88,7 +99,7 @@ export function WorkflowsOverview(): JSX.Element {
         </Grid>
       </Grid>
       <Grid container spacing={3} direction="row">
-        <Grid item xs={4}>
+        <Grid item xs={5} md={3} lg={2} className={classes.selectContainer}>
           <Select
             label={'Select a project'.toUpperCase()}
             placeholder={selectedProjectId ? undefined : 'Project name'}
@@ -97,6 +108,7 @@ export function WorkflowsOverview(): JSX.Element {
             onChange={item =>
               typeof item === 'string' && setSelectedProjectId(item)
             }
+            margin="none"
           />
         </Grid>
         <Grid item className={classes.newProjectButton}>
@@ -105,9 +117,12 @@ export function WorkflowsOverview(): JSX.Element {
             type="button"
             color="primary"
             data-testid="button-add-new-project"
-            to={`${pluginRoutePrefix}/onboarding`}
+            disabled={!selectedProjectId}
+            to={`${pluginRoutePrefix}/onboarding?project=${selectedProjectId}&isnew=${
+              (workflows ?? []).length === 0
+            }`}
           >
-            Add new project
+            {noWorkflows ? 'Add Assessment workflow' : 'Add new workflow'}
           </LinkButton>
         </Grid>
       </Grid>
@@ -117,7 +132,7 @@ export function WorkflowsOverview(): JSX.Element {
           title="There are no project workflows to display."
           description="Want to learn more about Parodos? Check out our documentation."
           action={
-            <Button variant="contained" type="button" color="primary">
+            <Button variant="contained" type="button" color="secondary">
               Docs
             </Button>
           }

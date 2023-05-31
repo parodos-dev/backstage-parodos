@@ -1,29 +1,17 @@
 import React, { forwardRef, type ReactNode, useCallback, useMemo } from 'react';
 import { navigationMap, pluginRoutePrefix } from './navigationMap';
-import StarIcon from '@material-ui/icons/Star';
 import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
-import { Badge, makeStyles } from '@material-ui/core';
+import { Badge } from '@material-ui/core';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import { HeaderTabs } from '@backstage/core-components';
-
-const useStyles = makeStyles(_theme => ({
-  highlightedTab: {
-    position: 'absolute',
-    top: '1rem',
-    right: 0,
-    color: '#F70D1A',
-  },
-}));
 
 export interface TabLabelProps {
   children: ReactNode;
 }
 
 export function Tabs(): JSX.Element {
-  const styles = useStyles();
   const { pathname } = useLocation();
-  const hasProjects = useStore(state => state.hasProjects());
   const notifications = useStore(state => state.notifications);
   const navigate = useNavigate();
 
@@ -58,8 +46,7 @@ export function Tabs(): JSX.Element {
   const tabs = useMemo(
     () =>
       navigationMap.map(({ label }, index) => {
-        const highlighted = selectedTab === 0 && index === 1 && !hasProjects;
-        const notifyIcon = index === 2 && unreadNotificaitons > 0;
+        const notifyIcon = label === 'Notification' && unreadNotificaitons > 0;
 
         return {
           id: index.toString(),
@@ -72,9 +59,6 @@ export function Tabs(): JSX.Element {
               ) => (
                 <span {...tabProps} ref={ref}>
                   {navigationMap[index].icon}
-                  {highlighted && (
-                    <StarIcon className={styles.highlightedTab} />
-                  )}
                   {tabChildren}
                   {notifyIcon && (
                     <Badge
@@ -91,7 +75,7 @@ export function Tabs(): JSX.Element {
           },
         };
       }),
-    [hasProjects, selectedTab, styles.highlightedTab, unreadNotificaitons],
+    [unreadNotificaitons],
   );
 
   return (
