@@ -73,7 +73,6 @@ export function ProjectsNew(): JSX.Element {
       <ContentHeader title="New Project">
         <SupportButton title="Need help?">Lorem Ipsum</SupportButton>
       </ContentHeader>
-      <Typography paragraph>New project</Typography>
       <InfoCard>
         <Typography paragraph>
           Please provide additional information related to your project.
@@ -83,6 +82,7 @@ export function ProjectsNew(): JSX.Element {
           onSubmit={createNewProject}
           disabled={loading}
           stepLess
+          hideTitle
         >
           <Button
             type="submit"

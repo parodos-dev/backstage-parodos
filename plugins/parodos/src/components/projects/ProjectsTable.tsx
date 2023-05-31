@@ -5,7 +5,6 @@ import {
   ClickAwayListener,
   Grow,
   IconButton,
-  makeStyles,
   MenuItem,
   MenuList,
   Paper,
@@ -16,38 +15,6 @@ import {
 import { AccessRole, Project } from '../../models/project';
 import { getHumanReadableDate } from '../converters';
 import { pluginRoutePrefix } from '../ParodosPage/navigationMap';
-
-const useStyles = makeStyles(theme => ({
-  searchInput: {
-    marginLeft: 'auto',
-    alignSelf: 'flex-end',
-  },
-  filterHeader: {
-    marginLeft: '16px',
-  },
-  filterIcon: {
-    display: 'inline-block',
-    width: '8px',
-    height: '8px',
-    borderRadius: '50%',
-    marginRight: '8px',
-  },
-  runningStatus: {
-    backgroundColor: theme.palette.info.main,
-  },
-  completedStatus: {
-    backgroundColor: theme.palette.success.main,
-  },
-  failedStatus: {
-    backgroundColor: theme.palette.error.main,
-  },
-  pendingStatus: {
-    backgroundColor: theme.palette.warning.main,
-  },
-  abortedStatus: {
-    backgroundColor: theme.palette.grey[500],
-  },
-}));
 
 type ProjectsTableData = {
   [K in Pick<Project, 'name' | 'createdBy' | 'createdDate' | 'accessRole'> &
@@ -74,7 +41,6 @@ const accessRoleMap: Record<AccessRoleFilter, string> = {
 type AccessRoleMapKeys = keyof typeof accessRoleMap;
 
 export function ProjectsTable({ projects }: { projects: Project[] }) {
-  const classes = useStyles();
   const filterIconRef = useRef<HTMLButtonElement>(null);
   const [openFilter, setOpenFilter] = useState(false);
   const handleFilterToggle = () => setOpenFilter(prevOpen => !prevOpen);
@@ -130,11 +96,7 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
           <IconButton ref={filterIconRef} onClick={handleFilterToggle}>
             <FilterListIcon />
           </IconButton>
-          <Typography
-            className={classes.filterHeader}
-            display="inline"
-            variant="h6"
-          >
+          <Typography display="inline" variant="h6">
             Filters
           </Typography>
           <Popper
