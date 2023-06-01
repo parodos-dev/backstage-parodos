@@ -1,8 +1,8 @@
-import React, { forwardRef, type ReactNode, useCallback, useMemo } from 'react';
+import React, { forwardRef, type ReactNode, useMemo } from 'react';
 import { navigationMap, pluginRoutePrefix } from './navigationMap';
 import NotificationImportantIcon from '@material-ui/icons/NotificationImportant';
 import { Badge } from '@material-ui/core';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import { HeaderTabs } from '@backstage/core-components';
 
@@ -13,7 +13,6 @@ export interface TabLabelProps {
 export function Tabs(): JSX.Element {
   const { pathname } = useLocation();
   const notifications = useStore(state => state.notifications);
-  const navigate = useNavigate();
 
   const unreadNotificaitons = useMemo(
     () =>
@@ -24,20 +23,10 @@ export function Tabs(): JSX.Element {
     [notifications],
   );
 
-  const onChangeTab = useCallback(
-    tabIndex => {
-      const { routes } = navigationMap[tabIndex];
-      navigate(`${pluginRoutePrefix}${routes[0]}`);
-    },
-    [navigate],
-  );
-
   const selectedTab = useMemo(
     () =>
       Math.max(
-        navigationMap.findIndex(({ routes }) =>
-          routes.find(route => pathname.includes(route)),
-        ),
+        navigationMap.findIndex(({ route }) => pathname.includes(route)),
         0,
       ),
     [pathname],
@@ -45,7 +34,7 @@ export function Tabs(): JSX.Element {
 
   const tabs = useMemo(
     () =>
-      navigationMap.map(({ label }, index) => {
+      navigationMap.map(({ label, route }, index) => {
         const notifyIcon = label === 'Notification' && unreadNotificaitons > 0;
 
         return {
@@ -58,17 +47,19 @@ export function Tabs(): JSX.Element {
                 ref,
               ) => (
                 <span {...tabProps} ref={ref}>
-                  {navigationMap[index].icon}
-                  {tabChildren}
-                  {notifyIcon && (
-                    <Badge
-                      color="secondary"
-                      badgeContent={unreadNotificaitons}
-                      overlap="rectangular"
-                    >
-                      <NotificationImportantIcon color="secondary" />
-                    </Badge>
-                  )}
+                  <NavLink to={`${pluginRoutePrefix}${route}`}>
+                    {navigationMap[index].icon}
+                    {tabChildren}
+                    {notifyIcon && (
+                      <Badge
+                        color="secondary"
+                        badgeContent={unreadNotificaitons}
+                        overlap="rectangular"
+                      >
+                        <NotificationImportantIcon color="secondary" />
+                      </Badge>
+                    )}
+                  </NavLink>
                 </span>
               ),
             ),
@@ -78,11 +69,5 @@ export function Tabs(): JSX.Element {
     [unreadNotificaitons],
   );
 
-  return (
-    <HeaderTabs
-      selectedIndex={selectedTab}
-      onChange={onChangeTab}
-      tabs={tabs}
-    />
-  );
+  return <HeaderTabs tabs={tabs} selectedIndex={selectedTab} />;
 }

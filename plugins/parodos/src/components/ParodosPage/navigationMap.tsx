@@ -4,11 +4,11 @@ import { AssessmentIcon, NotificationIcon } from '../icons';
 export const pluginRoutePrefix = '/parodos';
 
 export const navigationMap = [
-  { label: 'Projects', routes: ['/projects'], icon: <AssessmentIcon /> },
-  { label: 'Workflows', routes: ['/workflows'], icon: <AssessmentIcon /> },
+  { label: 'Projects', route: '/projects', icon: <AssessmentIcon /> },
+  { label: 'Workflows', route: '/workflows', icon: <AssessmentIcon /> },
   {
     label: 'Notification',
-    routes: ['/notification'],
+    route: '/notification',
     icon: <NotificationIcon />,
   },
-];
+] as const;
