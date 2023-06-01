@@ -34,6 +34,7 @@ type FormProps = Pick<
     stepLess?: boolean;
     children?: ReactNode;
     updateSchema?: UpdateSchemaAction;
+    finalSubmitButtonText?: string;
   };
 
 export function Form({
@@ -47,6 +48,7 @@ export function Form({
   updateSchema,
   hideTitle = false,
   stepLess = false,
+  finalSubmitButtonText = 'NEXT',
   children,
   ...props
 }: FormProps): JSX.Element {
@@ -56,6 +58,8 @@ export function Form({
   const formRef = useRef<CoreForm>(null);
 
   const currentStep = formSchema.steps[activeStep];
+
+  const isLastStep = activeStep === formSchema.steps.length - 1;
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1);
@@ -129,7 +133,7 @@ export function Form({
             className={styles.next}
             disabled={disabled}
           >
-            NEXT
+            {isLastStep ? finalSubmitButtonText : 'NEXT'}
           </Button>
         </ButtonGroup>
       )}
