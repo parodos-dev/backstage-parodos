@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ContentHeader,
   InfoCard,
@@ -7,7 +7,7 @@ import {
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
 import { Form } from '../Form/Form';
 import { ParodosPage } from '../ParodosPage';
-import { Button, Grid, makeStyles, Typography } from '@material-ui/core';
+import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { useGetProjectAssessmentSchema } from './useGetProjectAssessmentSchema';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 import { IChangeEvent } from '@rjsf/core-v5';
@@ -84,20 +84,6 @@ export function Workflow(): JSX.Element {
     }
   }, [createWorkflowError, errorApi, startAssessmentError]);
 
-  const changeHandler = useCallback(
-    async (e: IChangeEvent<Record<string, ProjectsPayload>>) => {
-      if (!e.formData?.[assessmentTask]) {
-        return;
-      }
-
-      await createWorkflow({
-        workflowProject: selectedProject,
-        formData: e.formData,
-      });
-    },
-    [assessmentTask, createWorkflow, selectedProject],
-  );
-
   const inProgress = assessmentStatus === 'inprogress';
   const complete = assessmentStatus === 'complete';
 
@@ -122,17 +108,10 @@ export function Workflow(): JSX.Element {
                 formSchema={formSchema}
                 onSubmit={startAssessment}
                 disabled={disableForm}
-                onChange={changeHandler}
-              >
-                <Button
-                  type="submit"
-                  disabled={disableForm ?? inProgress}
-                  variant="contained"
-                  color="primary"
-                >
-                  {inProgress ? 'IN PROGRESS' : 'START ASSESSMENT'}
-                </Button>
-              </Form>
+                finalSubmitButtonText={
+                  inProgress ? 'IN PROGRESS' : 'START ASSESSMENT'
+                }
+              />
             </Grid>
             <Grid item xs={12}>
               {displayOptions && (
