@@ -203,7 +203,7 @@ function toRanges(values: number[]) {
 /**
  * Format the value
  */
-export function formatValue(
+function formatValue(
   value: number,
   options: {
     unit: TimeUnit;

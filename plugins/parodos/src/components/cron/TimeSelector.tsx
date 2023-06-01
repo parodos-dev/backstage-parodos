@@ -115,6 +115,7 @@ export function TimeSelector({
   }, [openSelect, onChange, stringValue]);
 
   useEffect(() => {
+    setPeriod(undefined);
     setValues(new Set(parsePartString(rawValue, unit)));
   }, [rawValue, unit]);
 
