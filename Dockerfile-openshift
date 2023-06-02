@@ -1,0 +1,10 @@
+FROM registry.access.redhat.com/ubi9/nodejs-18:1
+
+FROM backstage:latest
+COPY --from=0 /usr/bin/fix-permissions /usr/bin/fix-permissions
+
+USER root
+RUN /usr/bin/fix-permissions /app/
+
+
+ENTRYPOINT /bin/bash
