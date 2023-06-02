@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import {
   DEFAULT_EDGE_TYPE,
   DEFAULT_FINALLY_NODE_TYPE,
@@ -16,6 +16,7 @@ import {
   Visualization,
   VisualizationProvider,
   VisualizationSurface,
+  useVisualizationController,
 } from '@patternfly/react-topology';
 import '@patternfly/react-styles/css/components/Topology/topology-components.css';
 import pipelineComponentFactory from './pipelineComponentFactory';
@@ -26,17 +27,17 @@ export const PIPELINE_NODE_SEPARATION_VERTICAL = 10;
 
 const PIPELINE_LAYOUT = 'PipelineLayout';
 
-const controller = new Visualization();
 type Props = {
   tasks: WorkflowTask[];
   setSelectedTask: (selectedTask: string) => void;
 };
 
 const TopologyPipelineLayout = (props: Props) => {
-  const [selectedIds, setSelectedIds] = React.useState<string[]>();
+  const [selectedIds, setSelectedIds] = useState<string[]>();
   const pipelineNodes = useDemoPipelineNodes(props.tasks);
+  const controller = useVisualizationController();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const spacerNodes = getSpacerNodes(pipelineNodes);
     const nodes = [...pipelineNodes, ...spacerNodes];
     const edgeType = DEFAULT_EDGE_TYPE;
@@ -62,7 +63,7 @@ const TopologyPipelineLayout = (props: Props) => {
       },
       true,
     );
-  }, [pipelineNodes, props.tasks]);
+  }, [controller, pipelineNodes, props.tasks]);
 
   useEventListener<SelectionEventListener>(SELECTION_EVENT, ids => {
     setSelectedIds(ids);
@@ -78,7 +79,8 @@ const TopologyPipelineLayout = (props: Props) => {
 
 TopologyPipelineLayout.displayName = 'TopologyPipelineLayout';
 
-export const PipelineLayout = React.memo((props: Props) => {
+export const PipelineLayout = memo((props: Props) => {
+  const controller = useMemo(() => new Visualization(), []);
   controller.setFitToScreenOnLayout(true);
   controller.registerComponentFactory(pipelineComponentFactory);
   controller.registerLayoutFactory(
