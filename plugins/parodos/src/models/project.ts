@@ -29,7 +29,7 @@ export const projectSchema = z.object({
     .transform(value => value.split('_').join(' ')),
   modifiedBy: z.string().nullable().optional(),
   createdBy: z.string().nullable().optional(),
-  accessRole,
+  accessRole: accessRole.nullable().optional(),
 });
 
 export type Project = z.infer<typeof projectSchema>;
