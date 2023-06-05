@@ -11,6 +11,7 @@ import { WorkFlowStepper } from './topology/WorkFlowStepper';
 import { useLocation, useParams } from 'react-router-dom';
 import * as urls from '../../../urls';
 import {
+  Status,
   WorkflowStatus,
   workflowStatusSchema,
   WorkflowTask,
@@ -18,8 +19,8 @@ import {
 } from '../../../models/workflowTaskSchema';
 import { useStore } from '../../../stores/workflowStore/workflowStore';
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
-import { Project } from '../../../models/project';
 import { getWorkflowTasksForTopology } from '../../../hooks/getWorkflowDefinitions';
+import { assert } from 'assert-ts';
 
 const useStyles = makeStyles(_theme => ({
   container: {
@@ -43,6 +44,8 @@ const useStyles = makeStyles(_theme => ({
 
 export const WorkFlowDetail = () => {
   const { projectId, executionId } = useParams();
+  assert(!!projectId, 'no projectId param');
+  const project = useStore(state => state.getProjectById(projectId));
   const { isNew = false } = useLocation().state ?? {};
   const getWorkDefinitionBy = useStore(state => state.getWorkDefinitionBy);
   const [selectedTask, setSelectedTask] = useState<string | null>('');
@@ -50,18 +53,10 @@ export const WorkFlowDetail = () => {
   const [allTasks, setAllTasks] = useState<WorkflowTask[]>([]);
   const [log, setLog] = useState<string>(``);
   const workflowsUrl = useStore(store => store.getApiUrl(urls.Workflows));
-  const projects = useStore(store => store.projects);
-  const [project, setProject] = useState<Project>();
   const styles = useStyles();
   const { fetch } = useApi(fetchApiRef);
+  const [status, setStatus] = useState<Status>('IN_PROGRESS');
 
-  // get project name
-  useEffect(() => {
-    const prj = projects.find(p => p.id === projectId);
-    if (prj) setProject(prj);
-  }, [projectId, projects]);
-
-  // update task state regularly
   useEffect(() => {
     const updateWorks = (works: WorkStatus[]) => {
       let needUpdate = false;
@@ -73,9 +68,13 @@ export const WorkFlowDetail = () => {
             foundTask.status = work.status;
             needUpdate = true;
           }
-        } else if (work.works) updateWorks(work.works);
+        } else if (work.works) {
+          updateWorks(work.works);
+        }
       }
-      if (needUpdate) setAllTasks(tasks);
+      if (needUpdate) {
+        setAllTasks(tasks);
+      }
     };
 
     const updateWorksFromApi = async () => {
@@ -84,9 +83,14 @@ export const WorkFlowDetail = () => {
         (await data.json()) as WorkflowStatus,
       );
 
+      if (response.status === 'FAILED') {
+        setStatus(response.status);
+      }
+
       const workflow = getWorkDefinitionBy('byName', response.workFlowName);
-      if (workflow && allTasks.length === 0)
+      if (workflow && allTasks.length === 0) {
         setAllTasks(getWorkflowTasksForTopology(workflow));
+      }
       setWorkflowName(response.workFlowName);
       updateWorks(response.works);
 
@@ -97,6 +101,11 @@ export const WorkFlowDetail = () => {
       updateWorksFromApi();
     }, 5000);
     updateWorksFromApi();
+
+    if (status === 'FAILED') {
+      clearInterval(taskInterval);
+    }
+
     return () => clearInterval(taskInterval);
   }, [
     allTasks,
@@ -105,9 +114,9 @@ export const WorkFlowDetail = () => {
     workflowsUrl,
     getWorkDefinitionBy,
     selectedTask,
+    status,
   ]);
 
-  // update log of selected task regularly
   useEffect(() => {
     const updateWorkFlowLogs = async () => {
       if (selectedTask === '') {

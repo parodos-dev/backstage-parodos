@@ -11,10 +11,10 @@ export function getWorkflowTasksForTopology(
   const result: WorkflowTask[] = [];
 
   result.push({
-    id: 'Project Information',
+    id: 'Start',
     status: 'COMPLETED',
     locked: false,
-    label: 'Project Information',
+    label: 'Start',
     runAfterTasks: [],
   });
 
