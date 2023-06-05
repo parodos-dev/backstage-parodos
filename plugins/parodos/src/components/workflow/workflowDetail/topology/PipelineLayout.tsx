@@ -24,6 +24,7 @@ import { useDemoPipelineNodes } from './useDemoPipelineNodes';
 import { WorkflowTask } from '../../../../models/workflowTaskSchema';
 import { useParentSize } from '@cutting/use-get-parent-size';
 import { assert } from 'assert-ts';
+import { FirstTaskId } from '../../../../hooks/getWorkflowDefinitions';
 
 export const PIPELINE_NODE_SEPARATION_VERTICAL = 10;
 
@@ -80,7 +81,7 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
 
     assert(!!selected, `no selected task for ${taskId}`);
 
-    if (taskId === 'Start' || selected.status === 'PENDING') {
+    if (taskId === FirstTaskId || selected.status === 'PENDING') {
       return;
     }
 

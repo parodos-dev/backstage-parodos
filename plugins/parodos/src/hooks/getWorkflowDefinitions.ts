@@ -5,13 +5,15 @@ import {
 import { taskDisplayName } from '../utils/string';
 import { WorkflowTask } from '../models/workflowTaskSchema';
 
+export const FirstTaskId = 'Start';
+
 export function getWorkflowTasksForTopology(
   workflowDefinition: WorkflowDefinition,
 ): WorkflowTask[] {
   const result: WorkflowTask[] = [];
 
   result.push({
-    id: 'Start',
+    id: FirstTaskId,
     status: 'COMPLETED',
     locked: false,
     label: 'Start',
