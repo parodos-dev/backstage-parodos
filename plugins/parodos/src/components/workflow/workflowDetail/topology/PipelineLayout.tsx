@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import {
   DEFAULT_EDGE_TYPE,
   DEFAULT_FINALLY_NODE_TYPE,
@@ -22,6 +22,7 @@ import '@patternfly/react-styles/css/components/Topology/topology-components.css
 import pipelineComponentFactory from './pipelineComponentFactory';
 import { useDemoPipelineNodes } from './useDemoPipelineNodes';
 import { WorkflowTask } from '../../../../models/workflowTaskSchema';
+import { useParentSize } from '@cutting/use-get-parent-size';
 
 export const PIPELINE_NODE_SEPARATION_VERTICAL = 10;
 
@@ -36,6 +37,14 @@ const TopologyPipelineLayout = (props: Props) => {
   const [selectedIds, setSelectedIds] = useState<string[]>();
   const pipelineNodes = useDemoPipelineNodes(props.tasks);
   const controller = useVisualizationController();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useParentSize(containerRef, {
+    callback: () => {
+      controller.getGraph().fit(70);
+    },
+    debounceDelay: 500,
+  });
 
   useEffect(() => {
     const spacerNodes = getSpacerNodes(pipelineNodes);
@@ -71,9 +80,11 @@ const TopologyPipelineLayout = (props: Props) => {
   });
 
   return (
-    <TopologyView>
-      <VisualizationSurface state={{ selectedIds }} />
-    </TopologyView>
+    <div ref={containerRef}>
+      <TopologyView>
+        <VisualizationSurface state={{ selectedIds }} />
+      </TopologyView>
+    </div>
   );
 };
 

@@ -18,7 +18,9 @@ export function getWorkflowTasksForTopology(
     runAfterTasks: [],
   });
 
-  if (workflowDefinition) addTasks(result, workflowDefinition, [result[0].id]);
+  if (workflowDefinition) {
+    addTasks(result, workflowDefinition, [result[0].id]);
+  }
 
   return result;
 }
