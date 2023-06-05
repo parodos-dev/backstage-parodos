@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import {
   DEFAULT_EDGE_TYPE,
   DEFAULT_FINALLY_NODE_TYPE,
@@ -23,6 +23,8 @@ import pipelineComponentFactory from './pipelineComponentFactory';
 import { useDemoPipelineNodes } from './useDemoPipelineNodes';
 import { WorkflowTask } from '../../../../models/workflowTaskSchema';
 import { useParentSize } from '@cutting/use-get-parent-size';
+import { assert } from 'assert-ts';
+import { FirstTaskId } from '../../../../hooks/getWorkflowDefinitions';
 
 export const PIPELINE_NODE_SEPARATION_VERTICAL = 10;
 
@@ -33,9 +35,9 @@ type Props = {
   setSelectedTask: (selectedTask: string) => void;
 };
 
-const TopologyPipelineLayout = (props: Props) => {
+const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
   const [selectedIds, setSelectedIds] = useState<string[]>();
-  const pipelineNodes = useDemoPipelineNodes(props.tasks);
+  const pipelineNodes = useDemoPipelineNodes(tasks);
   const controller = useVisualizationController();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -72,11 +74,19 @@ const TopologyPipelineLayout = (props: Props) => {
       },
       true,
     );
-  }, [controller, pipelineNodes, props.tasks]);
+  }, [controller, pipelineNodes]);
 
-  useEventListener<SelectionEventListener>(SELECTION_EVENT, ids => {
-    setSelectedIds(ids);
-    props.setSelectedTask(ids.toString());
+  useEventListener<SelectionEventListener>(SELECTION_EVENT, ([taskId]) => {
+    const selected = tasks.find(task => task.id === taskId);
+
+    assert(!!selected, `no selected task for ${taskId}`);
+
+    if (taskId === FirstTaskId || selected.status === 'PENDING') {
+      return;
+    }
+
+    setSelectedIds([taskId]);
+    setSelectedTask(taskId);
   });
 
   return (
@@ -91,7 +101,7 @@ const TopologyPipelineLayout = (props: Props) => {
 TopologyPipelineLayout.displayName = 'TopologyPipelineLayout';
 
 export const PipelineLayout = memo((props: Props) => {
-  const controller = new Visualization();
+  const controller = useMemo(() => new Visualization(), []);
   controller.setFitToScreenOnLayout(true);
   controller.registerComponentFactory(pipelineComponentFactory);
   controller.registerLayoutFactory(
