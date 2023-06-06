@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   ContentHeader,
   InfoCard,
+  Progress,
   SupportButton,
 } from '@backstage/core-components';
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
@@ -66,7 +67,7 @@ export function Workflow(): JSX.Element {
       setAssessmentStatus('inprogress');
 
       setWorkflowOptions(
-        await createWorkflow({ workflowProject: selectedProject, formData }),
+        await createWorkflow({ project: selectedProject, formData }),
       );
 
       setAssessmentStatus('complete');
@@ -100,6 +101,7 @@ export function Workflow(): JSX.Element {
         Select a project for an assessment of what additional workflows, if any,
         it qualifies for.
       </Typography>
+      {inProgress && <Progress />}
       {formSchema && (
         <InfoCard className={styles.fullHeight}>
           <Grid container direction="row" className={styles.form}>

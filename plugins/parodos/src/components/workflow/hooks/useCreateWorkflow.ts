@@ -11,6 +11,8 @@ import { useStore } from '../../../stores/workflowStore/workflowStore';
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { getWorkflowOptions } from './getWorkflowOptions';
 import { pollWorkflowStatus } from './pollWorkflowStatus';
+import { getWorklfowsPayload } from './workflowsPayload';
+import assert from 'assert-ts';
 
 export type WorkflowOptionsListItem = WorkflowOptionItem & { type: string };
 
@@ -23,45 +25,37 @@ export interface ProjectsPayload {
 
 export function useCreateWorkflow({
   assessment,
-  assessmentTask,
 }: {
   assessment: string;
   assessmentTask: string;
 }) {
   const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
+  const assessmentWorkflow = useStore(state =>
+    state.getWorkDefinitionBy('byName', assessment),
+  );
+
+  assert(!!assessmentWorkflow, `no assessmentWorkflow found for ${assessment}`);
+
   const { fetch } = useApi(fetchApiRef);
 
   return useAsyncFn(
     async ({
-      workflowProject,
+      project,
       formData,
     }: {
-      workflowProject: Project;
+      project: Project;
       formData: Record<string, ProjectsPayload>;
     }) => {
-      delete formData[assessmentTask].project;
+      const payload = getWorklfowsPayload({
+        projectId: project.id,
+        workflow: assessmentWorkflow,
+        schema: formData,
+      });
 
       // TODO:  task here should be dynamic based on assessment workflow definition
       const workFlowResponse = await fetch(workflowsUrl, {
         method: 'POST',
-        body: JSON.stringify({
-          projectId: workflowProject.id,
-          workFlowName: assessment,
-          works: [
-            {
-              type: 'TASK',
-              workName: assessmentTask,
-              arguments: Object.entries(formData[assessmentTask]).map(
-                ([key, value]) => {
-                  return {
-                    key: key,
-                    value: value,
-                  };
-                },
-              ),
-            },
-          ],
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!workFlowResponse.ok) {
@@ -96,6 +90,6 @@ export function useCreateWorkflow({
 
       return options;
     },
-    [assessment, assessmentTask, fetch, workflowsUrl],
+    [assessmentWorkflow, fetch, workflowsUrl],
   );
 }
