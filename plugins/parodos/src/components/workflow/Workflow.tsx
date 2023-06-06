@@ -41,7 +41,6 @@ const useStyles = makeStyles(theme => ({
 
 export function Workflow(): JSX.Element {
   const assessment = useStore(state => state.workflows.assessment);
-  const assessmentTask = useStore(state => state.workflows.assessmentTask);
   const [searchParams] = useSearchParams();
   const selectedProject = useStore(state =>
     state.getProjectById(searchParams.get('project')),
@@ -58,7 +57,7 @@ export function Workflow(): JSX.Element {
   const formSchema = useGetProjectAssessmentSchema();
 
   const [{ error: createWorkflowError, loading: _ }, createWorkflow] =
-    useCreateWorkflow({ assessment, assessmentTask });
+    useCreateWorkflow({ assessment });
 
   const [{ error: startAssessmentError }, startAssessment] = useAsyncFn(
     async ({ formData }: IChangeEvent<Record<string, ProjectsPayload>>) => {

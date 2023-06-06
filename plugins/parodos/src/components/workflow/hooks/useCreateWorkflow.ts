@@ -23,12 +23,7 @@ export interface ProjectsPayload {
   project?: Project;
 }
 
-export function useCreateWorkflow({
-  assessment,
-}: {
-  assessment: string;
-  assessmentTask: string;
-}) {
+export function useCreateWorkflow({ assessment }: { assessment: string }) {
   const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
   const assessmentWorkflow = useStore(state =>
     state.getWorkDefinitionBy('byName', assessment),
