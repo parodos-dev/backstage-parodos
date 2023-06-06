@@ -23,7 +23,6 @@ export const TestApp: React.FC = ({ children }) => {
     parodos: {
       workflows: {
         assessment: 'onboardingAssessment_ASSESSMENT_WORKFLOW',
-        assessmentTask: 'onboardingAssessmentTask',
       },
       pollingInterval: 5000,
     },

@@ -29,22 +29,13 @@ export const useInitializeStore = () => {
       return;
     }
 
-    const { assessment, assessmentTask } = appConfig.workflows;
+    const { assessment } = appConfig.workflows;
 
     const assessmentWorkflow = getWorkDefinitionBy('byName', assessment);
 
     assert(
       !!assessmentWorkflow,
       `invalid workflow config for assessment ${assessment}`,
-    );
-
-    const assessmentWorkflowTask = assessmentWorkflow?.works.find(
-      w => w.name === assessmentTask,
-    );
-
-    assert(
-      !!assessmentWorkflowTask,
-      `no assessment task named ${assessmentTask} found in ${assessment} works array`,
     );
   }, [appConfig.workflows, getWorkDefinitionBy, workflowDefinitions]);
 

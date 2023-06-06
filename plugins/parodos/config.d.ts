@@ -6,11 +6,6 @@ export interface Config {
        * @visibility frontend
        */
       assessment: string;
-      /**
-       * TODO: description
-       * @visibility frontend
-       */
-      assessmentTask: string;
     };
     /**
      * TODO: description

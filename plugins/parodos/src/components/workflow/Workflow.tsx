@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   ContentHeader,
   InfoCard,
+  Progress,
   SupportButton,
 } from '@backstage/core-components';
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
@@ -40,7 +41,6 @@ const useStyles = makeStyles(theme => ({
 
 export function Workflow(): JSX.Element {
   const assessment = useStore(state => state.workflows.assessment);
-  const assessmentTask = useStore(state => state.workflows.assessmentTask);
   const [searchParams] = useSearchParams();
   const selectedProject = useStore(state =>
     state.getProjectById(searchParams.get('project')),
@@ -57,7 +57,7 @@ export function Workflow(): JSX.Element {
   const formSchema = useGetProjectAssessmentSchema();
 
   const [{ error: createWorkflowError, loading: _ }, createWorkflow] =
-    useCreateWorkflow({ assessment, assessmentTask });
+    useCreateWorkflow({ assessment });
 
   const [{ error: startAssessmentError }, startAssessment] = useAsyncFn(
     async ({ formData }: IChangeEvent<Record<string, ProjectsPayload>>) => {
@@ -66,7 +66,7 @@ export function Workflow(): JSX.Element {
       setAssessmentStatus('inprogress');
 
       setWorkflowOptions(
-        await createWorkflow({ workflowProject: selectedProject, formData }),
+        await createWorkflow({ project: selectedProject, formData }),
       );
 
       setAssessmentStatus('complete');
@@ -100,6 +100,7 @@ export function Workflow(): JSX.Element {
         Select a project for an assessment of what additional workflows, if any,
         it qualifies for.
       </Typography>
+      {inProgress && <Progress />}
       {formSchema && (
         <InfoCard className={styles.fullHeight}>
           <Grid container direction="row" className={styles.form}>

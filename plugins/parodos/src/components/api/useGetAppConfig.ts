@@ -10,7 +10,6 @@ export const useGetAppConfig = (): ParodosConfig => {
       backendUrl: configApi.getString('backend.baseUrl'),
       workflows: {
         assessment: configApi.getString('parodos.workflows.assessment'),
-        assessmentTask: configApi.getString('parodos.workflows.assessmentTask'),
       },
       pollingInterval: configApi.getNumber('parodos.pollingInterval'),
     }),

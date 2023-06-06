@@ -13,7 +13,6 @@ export const createUISlice: StateCreator<
   pollingInterval: 0,
   workflows: {
     assessment: '',
-    assessmentTask: '',
   },
   getApiUrl(url: string) {
     return `${get().baseUrl}${url}`;
@@ -23,7 +22,6 @@ export const createUISlice: StateCreator<
       unstable_batchedUpdates(() => {
         state.baseUrl = config.backendUrl;
         state.workflows.assessment = config.workflows.assessment;
-        state.workflows.assessmentTask = config.workflows.assessmentTask;
         state.pollingInterval = config.pollingInterval;
       }, false);
     });
