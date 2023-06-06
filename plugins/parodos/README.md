@@ -78,6 +78,12 @@ If the action is failing on an expired token, it can be updated here: https://gi
 
 By doing that, there will be two services running at `http://localhost:8080` and `http://localhost:8081`.
 
+## Node and package manager versions
+
+While developing the plugin, it is recommended to use [volta](https://volta.sh/) to ensure the same node and package manager versions are maintained across environments.
+
+Intallation instructions can be found [here](https://docs.volta.sh/guide/getting-started).
+
 ## Release
 
 The project is published to the NPM JS Registry on release: https://www.npmjs.com/package/@parodos/plugin-parodos.
