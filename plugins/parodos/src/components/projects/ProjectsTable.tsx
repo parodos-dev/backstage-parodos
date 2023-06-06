@@ -157,12 +157,14 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
           } else if (columnDef.field === 'view') {
             return (
               <TableCell>
-                <LinkButton
-                  color="primary"
-                  to={`${pluginRoutePrefix}/workflows?project=${rowData.id}`}
-                >
-                  VIEW
-                </LinkButton>
+                {rowData.accessRole && (
+                  <LinkButton
+                    color="primary"
+                    to={`${pluginRoutePrefix}/workflows?project=${rowData.id}`}
+                  >
+                    VIEW
+                  </LinkButton>
+                )}
               </TableCell>
             );
           }
