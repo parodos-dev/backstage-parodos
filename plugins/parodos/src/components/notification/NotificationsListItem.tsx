@@ -4,6 +4,8 @@ import React, {
   useState,
   SyntheticEvent,
 } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
 import Table from '@material-ui/core/Table';
@@ -20,6 +22,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import cs from 'classnames';
+import { renderers } from '../markdown/renderers';
 
 const useRowStyles = makeStyles(theme => ({
   root: {
@@ -139,7 +142,14 @@ export function NotificationListItem({
               <Table>
                 <TableBody>
                   <TableRow className={styles.nested}>
-                    <TableCell>{notification.body}</TableCell>
+                    <TableCell>
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={renderers}
+                      >
+                        {notification.body}
+                      </ReactMarkdown>
+                    </TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
