@@ -1,12 +1,12 @@
 import {
   WorkType,
   type WorkflowDefinition,
-} from '../models/workflowDefinitionSchema';
-import { type WorkflowsPayload } from '../models/worksPayloadSchema';
+} from '../../../models/workflowDefinitionSchema';
+import { type WorkflowsPayload } from '../../../models/worksPayloadSchema';
 import get from 'lodash.get';
 import { type StrictRJSFSchema } from '@rjsf/utils';
 
-interface GetWorkflowsPayload {
+interface GetWorklfowsPayload {
   workflow: WorkflowDefinition;
   projectId: string;
   schema: StrictRJSFSchema;
@@ -26,25 +26,20 @@ export function walkWorks(
     const next: Work = {
       workName: work.name,
       type: work.workType,
-      arguments: Object.keys(work.parameters ?? {})
-        .map(key => {
-          const value = get(
-            formData,
-            `${prefix === '' ? prefix : `${prefix}.works[${index}]`}${
-              work.name
-            }.${key}`,
-            null,
-          );
+      arguments: Object.keys(work.parameters ?? {}).map(key => {
+        const value = get(
+          formData,
+          `${prefix === '' ? prefix : `${prefix}.works[${index}]`}${
+            work.name
+          }.${key}`,
+          null,
+        );
 
-          if (value !== null || work.parameters?.[key].required) {
-            return {
-              key,
-              value,
-            };
-          }
-          return undefined;
-        })
-        .filter(<T>(x: T | undefined): x is T => Boolean(x)),
+        return {
+          key,
+          value,
+        };
+      }),
     };
 
     if (work.workType === 'WORKFLOW' && work.works) {
@@ -57,11 +52,11 @@ export function walkWorks(
   return result;
 }
 
-export function getWorkflowsPayload({
+export function getWorklfowsPayload({
   projectId,
   workflow,
   schema,
-}: GetWorkflowsPayload): WorkflowsPayload {
+}: GetWorklfowsPayload): WorkflowsPayload {
   const payload: WorkflowsPayload = {
     projectId,
     workFlowName: workflow.name,

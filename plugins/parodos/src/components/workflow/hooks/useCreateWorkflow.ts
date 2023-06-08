@@ -1,19 +1,18 @@
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 import {
   displayableWorkflowOptions,
+  workflowExecute,
   WorkflowOptionItem,
 } from '../../../models/workflow';
 import * as urls from '../../../urls';
 import { taskDisplayName } from '../../../utils/string';
-import type { Project } from '../../../models/project';
+import { type Project } from '../../../models/project';
 import { useStore } from '../../../stores/workflowStore/workflowStore';
+import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { getWorkflowOptions } from './getWorkflowOptions';
 import { pollWorkflowStatus } from './pollWorkflowStatus';
-import {
-  ExecuteWorkflow,
-  useExecuteWorkflow,
-} from '../../../hooks/useExecuteWorkflow';
-import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
+import { getWorklfowsPayload } from './workflowsPayload';
+import assert from 'assert-ts';
 
 export type WorkflowOptionsListItem = WorkflowOptionItem & { type: string };
 
@@ -24,22 +23,49 @@ export interface ProjectsPayload {
   project?: Project;
 }
 
-export function useCreateWorkflow(assessment: string) {
-  const { fetch } = useApi(fetchApiRef);
+export function useCreateWorkflow({ assessment }: { assessment: string }) {
   const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
-  const executeWorkflow = useExecuteWorkflow(assessment);
+  const assessmentWorkflow = useStore(state =>
+    state.getWorkDefinitionBy('byName', assessment),
+  );
+
+  assert(!!assessmentWorkflow, `no assessmentWorkflow found for ${assessment}`);
+
+  const { fetch } = useApi(fetchApiRef);
 
   return useAsyncFn(
-    async (executionOptions: ExecuteWorkflow) => {
-      const { workFlowExecutionId } = await executeWorkflow(executionOptions);
+    async ({
+      project,
+      formData,
+    }: {
+      project: Project;
+      formData: Record<string, ProjectsPayload>;
+    }) => {
+      const payload = getWorklfowsPayload({
+        projectId: project.id,
+        workflow: assessmentWorkflow,
+        schema: formData,
+      });
+
+      // TODO:  task here should be dynamic based on assessment workflow definition
+      const workFlowResponse = await fetch(workflowsUrl, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+
+      if (!workFlowResponse.ok) {
+        throw new Error(workFlowResponse.statusText);
+      }
+
+      const workflow = workflowExecute.parse(await workFlowResponse.json());
 
       await pollWorkflowStatus(fetch, {
         workflowsUrl,
-        executionId: workFlowExecutionId,
+        executionId: workflow.workFlowExecutionId,
       });
       const workflowOptions = await getWorkflowOptions(fetch, {
         workflowsUrl,
-        executionId: workFlowExecutionId,
+        executionId: workflow.workFlowExecutionId,
       });
 
       const options = displayableWorkflowOptions.flatMap(option => {
@@ -59,6 +85,6 @@ export function useCreateWorkflow(assessment: string) {
 
       return options;
     },
-    [fetch, executeWorkflow, workflowsUrl],
+    [assessmentWorkflow, fetch, workflowsUrl],
   );
 }
