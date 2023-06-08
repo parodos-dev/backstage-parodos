@@ -1,55 +1,37 @@
-import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { IChangeEvent } from '@rjsf/core-v5';
 import { type StrictRJSFSchema } from '@rjsf/utils';
 import { useNavigate } from 'react-router-dom';
 import useAsyncFn, { type AsyncFnReturn } from 'react-use/lib/useAsyncFn';
-import { WorkflowDefinition } from '../../../models/workflowDefinitionSchema';
-import { WorkflowStatus } from '../../../models/workflowTaskSchema';
-import { getWorklfowsPayload } from './workflowsPayload';
+import { useExecuteWorkflow } from '../../../hooks/useExecuteWorkflow';
 
 interface UseStartWorkflow {
-  workflowsUrl: string;
-  workflow: WorkflowDefinition;
+  workflowName: string;
   projectId: string;
   isNew: boolean;
 }
 
 export function useStartWorkflow({
-  workflowsUrl,
-  workflow,
+  workflowName,
   projectId,
   isNew,
 }: UseStartWorkflow): AsyncFnReturn<(e?: IChangeEvent) => Promise<void>> {
-  const { fetch } = useApi(fetchApiRef);
   const navigate = useNavigate();
+  const executeWorkflow = useExecuteWorkflow(workflowName);
 
   return useAsyncFn(
     async ({ formData = {} } = {} as IChangeEvent<StrictRJSFSchema>) => {
-      const payload = getWorklfowsPayload({
+      const { workFlowExecutionId } = await executeWorkflow({
         projectId,
-        workflow,
-        schema: formData,
+        formData,
       });
-
-      const data = await fetch(workflowsUrl, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
-
-      if (!data.ok) {
-        throw new Error(`${data.status} - ${data.statusText}`);
-      }
-
-      const response = (await data.json()) as WorkflowStatus;
-      const executionId = response.workFlowExecutionId;
 
       navigate(
-        `/parodos/onboarding/${projectId}/${executionId}/workflow-detail`,
+        `/parodos/onboarding/${projectId}/${workFlowExecutionId}/workflow-detail`,
         {
           state: { isNew },
         },
       );
     },
-    [projectId, workflow, fetch, workflowsUrl, navigate, isNew],
+    [projectId, navigate, isNew, executeWorkflow],
   );
 }

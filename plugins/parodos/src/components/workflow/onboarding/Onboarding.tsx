@@ -13,9 +13,7 @@ import { useWorkflowDefinitionToJsonSchema } from '../../../hooks/useWorkflowDef
 import { assert } from 'assert-ts';
 import { Form } from '../../Form/Form';
 import { type RJSFValidationError } from '@rjsf/utils';
-import * as urls from '../../../urls';
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
-import { useStore } from '../../../stores/workflowStore/workflowStore';
 import { useStartWorkflow } from '../hooks/useStartWorkflow';
 import { Empty } from './Empty';
 
@@ -37,13 +35,8 @@ const useStyles = makeStyles(theme => ({
 
 export function Onboarding({ isNew }: OnboardingProps): JSX.Element {
   const { workflowName, projectId } = useParams();
-  const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
 
   assert(!!workflowName, `no workflowId in Onboarding`);
-
-  const workflow = useStore(state =>
-    state.getWorkDefinitionBy('byName', workflowName),
-  );
 
   const styles = useStyles();
   const [searchParams] = useSearchParams();
@@ -56,12 +49,10 @@ export function Onboarding({ isNew }: OnboardingProps): JSX.Element {
     'byName',
   );
 
-  assert(!!workflow);
   assert(!!projectId);
 
   const [{ error, loading }, startWorkflow] = useStartWorkflow({
-    workflowsUrl,
-    workflow,
+    workflowName,
     projectId,
     isNew,
   });

@@ -57,7 +57,7 @@ export function Workflow(): JSX.Element {
   const formSchema = useGetProjectAssessmentSchema();
 
   const [{ error: createWorkflowError, loading: _ }, createWorkflow] =
-    useCreateWorkflow({ assessment });
+    useCreateWorkflow(assessment);
 
   const [{ error: startAssessmentError }, startAssessment] = useAsyncFn(
     async ({ formData }: IChangeEvent<Record<string, ProjectsPayload>>) => {
@@ -66,7 +66,7 @@ export function Workflow(): JSX.Element {
       setAssessmentStatus('inprogress');
 
       setWorkflowOptions(
-        await createWorkflow({ project: selectedProject, formData }),
+        await createWorkflow({ projectId: selectedProject.id, formData }),
       );
 
       setAssessmentStatus('complete');
