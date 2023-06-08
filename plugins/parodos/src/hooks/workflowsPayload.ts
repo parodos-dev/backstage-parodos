@@ -36,7 +36,7 @@ export function walkWorks(
             null,
           );
 
-          if (work.parameters?.[key].required) {
+          if (value !== null || work.parameters?.[key].required) {
             return {
               key,
               value,

@@ -87,30 +87,31 @@ export const createProjectsSlice: StateCreator<
       .filter(([_, { status }]) => status === 'IN_PROGRESS')
       .map(([executionId]) => executionId);
 
-    try {
-      for (const executionId of executionIds) {
-        const status = await pollWorkflowStatus(fetch, {
-          workflowsUrl: `${get().baseUrl}${urls.Workflows}`,
-          executionId,
-        });
-        set(state => {
-          state.requestAccessStatuses = {
-            ...state.requestAccessStatuses,
-            [executionId]: {
-              ...state.requestAccessStatuses[executionId],
-              status,
-            },
-          };
-        });
-      }
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error('fetchRequestAccessStatuses error: ', e);
-    } finally {
-      set(state => {
-        state.fetchingRequestAccessStatuses = false;
-      });
-    }
+    await Promise.all(
+      executionIds.map(async executionId => {
+        try {
+          const status = await pollWorkflowStatus(fetch, {
+            workflowsUrl: `${get().baseUrl}${urls.Workflows}`,
+            executionId,
+          });
+          set(state => {
+            state.requestAccessStatuses = {
+              ...state.requestAccessStatuses,
+              [executionId]: {
+                ...state.requestAccessStatuses[executionId],
+                status,
+              },
+            };
+          });
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error('fetchRequestAccessStatuses error: ', e);
+        }
+      }),
+    );
+    set(state => {
+      state.fetchingRequestAccessStatuses = false;
+    });
   },
   addProject(project) {
     set(state => {
@@ -124,5 +125,29 @@ export const createProjectsSlice: StateCreator<
         [executionId]: { projectId, status: 'IN_PROGRESS' },
       };
     });
+    if (!get().fetchingRequestAccessStatuses) {
+      get().fetchRequestAccessStatuses(fetch);
+    } else {
+      (async () => {
+        try {
+          const status = await pollWorkflowStatus(fetch, {
+            workflowsUrl: `${get().baseUrl}${urls.Workflows}`,
+            executionId,
+          });
+          set(state => {
+            state.requestAccessStatuses = {
+              ...state.requestAccessStatuses,
+              [executionId]: {
+                ...state.requestAccessStatuses[executionId],
+                status,
+              },
+            };
+          });
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error('fetchRequestAccessStatuses error: ', e);
+        }
+      })();
+    }
   },
 });
