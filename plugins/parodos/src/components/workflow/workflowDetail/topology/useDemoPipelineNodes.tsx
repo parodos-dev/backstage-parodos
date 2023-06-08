@@ -15,20 +15,27 @@ export const NODE_PADDING_HORIZONTAL = 10;
 export const DEFAULT_TASK_WIDTH = 200;
 export const DEFAULT_TASK_HEIGHT = 30;
 
+const WorkflowStatusRunStatusMap: Record<WorkflowTask['status'], RunStatus> = {
+  ['COMPLETED']: RunStatus.Succeeded,
+  ['IN_PROGRESS']: RunStatus.InProgress,
+  ['FAILED']: RunStatus.Failed,
+  ['REJECTED']: RunStatus.Failed,
+  ['PENDING']: RunStatus.Pending,
+};
+
+const RunStatusWhenStatusMap = {
+  [RunStatus.Succeeded]: WhenStatus.Met,
+  [RunStatus.InProgress]: WhenStatus.InProgress,
+};
+
 export function useDemoPipelineNodes(
   workflowTasks: WorkflowTask[],
 ): PipelineNodeModel[] {
-  const getStatus = (status: WorkflowTask['status']) => {
-    if (status === 'COMPLETED') return RunStatus.Succeeded;
-    else if (status === 'IN_PROGRESS') return RunStatus.InProgress;
-    else if (['FAILED', 'REJECTED'].includes(status)) return RunStatus.Failed;
-    return RunStatus.Pending;
-  };
-
-  const getConditionMet: any = (status: RunStatus) => {
-    if (status === RunStatus.Succeeded) return WhenStatus.Met;
-    else if (status === RunStatus.InProgress) return WhenStatus.InProgress;
-    return WhenStatus.Unmet;
+  const getConditionMet = (status: RunStatus) => {
+    return (
+      RunStatusWhenStatusMap[status as keyof typeof RunStatusWhenStatusMap] ??
+      WhenStatus.Unmet
+    );
   };
 
   const tasks = workflowTasks.map(workFlowTask => {
@@ -45,7 +52,7 @@ export function useDemoPipelineNodes(
     };
 
     task.data = {
-      status: getStatus(workFlowTask.status),
+      status: WorkflowStatusRunStatusMap[workFlowTask.status],
       taskIcon: workFlowTask.locked ? <LockIcon color="error" /> : null,
     };
 
