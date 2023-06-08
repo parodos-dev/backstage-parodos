@@ -59,11 +59,9 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
   };
   const requestAccessStatusByProjectId = useMemo(() => {
     const statuses: Record<string, WorkflowStatus['status']> = {};
-    Object.entries(requestAccessStatuses).forEach(
-      ([_, { projectId, status }]) => {
-        statuses[projectId] = status;
-      },
-    );
+    Object.values(requestAccessStatuses).forEach(({ projectId, status }) => {
+      statuses[projectId] = status;
+    });
     return statuses;
   }, [requestAccessStatuses]);
   const [search, setSearch] = useState('');
