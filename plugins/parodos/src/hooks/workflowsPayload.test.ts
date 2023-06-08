@@ -1,9 +1,9 @@
 import { type StrictRJSFSchema } from '@rjsf/utils';
-import { mockTasksWithNoParams } from '../../../mocks/workflowDefinitions/tasksWithNoParameters';
-import { WorkflowDefinition } from '../../../models/workflowDefinitionSchema';
-import { getWorklfowsPayload } from './workflowsPayload';
+import { mockTasksWithNoParams } from '../mocks/workflowDefinitions/tasksWithNoParameters';
+import { WorkflowDefinition } from '../models/workflowDefinitionSchema';
+import { getWorkflowsPayload } from './workflowsPayload';
 
-describe('getWorksPayload', () => {
+describe('getWorkflowsPayload', () => {
   describe('simple', () => {
     const mockMasterWorkFlow: WorkflowDefinition = {
       id: '2dfbb023-bf5e-426d-ad6c-451f77e73d25',
@@ -39,7 +39,7 @@ describe('getWorksPayload', () => {
     };
 
     it('should transform formData to works payload', () => {
-      const result = getWorklfowsPayload({
+      const result = getWorkflowsPayload({
         projectId: '10',
         workflow: mockMasterWorkFlow,
         schema: mockFormData as StrictRJSFSchema,
@@ -73,7 +73,7 @@ describe('getWorksPayload', () => {
     };
 
     it('should work with deeply nested schema', () => {
-      const result = getWorklfowsPayload({
+      const result = getWorkflowsPayload({
         projectId: '111',
         workflow: mockTasksWithNoParams,
         schema: schema as StrictRJSFSchema,

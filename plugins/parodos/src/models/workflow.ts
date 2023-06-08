@@ -18,10 +18,6 @@ export const workflowOptions = z.object({
   optionsAvailable: z.boolean(),
 });
 
-export const workflowExecute = z.object({
-  workFlowExecutionId: z.string(),
-});
-
 export const workflowSchema = z.object({
   workFlowExecutionId: z.string(),
   workFlowOptions: workflowOptions.partial(),
