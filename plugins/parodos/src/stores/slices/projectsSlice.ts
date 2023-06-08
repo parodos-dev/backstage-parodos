@@ -5,6 +5,7 @@ import { unstable_batchedUpdates } from 'react-dom';
 import { type Project, projectSchema } from '../../models/project';
 import { FetchApi } from '@backstage/core-plugin-api';
 import { assert } from 'assert-ts';
+import { pollWorkflowStatus } from '../../components/workflow/hooks/pollWorkflowStatus';
 
 export const createProjectsSlice: StateCreator<
   State,
@@ -13,9 +14,10 @@ export const createProjectsSlice: StateCreator<
   ProjectsSlice
 > = (set, get) => ({
   projectsLoading: true,
+  fetchingRequestAccessStatuses: false,
   projectsError: undefined,
   initiallyLoaded: false,
-  projectsPollingInterval: 5000,
+  requestAccessStatuses: {},
   hasProjects() {
     return get().projects.length > 0;
   },
@@ -74,9 +76,53 @@ export const createProjectsSlice: StateCreator<
       });
     }
   },
+  async fetchRequestAccessStatuses(fetch: FetchApi['fetch']) {
+    if (get().fetchingRequestAccessStatuses) return;
+
+    set(state => {
+      state.fetchingRequestAccessStatuses = true;
+    });
+
+    const executionIds = Object.entries(get().requestAccessStatuses)
+      .filter(([_, { status }]) => status === 'IN_PROGRESS')
+      .map(([executionId]) => executionId);
+
+    try {
+      for (const executionId of executionIds) {
+        const status = await pollWorkflowStatus(fetch, {
+          workflowsUrl: `${get().baseUrl}${urls.Workflows}`,
+          executionId,
+        });
+        set(state => {
+          state.requestAccessStatuses = {
+            ...state.requestAccessStatuses,
+            [executionId]: {
+              ...state.requestAccessStatuses[executionId],
+              status,
+            },
+          };
+        });
+      }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('fetchRequestAccessStatuses error: ', e);
+    } finally {
+      set(state => {
+        state.fetchingRequestAccessStatuses = false;
+      });
+    }
+  },
   addProject(project) {
     set(state => {
       state.projects.push(project);
+    });
+  },
+  addRequestAccessWorkflowExecutionId(projectId, executionId) {
+    set(state => {
+      state.requestAccessStatuses = {
+        ...state.requestAccessStatuses,
+        [executionId]: { projectId, status: 'IN_PROGRESS' },
+      };
     });
   },
 });

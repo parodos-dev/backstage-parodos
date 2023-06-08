@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { LinkButton, Table, TableColumn } from '@backstage/core-components';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import {
@@ -15,6 +15,10 @@ import {
 import { AccessRole, Project } from '../../models/project';
 import { getHumanReadableDate } from '../converters';
 import { pluginRoutePrefix } from '../ParodosPage/navigationMap';
+import { useRequestAccess } from './hooks/useRequestAccess';
+import { useStore } from '../../stores/workflowStore/workflowStore';
+import { WorkflowStatus } from '../../models/workflowTaskSchema';
+import { errorApiRef, useApi } from '@backstage/core-plugin-api';
 
 type ProjectsTableData = {
   [K in Pick<Project, 'name' | 'createdBy' | 'createdDate' | 'accessRole'> &
@@ -41,6 +45,8 @@ const accessRoleMap: Record<AccessRoleFilter, string> = {
 type AccessRoleMapKeys = keyof typeof accessRoleMap;
 
 export function ProjectsTable({ projects }: { projects: Project[] }) {
+  const errorApi = useApi(errorApiRef);
+  const requestAccessStatuses = useStore(state => state.requestAccessStatuses);
   const filterIconRef = useRef<HTMLButtonElement>(null);
   const [openFilter, setOpenFilter] = useState(false);
   const handleFilterToggle = () => setOpenFilter(prevOpen => !prevOpen);
@@ -51,6 +57,15 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
 
     setOpenFilter(false);
   };
+  const requestAccessStatusByProjectId = useMemo(() => {
+    const statuses: Record<string, WorkflowStatus['status']> = {};
+    Object.entries(requestAccessStatuses).forEach(
+      ([_, { projectId, status }]) => {
+        statuses[projectId] = status;
+      },
+    );
+    return statuses;
+  }, [requestAccessStatuses]);
   const [search, setSearch] = useState('');
   const [accessRoleFilter, setAccessRoleFilter] =
     useState<AccessRoleFilter>('All');
@@ -69,6 +84,17 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
     handleFilterClose(event);
     setAccessRoleFilter(filter);
   };
+
+  const [{ error }, requestAccess] = useRequestAccess();
+
+  useEffect(() => {
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+
+      errorApi.post(new Error('Start workflow failed'));
+    }
+  }, [errorApi, error]);
 
   const tableData = useMemo(
     () =>
@@ -144,12 +170,43 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
       data={tableData}
       components={{
         Cell: ({ columnDef, rowData }) => {
+          const hasAccess =
+            rowData.accessRole ||
+            requestAccessStatusByProjectId[rowData.id] === 'COMPLETED';
+
           if (columnDef.field === 'accessRole') {
-            return rowData.accessRole ? (
-              <TableCell>{rowData.accessRole}</TableCell>
-            ) : (
+            const isPendingAccess =
+              requestAccessStatusByProjectId[rowData.id] === 'IN_PROGRESS' ||
+              requestAccessStatusByProjectId[rowData.id] === 'PENDING';
+            const isFailedAccess =
+              requestAccessStatusByProjectId[rowData.id] === 'FAILED' ||
+              requestAccessStatusByProjectId[rowData.id] === 'REJECTED';
+            if (hasAccess) {
+              return (
+                <TableCell>{rowData.accessRole ?? 'Access granted'}</TableCell>
+              );
+            } else if (isPendingAccess) {
+              return (
+                <TableCell>
+                  <Typography color="textSecondary" component="em">
+                    Pending Access
+                  </Typography>
+                </TableCell>
+              );
+            } else if (isFailedAccess) {
+              return (
+                <TableCell>
+                  <Typography color="error">Access Failed/Reject</Typography>
+                </TableCell>
+              );
+            }
+            return (
               <TableCell>
-                <LinkButton color="primary" to="#">
+                <LinkButton
+                  color="primary"
+                  to="#"
+                  onClick={() => requestAccess(rowData.id)}
+                >
                   Request Access
                 </LinkButton>
               </TableCell>
@@ -157,7 +214,7 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
           } else if (columnDef.field === 'view') {
             return (
               <TableCell>
-                {rowData.accessRole && (
+                {hasAccess && (
                   <LinkButton
                     color="primary"
                     to={`${pluginRoutePrefix}/workflows?project=${rowData.id}`}

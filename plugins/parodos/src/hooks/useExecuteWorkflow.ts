@@ -3,14 +3,12 @@ import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import * as urls from '../urls';
 import { useStore } from '../stores/workflowStore/workflowStore';
 import { getWorkflowsPayload } from './workflowsPayload';
-import { workflowStatusSchema } from '../models/workflowTaskSchema';
 import { useCallback } from 'react';
-import { IChangeEvent } from '@rjsf/core-v5';
-import { StrictRJSFSchema } from '@rjsf/utils';
+import { workflowExecute } from '../models/workflow';
 
 export interface ExecuteWorkflow {
   projectId: string;
-  formData?: IChangeEvent<StrictRJSFSchema>['formData'];
+  formData?: Record<string, any>;
 }
 
 export function useExecuteWorkflow(assessment: string) {
@@ -42,7 +40,7 @@ export function useExecuteWorkflow(assessment: string) {
         );
       }
 
-      return workflowStatusSchema.parse(await workFlowResponse.json());
+      return workflowExecute.parse(await workFlowResponse.json());
     },
     [workflow, fetch, workflowsUrl],
   );

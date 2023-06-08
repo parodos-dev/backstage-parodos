@@ -13,6 +13,7 @@ import {
   ExecuteWorkflow,
   useExecuteWorkflow,
 } from '../../../hooks/useExecuteWorkflow';
+import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 
 export type WorkflowOptionsListItem = WorkflowOptionItem & { type: string };
 
@@ -24,6 +25,7 @@ export interface ProjectsPayload {
 }
 
 export function useCreateWorkflow(assessment: string) {
+  const { fetch } = useApi(fetchApiRef);
   const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
   const executeWorkflow = useExecuteWorkflow(assessment);
 
@@ -57,6 +59,6 @@ export function useCreateWorkflow(assessment: string) {
 
       return options;
     },
-    [executeWorkflow, workflowsUrl],
+    [fetch, executeWorkflow, workflowsUrl],
   );
 }
