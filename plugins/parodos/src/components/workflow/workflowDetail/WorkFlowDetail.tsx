@@ -12,15 +12,18 @@ import { useLocation, useParams } from 'react-router-dom';
 import * as urls from '../../../urls';
 import {
   Status,
-  WorkflowStatus,
   workflowStatusSchema,
   WorkflowTask,
   WorkStatus,
 } from '../../../models/workflowTaskSchema';
 import { useStore } from '../../../stores/workflowStore/workflowStore';
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
-import { getWorkflowTasksForTopology } from '../../../hooks/getWorkflowDefinitions';
+import {
+  FirstTaskId,
+  getWorkflowTasksForTopology,
+} from '../../../hooks/getWorkflowDefinitions';
 import { assert } from 'assert-ts';
+import { MK2 } from '../../../mocks/mock_mk2_status';
 
 const useStyles = makeStyles(_theme => ({
   container: {
@@ -78,9 +81,9 @@ export const WorkFlowDetail = () => {
     };
 
     const updateWorksFromApi = async () => {
-      const data = await fetch(`${workflowsUrl}/${executionId}/status`);
+      // const data = await fetch(`${workflowsUrl}/${executionId}/status`);
       const response = workflowStatusSchema.parse(
-        (await data.json()) as WorkflowStatus,
+        MK2, // (await data.json()) as WorkflowStatus,
       );
 
       if (response.status === 'FAILED') {
@@ -100,6 +103,7 @@ export const WorkFlowDetail = () => {
     const taskInterval = setInterval(() => {
       updateWorksFromApi();
     }, 5000);
+
     updateWorksFromApi();
 
     if (status === 'FAILED') {
@@ -119,6 +123,17 @@ export const WorkFlowDetail = () => {
 
   useEffect(() => {
     const updateWorkFlowLogs = async () => {
+      const selected = allTasks.find(task => task.id === selectedTask);
+      if (selectedTask === FirstTaskId) {
+        setLog('Start workflow');
+        return;
+      }
+
+      if (selected && selected?.status === 'PENDING') {
+        setLog('Pending....');
+        return;
+      }
+
       if (selectedTask === '') {
         setLog('');
         return;
@@ -138,7 +153,7 @@ export const WorkFlowDetail = () => {
     updateWorkFlowLogs();
 
     return () => clearInterval(logInterval);
-  }, [executionId, selectedTask, fetch, workflowsUrl]);
+  }, [executionId, selectedTask, fetch, workflowsUrl, allTasks]);
 
   return (
     <ParodosPage className={styles.container}>

@@ -24,6 +24,7 @@ import { useDemoPipelineNodes } from './useDemoPipelineNodes';
 import { WorkflowTask } from '../../../../models/workflowTaskSchema';
 import { useParentSize } from '@cutting/use-get-parent-size';
 import { FirstTaskId } from '../../../../hooks/getWorkflowDefinitions';
+import { useWorkflowContext } from '../WorkflowContext';
 
 export const PIPELINE_NODE_SEPARATION_VERTICAL = 10;
 
@@ -35,6 +36,7 @@ type Props = {
 };
 
 const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
+  const { workflowMode } = useWorkflowContext();
   const [selectedIds, setSelectedIds] = useState<string[]>();
   const pipelineNodes = useDemoPipelineNodes(tasks);
   const controller = useVisualizationController();
@@ -76,6 +78,10 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
   }, [controller, pipelineNodes]);
 
   useEventListener<SelectionEventListener>(SELECTION_EVENT, ([taskId]) => {
+    if (!taskId) {
+      return;
+    }
+
     const selected = tasks.find(task => task.id === taskId);
 
     if (!selected) {
@@ -83,12 +89,16 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
     }
 
     if (taskId === FirstTaskId || selected.status === 'PENDING') {
+      setSelectedTask(taskId);
       return;
     }
 
     setSelectedIds([taskId]);
     setSelectedTask(taskId);
   });
+
+  // eslint-disable-next-line no-console
+  console.log(workflowMode);
 
   return (
     <div ref={containerRef}>
