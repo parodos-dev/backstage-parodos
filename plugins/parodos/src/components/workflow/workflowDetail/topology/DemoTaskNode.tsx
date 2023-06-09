@@ -27,14 +27,8 @@ type DemoTaskNodeProps = {
 
 const useStyles = makeStyles(_theme => ({
   disabled: {
-    '& g:not(.pf-m-idle) rect': {
-      fill: '#F4F4F4',
-    },
-    '& g:not(.pf-m-idle) text': {
-      fill: '#C8C8C8',
-    },
-    '& g:not(.pf-m-idle) svg path': {
-      fill: '#BAC8D5',
+    '& g': {
+      opacity: 0.6,
     },
   },
 }));
