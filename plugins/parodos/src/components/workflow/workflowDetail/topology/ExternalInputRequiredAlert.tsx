@@ -29,12 +29,12 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export function ExternalInputRequiredAlert(): JSX.Element | null {
-  const { workflowTask } = useWorkflowContext();
+  const { externaInputTask } = useWorkflowContext();
   const styles = useStyles();
   const [open, setOpen] = useState(false);
   const [{ top, left }, setDimensions] = useState({ top: -999, left: -999 });
 
-  assert(!!workflowTask, `no workflowTask in WorkflowContext`);
+  assert(!!externaInputTask, `no workflowTask in WorkflowContext`);
 
   useLayoutEffect(() => {
     async function positionAlert() {
@@ -43,8 +43,8 @@ export function ExternalInputRequiredAlert(): JSX.Element | null {
       const domRect = el.getBoundingClientRect();
 
       setDimensions({
-        top: domRect.top + DEFAULT_TASK_HEIGHT,
-        left: domRect.left + 5,
+        top: domRect.top + window.scrollY + DEFAULT_TASK_HEIGHT,
+        left: domRect.left + window.scrollX + 5,
       });
 
       setOpen(true);
@@ -62,7 +62,7 @@ export function ExternalInputRequiredAlert(): JSX.Element | null {
         <Paper elevation={4}>
           <div className={styles.message}>
             <div>
-              Some notification message for {workflowTask?.label} and a link{' '}
+              Some notification message for {externaInputTask?.label} and a link{' '}
             </div>
             <div className={styles.icon}>
               <OpenInNewIcon />

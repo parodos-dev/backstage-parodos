@@ -10,7 +10,7 @@ export interface WorkFlowContext {
   workflowMode: WorkFlowMode;
   setInputRequired(workflow: WorkflowTask): void;
   clearInputRequired(): void;
-  workflowTask?: WorkflowTask;
+  externaInputTask?: WorkflowTask;
 }
 
 export type WorkflowActions =
@@ -26,19 +26,19 @@ export type WorkflowActions =
 
 interface State {
   workflowMode: WorkFlowMode;
-  externalInputWorkflowTask?: WorkflowTask;
+  externaInputTask?: WorkflowTask;
 }
 
 const reducer = (draft: State, action: WorkflowActions) => {
   switch (action.type) {
     case 'EXTERNAL_INPUT_REQUIRED': {
-      draft.externalInputWorkflowTask = action.payload.workflow;
+      draft.externaInputTask = action.payload.workflow;
       draft.workflowMode = 'EXTERNAL_INPUT_REQUIRED';
       break;
     }
     case 'CLEAR_INPUT': {
       draft.workflowMode = 'RUNNING';
-      draft.externalInputWorkflowTask = undefined;
+      draft.externaInputTask = undefined;
       break;
     }
     default:
@@ -52,7 +52,7 @@ export const WorkflowContext = createContext<WorkFlowContext | undefined>(
 
 const initialState: State = {
   workflowMode: 'RUNNING',
-  externalInputWorkflowTask: undefined,
+  externaInputTask: undefined,
 };
 
 export function WorkflowProvider({
@@ -68,9 +68,9 @@ export function WorkflowProvider({
       setInputRequired: (workflow: WorkflowTask) =>
         dispatch({ type: 'EXTERNAL_INPUT_REQUIRED', payload: { workflow } }),
       clearInputRequired: () => dispatch({ type: 'CLEAR_INPUT' }),
-      workflowTask: state.externalInputWorkflowTask,
+      externaInputTask: state.externaInputTask,
     }),
-    [dispatch, state.workflowMode, state.externalInputWorkflowTask],
+    [dispatch, state.workflowMode, state.externaInputTask],
   );
 
   return (

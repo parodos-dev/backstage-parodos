@@ -37,7 +37,12 @@ type Props = {
 };
 
 const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
-  const { workflowMode, workflowTask, setInputRequired } = useWorkflowContext();
+  const {
+    workflowMode,
+    externaInputTask,
+    setInputRequired,
+    clearInputRequired,
+  } = useWorkflowContext();
   const [selectedIds, setSelectedIds] = useState<string[]>();
   const pipelineNodes = useDemoPipelineNodes(tasks);
   const controller = useVisualizationController();
@@ -56,13 +61,19 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
   });
 
   useEffect(() => {
-    if (
-      workflowMode !== 'EXTERNAL_INPUT_REQUIRED' &&
-      externalInputRequiredTask
-    ) {
+    if (workflowMode === 'RUNNING' && !!externalInputRequiredTask) {
       setInputRequired(externalInputRequiredTask);
     }
   }, [externalInputRequiredTask, setInputRequired, workflowMode]);
+
+  useEffect(() => {
+    if (
+      workflowMode === 'EXTERNAL_INPUT_REQUIRED' &&
+      !externalInputRequiredTask
+    ) {
+      clearInputRequired();
+    }
+  }, [clearInputRequired, externalInputRequiredTask, workflowMode]);
 
   useEffect(() => {
     const spacerNodes = getSpacerNodes(pipelineNodes);
@@ -114,7 +125,7 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
 
   return (
     <>
-      {workflowTask && <ExternalInputRequiredAlert />}
+      {externaInputTask && <ExternalInputRequiredAlert />}
       <div ref={containerRef}>
         <TopologyView>
           <VisualizationSurface state={{ selectedIds }} />
