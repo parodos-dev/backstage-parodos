@@ -80,7 +80,7 @@ const DemoTaskNode: any = ({
         truncateLength={20}
         className={cs({
           [styles.disabled]:
-            workflowMode === 'INPUT_REQUIRED' &&
+            workflowMode === 'EXTERNAL_INPUT_REQUIRED' &&
             passedData.status !== RunStatus.Skipped,
         })}
       >

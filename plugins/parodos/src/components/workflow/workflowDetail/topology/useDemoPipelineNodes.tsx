@@ -8,21 +8,21 @@ import {
 import '@patternfly/react-styles/css/components/Topology/topology-components.css';
 import LockIcon from '@material-ui/icons/Lock';
 import { WorkflowTask } from '../../../../models/workflowTaskSchema';
-import { InputRequired } from './InputRequired';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 
 export const NODE_PADDING_VERTICAL = 15;
 export const NODE_PADDING_HORIZONTAL = 10;
 
-export const DEFAULT_TASK_WIDTH = 200;
-export const DEFAULT_TASK_HEIGHT = 30;
+export const DEFAULT_TASK_WIDTH = 300;
+export const DEFAULT_TASK_HEIGHT = 32;
 
 function getTaskIcon(task: WorkflowTask): JSX.Element | null {
   if (task.locked) {
     return <LockIcon color="error" />;
   }
 
-  if (task.status === 'INPUT_REQUIRED') {
-    return <InputRequired workflowTask={task} />;
+  if (task.status === 'EXTERNAL_INPUT_REQUIRED') {
+    return <OpenInNewIcon className="external-task" color="primary" />;
   }
 
   return null;
@@ -34,7 +34,7 @@ const WorkflowStatusRunStatusMap: Record<WorkflowTask['status'], RunStatus> = {
   ['FAILED']: RunStatus.Failed,
   ['REJECTED']: RunStatus.Failed,
   ['PENDING']: RunStatus.Pending,
-  ['INPUT_REQUIRED']: RunStatus.Skipped,
+  ['EXTERNAL_INPUT_REQUIRED']: RunStatus.Skipped,
 };
 
 const RunStatusWhenStatusMap = {

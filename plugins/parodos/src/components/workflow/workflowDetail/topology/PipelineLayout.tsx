@@ -25,7 +25,7 @@ import { WorkflowTask } from '../../../../models/workflowTaskSchema';
 import { useParentSize } from '@cutting/use-get-parent-size';
 import { FirstTaskId } from '../../../../hooks/getWorkflowDefinitions';
 import { useWorkflowContext } from '../WorkflowContext';
-import { InputRequiredAlert } from './InputRequiredAlert';
+import { ExternalInputRequiredAlert } from './ExternalInputRequiredAlert';
 
 export const PIPELINE_NODE_SEPARATION_VERTICAL = 10;
 
@@ -37,12 +37,16 @@ type Props = {
 };
 
 const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
-  const { workflowMode, workflowTask } = useWorkflowContext();
-  const [showInput, setShowInput] = useState(false);
+  const { workflowMode, workflowTask, setInputRequired } = useWorkflowContext();
   const [selectedIds, setSelectedIds] = useState<string[]>();
   const pipelineNodes = useDemoPipelineNodes(tasks);
   const controller = useVisualizationController();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const externalInputRequiredTask = useMemo(
+    () => tasks.find(t => t.status === 'EXTERNAL_INPUT_REQUIRED'),
+    [tasks],
+  );
 
   useParentSize(containerRef, {
     callback: () => {
@@ -52,10 +56,13 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
   });
 
   useEffect(() => {
-    if (workflowMode === 'INPUT_REQUIRED') {
-      setShowInput(true);
+    if (
+      workflowMode !== 'EXTERNAL_INPUT_REQUIRED' &&
+      externalInputRequiredTask
+    ) {
+      setInputRequired(externalInputRequiredTask);
     }
-  }, [workflowMode]);
+  }, [externalInputRequiredTask, setInputRequired, workflowMode]);
 
   useEffect(() => {
     const spacerNodes = getSpacerNodes(pipelineNodes);
@@ -105,21 +112,15 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
     setSelectedTask(taskId);
   });
 
-  // eslint-disable-next-line no-console
-  console.log(workflowMode);
-
   return (
-    <div ref={containerRef}>
-      <TopologyView>
-        <VisualizationSurface state={{ selectedIds }} />
-        {workflowTask && (
-          <InputRequiredAlert
-            open={showInput}
-            handleClose={() => setShowInput(false)}
-          />
-        )}
-      </TopologyView>
-    </div>
+    <>
+      {workflowTask && <ExternalInputRequiredAlert />}
+      <div ref={containerRef}>
+        <TopologyView>
+          <VisualizationSurface state={{ selectedIds }} />
+        </TopologyView>
+      </div>
+    </>
   );
 };
 

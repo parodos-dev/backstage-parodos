@@ -1,6 +1,6 @@
 import type { WorkflowStatus } from '../models/workflowTaskSchema';
 
-export const MK2: WorkflowStatus = {
+export const M2k: WorkflowStatus = {
   workFlowExecutionId: '41dea097-8eeb-4a9b-b4db-05668797a7cd',
   workFlowName: 'ocpOnboardingWorkFlow',
   works: [
@@ -12,7 +12,7 @@ export const MK2: WorkflowStatus = {
         {
           name: 'jiraTicketCreationWorkFlowTask',
           type: 'TASK',
-          status: 'INPUT_REQUIRED',
+          status: 'EXTERNAL_INPUT_REQUIRED',
         },
         {
           name: 'jiraTicketEmailNotificationWorkFlowTask',

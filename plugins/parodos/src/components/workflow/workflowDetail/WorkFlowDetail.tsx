@@ -24,7 +24,7 @@ import {
   getWorkflowTasksForTopology,
 } from '../../../hooks/getWorkflowDefinitions';
 import { assert } from 'assert-ts';
-import { MK2 } from '../../../mocks/mock_mk2_status';
+import { M2k } from '../../../mocks/mock_mk2_status';
 
 const useStyles = makeStyles(_theme => ({
   container: {
@@ -88,7 +88,7 @@ export const WorkFlowDetail = () => {
     const updateWorksFromApi = async () => {
       // const data = await fetch(`${workflowsUrl}/${executionId}/status`);
       const response = workflowStatusSchema.parse(
-        MK2, // (await data.json()) as WorkflowStatus,
+        M2k, // (await data.json()) as WorkflowStatus,
       );
 
       if (response.status === 'FAILED') {

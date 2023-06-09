@@ -6,7 +6,7 @@ const status = z.union([
   z.literal('PENDING'),
   z.literal('FAILED'),
   z.literal('REJECTED'),
-  z.literal('INPUT_REQUIRED'),
+  z.literal('EXTERNAL_INPUT_REQUIRED'),
 ]);
 
 export type Status = z.infer<typeof status>;

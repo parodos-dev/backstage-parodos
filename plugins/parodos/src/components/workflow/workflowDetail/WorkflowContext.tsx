@@ -4,7 +4,7 @@ import { createContext, useMemo } from 'react';
 import { useImmerReducer } from 'use-immer';
 import { WorkflowTask } from '../../../models/workflowTaskSchema';
 
-type WorkFlowMode = 'RUNNING' | 'INPUT_REQUIRED';
+type WorkFlowMode = 'RUNNING' | 'EXTERNAL_INPUT_REQUIRED';
 
 export interface WorkFlowContext {
   workflowMode: WorkFlowMode;
@@ -15,7 +15,7 @@ export interface WorkFlowContext {
 
 export type WorkflowActions =
   | {
-      type: 'INPUT_REQUIRED';
+      type: 'EXTERNAL_INPUT_REQUIRED';
       payload: {
         workflow: WorkflowTask;
       };
@@ -26,19 +26,19 @@ export type WorkflowActions =
 
 interface State {
   workflowMode: WorkFlowMode;
-  workflowTask?: WorkflowTask;
+  externalInputWorkflowTask?: WorkflowTask;
 }
 
 const reducer = (draft: State, action: WorkflowActions) => {
   switch (action.type) {
-    case 'INPUT_REQUIRED': {
-      draft.workflowTask = action.payload.workflow;
-      draft.workflowMode = 'INPUT_REQUIRED';
+    case 'EXTERNAL_INPUT_REQUIRED': {
+      draft.externalInputWorkflowTask = action.payload.workflow;
+      draft.workflowMode = 'EXTERNAL_INPUT_REQUIRED';
       break;
     }
     case 'CLEAR_INPUT': {
       draft.workflowMode = 'RUNNING';
-      draft.workflowTask = undefined;
+      draft.externalInputWorkflowTask = undefined;
       break;
     }
     default:
@@ -52,7 +52,7 @@ export const WorkflowContext = createContext<WorkFlowContext | undefined>(
 
 const initialState: State = {
   workflowMode: 'RUNNING',
-  workflowTask: undefined,
+  externalInputWorkflowTask: undefined,
 };
 
 export function WorkflowProvider({
@@ -66,11 +66,11 @@ export function WorkflowProvider({
     () => ({
       workflowMode: state.workflowMode,
       setInputRequired: (workflow: WorkflowTask) =>
-        dispatch({ type: 'INPUT_REQUIRED', payload: { workflow } }),
+        dispatch({ type: 'EXTERNAL_INPUT_REQUIRED', payload: { workflow } }),
       clearInputRequired: () => dispatch({ type: 'CLEAR_INPUT' }),
-      workflowTask: state.workflowTask,
+      workflowTask: state.externalInputWorkflowTask,
     }),
-    [dispatch, state.workflowMode, state.workflowTask],
+    [dispatch, state.workflowMode, state.externalInputWorkflowTask],
   );
 
   return (
