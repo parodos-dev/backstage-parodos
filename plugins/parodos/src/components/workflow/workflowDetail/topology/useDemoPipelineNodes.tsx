@@ -34,7 +34,7 @@ const WorkflowStatusRunStatusMap: Record<WorkflowTask['status'], RunStatus> = {
   ['FAILED']: RunStatus.Failed,
   ['REJECTED']: RunStatus.Failed,
   ['PENDING']: RunStatus.Pending,
-  ['INPUT_REQUIRED']: RunStatus.Idle,
+  ['INPUT_REQUIRED']: RunStatus.Skipped,
 };
 
 const RunStatusWhenStatusMap = {

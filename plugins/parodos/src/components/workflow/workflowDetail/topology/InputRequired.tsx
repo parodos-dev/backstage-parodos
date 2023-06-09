@@ -10,7 +10,7 @@ interface InputRequiredProps {
 export function InputRequired({
   workflowTask,
 }: InputRequiredProps): JSX.Element {
-  const { workflowMode, setWorkflowMode } = useWorkflowContext();
+  const { workflowMode, setInputRequired } = useWorkflowContext();
 
   const clickHandler = useCallback(
     (e: MouseEvent) => {
@@ -20,10 +20,10 @@ export function InputRequired({
       // eslint-disable-next-line no-console
       console.log(workflowTask);
       if (workflowMode !== 'INPUT_REQUIRED') {
-        setWorkflowMode('INPUT_REQUIRED');
+        setInputRequired(workflowTask);
       }
     },
-    [setWorkflowMode, workflowMode, workflowTask],
+    [setInputRequired, workflowMode, workflowTask],
   );
 
   return <OpenInNewIcon onClick={clickHandler} color="primary" />;

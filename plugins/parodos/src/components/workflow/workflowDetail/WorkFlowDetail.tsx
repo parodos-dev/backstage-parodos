@@ -1,6 +1,7 @@
 import { ParodosPage } from '../../ParodosPage';
 import {
   ContentHeader,
+  InfoCard,
   Progress,
   SupportButton,
 } from '@backstage/core-components';
@@ -29,6 +30,7 @@ const useStyles = makeStyles(_theme => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
+    flex: 1,
   },
   badge: {
     alignSelf: 'flex-start',
@@ -42,6 +44,9 @@ const useStyles = makeStyles(_theme => ({
   viewerContainer: {
     display: 'grid',
     minHeight: 0,
+  },
+  card: {
+    height: '100%',
   },
 }));
 
@@ -167,21 +172,29 @@ export const WorkFlowDetail = () => {
       <ContentHeader title="Onboarding">
         <SupportButton title="Need help?">Lorem Ipsum</SupportButton>
       </ContentHeader>
-      <Typography paragraph>
-        You are onboarding <strong>{project?.name || '...'}</strong> project,
-        running workflow "{workflowName}" (execution ID: {executionId})
-      </Typography>
+      <InfoCard className={styles.card}>
+        <Typography paragraph>
+          Please provide additional information related to your project.
+        </Typography>
+        <Typography paragraph>
+          You are onboarding <strong>{project?.name || '...'}</strong> project,
+          running workflow "{workflowName}" (execution ID: {executionId})
+        </Typography>
 
-      <Box className={styles.detailContainer}>
-        {allTasks.length > 0 ? (
-          <WorkFlowStepper tasks={allTasks} setSelectedTask={setSelectedTask} />
-        ) : (
-          <Progress />
-        )}
-        <div className={styles.viewerContainer}>
-          {log !== '' && <WorkFlowLogViewer log={log} />}
-        </div>
-      </Box>
+        <Box className={styles.detailContainer}>
+          {allTasks.length > 0 ? (
+            <WorkFlowStepper
+              tasks={allTasks}
+              setSelectedTask={setSelectedTask}
+            />
+          ) : (
+            <Progress />
+          )}
+          <div className={styles.viewerContainer}>
+            {log !== '' && <WorkFlowLogViewer log={log} />}
+          </div>
+        </Box>
+      </InfoCard>
     </ParodosPage>
   );
 };

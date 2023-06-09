@@ -1,23 +1,33 @@
 import { Snackbar } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
+import assert from 'assert-ts';
 import React from 'react';
-import { type WorkflowTask } from '../../../../models/workflowTaskSchema';
+import { useWorkflowContext } from '../WorkflowContext';
 
 interface InputRequiredAlertProps {
   open?: boolean;
-  workflowTask: WorkflowTask;
   handleClose: () => void;
 }
 
 export function InputRequiredAlert({
   open,
   handleClose,
-  workflowTask,
 }: InputRequiredAlertProps): JSX.Element {
+  const { workflowTask } = useWorkflowContext();
+
+  assert(!!workflowTask, `no workflowTask in WorkflowContext`);
+
   return (
     <Snackbar
       open={open}
-      onClose={handleClose}
-      message={<div>Some notification message for {workflowTask.label}</div>}
-    />
+      anchorOrigin={{
+        vertical: 'center' as 'top',
+        horizontal: 'left',
+      }}
+    >
+      <Alert onClose={handleClose} severity="warning">
+        Some notification message for {workflowTask?.label}
+      </Alert>
+    </Snackbar>
   );
 }

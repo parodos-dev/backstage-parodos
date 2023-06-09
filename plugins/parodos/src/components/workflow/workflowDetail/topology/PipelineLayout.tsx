@@ -25,6 +25,7 @@ import { WorkflowTask } from '../../../../models/workflowTaskSchema';
 import { useParentSize } from '@cutting/use-get-parent-size';
 import { FirstTaskId } from '../../../../hooks/getWorkflowDefinitions';
 import { useWorkflowContext } from '../WorkflowContext';
+import { InputRequiredAlert } from './InputRequiredAlert';
 
 export const PIPELINE_NODE_SEPARATION_VERTICAL = 10;
 
@@ -36,7 +37,8 @@ type Props = {
 };
 
 const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
-  const { workflowMode } = useWorkflowContext();
+  const { workflowMode, workflowTask } = useWorkflowContext();
+  const [showInput, setShowInput] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>();
   const pipelineNodes = useDemoPipelineNodes(tasks);
   const controller = useVisualizationController();
@@ -48,6 +50,12 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
     },
     debounceDelay: 500,
   });
+
+  useEffect(() => {
+    if (workflowMode === 'INPUT_REQUIRED') {
+      setShowInput(true);
+    }
+  }, [workflowMode]);
 
   useEffect(() => {
     const spacerNodes = getSpacerNodes(pipelineNodes);
@@ -104,6 +112,12 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
     <div ref={containerRef}>
       <TopologyView>
         <VisualizationSurface state={{ selectedIds }} />
+        {workflowTask && (
+          <InputRequiredAlert
+            open={showInput}
+            handleClose={() => setShowInput(false)}
+          />
+        )}
       </TopologyView>
     </div>
   );

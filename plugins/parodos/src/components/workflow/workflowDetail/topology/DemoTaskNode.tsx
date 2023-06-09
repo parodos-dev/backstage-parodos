@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { observer } from 'mobx-react';
 import {
   DEFAULT_LAYER,
@@ -18,6 +18,7 @@ import {
 import { makeStyles } from '@material-ui/core';
 import pickBy from 'lodash.pickby';
 import cs from 'classnames';
+import { useWorkflowContext } from '../WorkflowContext';
 
 type DemoTaskNodeProps = {
   element: Node;
@@ -44,6 +45,7 @@ const DemoTaskNode: any = ({
   contextMenuOpen,
   ...rest
 }: DemoTaskNodeProps) => {
+  const { workflowMode } = useWorkflowContext();
   const styles = useStyles();
   const data = element.getData();
   const [hover, hoverRef] = useHover();
@@ -83,7 +85,9 @@ const DemoTaskNode: any = ({
         {...rest}
         truncateLength={20}
         className={cs({
-          [styles.disabled]: passedData.status !== RunStatus.Idle,
+          [styles.disabled]:
+            workflowMode === 'INPUT_REQUIRED' &&
+            passedData.status !== RunStatus.Skipped,
         })}
       >
         {whenDecorator}
