@@ -3,7 +3,6 @@ import type { Project } from '../models/project';
 import type { WorkflowDefinition } from '../models/workflowDefinitionSchema';
 import type { NotificationContent } from '../models/notification';
 import type { ParodosConfig } from '../types';
-import { WorkflowStatus } from '../models/workflowTaskSchema';
 
 export interface UISlice {
   baseUrl: string | undefined;
@@ -37,23 +36,13 @@ export interface WorkflowSlice {
 
 export interface ProjectsSlice {
   projects: Project[];
-  requestAccessStatuses: Record<
-    string,
-    { projectId: string; status: WorkflowStatus['status'] }
-  >;
   fetchProjects(fetch: FetchApi['fetch']): Promise<void>;
-  fetchRequestAccessStatuses(fetch: FetchApi['fetch']): Promise<void>;
   hasProjects(): boolean;
   addProject(project: Project): void;
   projectsLoading: boolean;
-  fetchingRequestAccessStatuses: boolean;
   projectsError: Error | undefined;
   initiallyLoaded: boolean;
   getProjectById(projectId: string | null): Project;
-  addRequestAccessWorkflowExecutionId(
-    projectId: string,
-    executionId: string,
-  ): void;
 }
 
 export type NotificationState = 'ALL' | 'UNREAD' | 'ARCHIVED';

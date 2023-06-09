@@ -1,37 +1,55 @@
+import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { IChangeEvent } from '@rjsf/core-v5';
 import { type StrictRJSFSchema } from '@rjsf/utils';
 import { useNavigate } from 'react-router-dom';
 import useAsyncFn, { type AsyncFnReturn } from 'react-use/lib/useAsyncFn';
-import { useExecuteWorkflow } from '../../../hooks/useExecuteWorkflow';
+import { WorkflowDefinition } from '../../../models/workflowDefinitionSchema';
+import { WorkflowStatus } from '../../../models/workflowTaskSchema';
+import { getWorklfowsPayload } from './workflowsPayload';
 
 interface UseStartWorkflow {
-  workflowName: string;
+  workflowsUrl: string;
+  workflow: WorkflowDefinition;
   projectId: string;
   isNew: boolean;
 }
 
 export function useStartWorkflow({
-  workflowName,
+  workflowsUrl,
+  workflow,
   projectId,
   isNew,
 }: UseStartWorkflow): AsyncFnReturn<(e?: IChangeEvent) => Promise<void>> {
+  const { fetch } = useApi(fetchApiRef);
   const navigate = useNavigate();
-  const executeWorkflow = useExecuteWorkflow(workflowName);
 
   return useAsyncFn(
     async ({ formData = {} } = {} as IChangeEvent<StrictRJSFSchema>) => {
-      const { workFlowExecutionId } = await executeWorkflow({
+      const payload = getWorklfowsPayload({
         projectId,
-        formData,
+        workflow,
+        schema: formData,
       });
 
+      const data = await fetch(workflowsUrl, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+
+      if (!data.ok) {
+        throw new Error(`${data.status} - ${data.statusText}`);
+      }
+
+      const response = (await data.json()) as WorkflowStatus;
+      const executionId = response.workFlowExecutionId;
+
       navigate(
-        `/parodos/onboarding/${projectId}/${workFlowExecutionId}/workflow-detail`,
+        `/parodos/onboarding/${projectId}/${executionId}/workflow-detail`,
         {
           state: { isNew },
         },
       );
     },
-    [projectId, navigate, isNew, executeWorkflow],
+    [projectId, workflow, fetch, workflowsUrl, navigate, isNew],
   );
 }
