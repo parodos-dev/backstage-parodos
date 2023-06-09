@@ -14,6 +14,9 @@ export function usePollApi() {
   const alertApi = useApi(alertApiRef);
   const projectError = useStore(state => state.projectsError);
   const fetchProjects = useStore(state => state.fetchProjects);
+  const fetchRequestAccessStatuses = useStore(
+    state => state.fetchRequestAccessStatuses,
+  );
 
   useEffect(() => {
     const error = notificationsError ?? projectError;
@@ -39,5 +42,6 @@ export function usePollApi() {
     fetchUnreadNotificationsCount(fetch);
 
     fetchProjects(fetch);
+    fetchRequestAccessStatuses(fetch);
   }, pollingInterval);
 }
