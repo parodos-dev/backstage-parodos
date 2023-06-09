@@ -26,25 +26,20 @@ export function walkWorks(
     const next: Work = {
       workName: work.name,
       type: work.workType,
-      arguments: Object.keys(work.parameters ?? {})
-        .map(key => {
-          const value = get(
-            formData,
-            `${prefix === '' ? prefix : `${prefix}.works[${index}]`}${
-              work.name
-            }.${key}`,
-            null,
-          );
+      arguments: Object.keys(work.parameters ?? {}).map(key => {
+        const value = get(
+          formData,
+          `${prefix === '' ? prefix : `${prefix}.works[${index}]`}${
+            work.name
+          }.${key}`,
+          null,
+        );
 
-          if (value !== null || work.parameters?.[key].required) {
-            return {
-              key,
-              value,
-            };
-          }
-          return undefined;
-        })
-        .filter(<T>(x: T | undefined): x is T => Boolean(x)),
+        return {
+          key,
+          value,
+        };
+      }),
     };
 
     if (work.workType === 'WORKFLOW' && work.works) {
