@@ -7,7 +7,7 @@ import {
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
 import { Form } from '../Form/Form';
 import { ParodosPage } from '../ParodosPage';
-import { Grid, makeStyles, Typography } from '@material-ui/core';
+import { Box, Grid, makeStyles, Typography } from '@material-ui/core';
 import { useGetProjectAssessmentSchema } from './useGetProjectAssessmentSchema';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 import { IChangeEvent } from '@rjsf/core-v5';
@@ -37,6 +37,7 @@ const useStyles = makeStyles(theme => ({
       },
     },
   },
+  progress: {},
 }));
 
 export function Workflow(): JSX.Element {
@@ -46,6 +47,8 @@ export function Workflow(): JSX.Element {
   const selectedProject = useStore(state =>
     state.getProjectById(searchParams.get('project')),
   );
+  const workflowProgress = useStore(state => state.workflowProgress);
+  const cleanupWorkflow = useStore(state => state.cleanUpWorkflow);
   const isNewProject = searchParams.get('isnew') === 'true';
 
   const [assessmentStatus, setAssessmentStatus] =
@@ -89,8 +92,10 @@ export function Workflow(): JSX.Element {
   }, [createWorkflowError, errorApi, startAssessmentError, workflowError]);
 
   useEffect(() => {
-    return () => {};
-  }, []);
+    return () => {
+      cleanupWorkflow();
+    };
+  }, [cleanupWorkflow]);
 
   const inProgress = assessmentStatus === 'inprogress';
   const complete = assessmentStatus === 'complete';
@@ -108,7 +113,6 @@ export function Workflow(): JSX.Element {
         Select a project for an assessment of what additional workflows, if any,
         it qualifies for.
       </Typography>
-      {inProgress && <ProgressBar value={25} />}
       {formSchema && (
         <InfoCard className={styles.fullHeight}>
           <Grid container direction="row" className={styles.form}>
@@ -120,7 +124,13 @@ export function Workflow(): JSX.Element {
                 finalSubmitButtonText={
                   inProgress ? 'IN PROGRESS' : 'START ASSESSMENT'
                 }
-              />
+              >
+                {inProgress && (
+                  <Box display="flex" className={styles.progress}>
+                    <ProgressBar value={workflowProgress ?? 1} />
+                  </Box>
+                )}
+              </Form>
             </Grid>
             <Grid item xs={12}>
               {displayOptions && (
