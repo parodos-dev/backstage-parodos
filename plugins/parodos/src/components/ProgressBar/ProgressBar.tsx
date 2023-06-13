@@ -1,30 +1,23 @@
 import {
   Box,
-  CircularProgress,
+  LinearProgress,
   Typography,
-  type CircularProgressProps,
+  type LinearProgressProps,
 } from '@material-ui/core';
 import React from 'react';
 
-export function ProgressBar(props: CircularProgressProps & { value: number }) {
+export function ProgressBar(props: LinearProgressProps & { value: number }) {
   return (
-    <Box position="relative" display="inline-flex">
-      <CircularProgress variant="determinate" {...props} />
-      <Box
-        top={0}
-        left={0}
-        bottom={0}
-        right={0}
-        position="absolute"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Typography
-          variant="caption"
-          component="div"
-          color="textSecondary"
-        >{`${Math.round(props.value)}%`}</Typography>
+    <Box>
+      <Box width="100%" mr={1}>
+        <LinearProgress color="primary" variant="determinate" {...props} />
+      </Box>
+      <Box minWidth={35}>
+        <Typography variant="body2" color="textSecondary">{`${
+          props.value % 1 === 0
+            ? Math.round(props.value)
+            : props.value.toFixed(1)
+        }%`}</Typography>
       </Box>
     </Box>
   );

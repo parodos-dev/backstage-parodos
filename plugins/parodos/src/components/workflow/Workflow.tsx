@@ -7,7 +7,7 @@ import {
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
 import { Form } from '../Form/Form';
 import { ParodosPage } from '../ParodosPage';
-import { Box, Grid, makeStyles, Typography } from '@material-ui/core';
+import { Grid, makeStyles, Typography } from '@material-ui/core';
 import { useGetProjectAssessmentSchema } from './useGetProjectAssessmentSchema';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 import { IChangeEvent } from '@rjsf/core-v5';
@@ -126,9 +126,11 @@ export function Workflow(): JSX.Element {
                 }
               >
                 {inProgress && (
-                  <Box display="flex" className={styles.progress}>
-                    <ProgressBar value={workflowProgress ?? 1} />
-                  </Box>
+                  <Grid item xs={7} xl={5}>
+                    <>
+                      <ProgressBar value={workflowProgress ?? 1} />
+                    </>
+                  </Grid>
                 )}
               </Form>
             </Grid>
