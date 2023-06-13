@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   ContentHeader,
   InfoCard,
-  Progress,
   SupportButton,
 } from '@backstage/core-components';
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
@@ -21,6 +20,7 @@ import {
   WorkflowOptionsListItem,
 } from './hooks/useCreateWorkflow';
 import { useSearchParams } from 'react-router-dom';
+import { ProgressBar } from '../ProgressBar/ProgressBar';
 
 export type AssessmentStatusType = 'none' | 'inprogress' | 'complete';
 
@@ -41,6 +41,7 @@ const useStyles = makeStyles(theme => ({
 
 export function Workflow(): JSX.Element {
   const assessment = useStore(state => state.workflows.assessment);
+  const workflowError = useStore(state => state.workflowError);
   const [searchParams] = useSearchParams();
   const selectedProject = useStore(state =>
     state.getProjectById(searchParams.get('project')),
@@ -56,8 +57,9 @@ export function Workflow(): JSX.Element {
 
   const formSchema = useGetProjectAssessmentSchema();
 
-  const [{ error: createWorkflowError, loading: _ }, createWorkflow] =
-    useCreateWorkflow({ assessment });
+  const [{ error: createWorkflowError }, createWorkflow] = useCreateWorkflow({
+    assessment,
+  });
 
   const [{ error: startAssessmentError }, startAssessment] = useAsyncFn(
     async ({ formData }: IChangeEvent<Record<string, ProjectsPayload>>) => {
@@ -77,12 +79,18 @@ export function Workflow(): JSX.Element {
   const errorApi = useApi(errorApiRef);
 
   useEffect(() => {
-    if (startAssessmentError || createWorkflowError) {
+    if (startAssessmentError || createWorkflowError || workflowError) {
       // eslint-disable-next-line no-console
-      console.error(startAssessmentError ?? createWorkflowError);
+      console.error(
+        startAssessmentError ?? createWorkflowError ?? workflowError,
+      );
       errorApi.post(new Error(`Creating assessment failed`));
     }
-  }, [createWorkflowError, errorApi, startAssessmentError]);
+  }, [createWorkflowError, errorApi, startAssessmentError, workflowError]);
+
+  useEffect(() => {
+    return () => {};
+  }, []);
 
   const inProgress = assessmentStatus === 'inprogress';
   const complete = assessmentStatus === 'complete';
@@ -100,7 +108,7 @@ export function Workflow(): JSX.Element {
         Select a project for an assessment of what additional workflows, if any,
         it qualifies for.
       </Typography>
-      {inProgress && <Progress />}
+      {inProgress && <ProgressBar value={25} />}
       {formSchema && (
         <InfoCard className={styles.fullHeight}>
           <Grid container direction="row" className={styles.form}>

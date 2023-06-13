@@ -18,6 +18,23 @@ export const createWorkflowSlice: StateCreator<
   workflowDefinitions: [],
   workflowDefinitionsLoading: true,
   workflowError: undefined,
+  workflowProgress: undefined,
+  setWorkflowError(e) {
+    set(state => {
+      state.workflowError = e;
+    });
+  },
+  setWorkflowProgress(percentage) {
+    set(state => {
+      state.workflowProgress = percentage;
+    });
+  },
+  cleanUpWorkflow() {
+    set(state => {
+      state.workflowError = undefined;
+      state.workflowProgress = undefined;
+    });
+  },
   getWorkDefinitionBy(filterBy, value) {
     const workflowDefinition = get().workflowDefinitions.find(
       def => predicates[filterBy](def) === value,
@@ -45,9 +62,7 @@ export const createWorkflowSlice: StateCreator<
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error('fetchDefinitions error: ', e);
-      set(state => {
-        state.workflowError = e;
-      });
+      get().setWorkflowError(e);
     }
   },
 });

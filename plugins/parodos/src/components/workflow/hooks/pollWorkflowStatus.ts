@@ -3,20 +3,30 @@ import {
   WorkflowStatus,
   workflowStatusSchema,
 } from '../../../models/workflowTaskSchema';
+import { WorkflowSlice } from '../../../stores/types';
 import { delay } from '../../../utils/delay';
+
+type PollWorkflowStatusOptions = {
+  workflowsUrl: string;
+  executionId: string;
+} & Pick<WorkflowSlice, 'setWorkflowError'>;
 
 export async function pollWorkflowStatus(
   fetch: FetchApi['fetch'],
-  options: { workflowsUrl: string; executionId: string },
+  { workflowsUrl, executionId, setWorkflowError }: PollWorkflowStatusOptions,
 ): Promise<WorkflowStatus['status']> {
   let status: WorkflowStatus['status'];
   do {
-    const data = await fetch(
-      `${options.workflowsUrl}/${options.executionId}/status`,
-    );
+    const data = await fetch(`${workflowsUrl}/${executionId}/status`);
     ({ status } = workflowStatusSchema.parse(
       (await data.json()) as WorkflowStatus,
     ));
+
+    if (status === 'FAILED') {
+      setWorkflowError(new Error(`workflow failed`));
+      break;
+    }
+
     if (status !== 'IN_PROGRESS') {
       break;
     }

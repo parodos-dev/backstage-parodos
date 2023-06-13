@@ -28,6 +28,7 @@ export function useCreateWorkflow({ assessment }: { assessment: string }) {
   const assessmentWorkflow = useStore(state =>
     state.getWorkDefinitionBy('byName', assessment),
   );
+  const setWorkflowError = useStore(state => state.setWorkflowError);
 
   assert(!!assessmentWorkflow, `no assessmentWorkflow found for ${assessment}`);
 
@@ -62,7 +63,9 @@ export function useCreateWorkflow({ assessment }: { assessment: string }) {
       await pollWorkflowStatus(fetch, {
         workflowsUrl,
         executionId: workflow.workFlowExecutionId,
+        setWorkflowError,
       });
+
       const workflowOptions = await getWorkflowOptions(fetch, {
         workflowsUrl,
         executionId: workflow.workFlowExecutionId,
@@ -85,6 +88,6 @@ export function useCreateWorkflow({ assessment }: { assessment: string }) {
 
       return options;
     },
-    [assessmentWorkflow, fetch, workflowsUrl],
+    [assessmentWorkflow, fetch, setWorkflowError, workflowsUrl],
   );
 }
