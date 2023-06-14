@@ -3,8 +3,11 @@ import { LinkButton, Table, TableColumn } from '@backstage/core-components';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import {
   ClickAwayListener,
+  Grid,
   Grow,
   IconButton,
+  Link,
+  makeStyles,
   MenuItem,
   MenuList,
   Paper,
@@ -15,6 +18,14 @@ import {
 import { AccessRole, Project } from '../../models/project';
 import { getHumanReadableDate } from '../converters';
 import { pluginRoutePrefix } from '../ParodosPage/navigationMap';
+import { NavLink } from 'react-router-dom';
+import { UserGroupIcon } from '../icons/UserGroupIcon';
+
+const useStyles = makeStyles(_ => ({
+  manageAccessIcon: {
+    marginLeft: 'auto',
+  },
+}));
 
 type ProjectsTableData = {
   [K in Pick<Project, 'name' | 'createdBy' | 'createdDate' | 'accessRole'> &
@@ -41,6 +52,7 @@ const accessRoleMap: Record<AccessRoleFilter, string> = {
 type AccessRoleMapKeys = keyof typeof accessRoleMap;
 
 export function ProjectsTable({ projects }: { projects: Project[] }) {
+  const classes = useStyles();
   const filterIconRef = useRef<HTMLButtonElement>(null);
   const [openFilter, setOpenFilter] = useState(false);
   const handleFilterToggle = () => setOpenFilter(prevOpen => !prevOpen);
@@ -146,7 +158,24 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
         Cell: ({ columnDef, rowData }) => {
           if (columnDef.field === 'accessRole') {
             return rowData.accessRole ? (
-              <TableCell>{rowData.accessRole}</TableCell>
+              <TableCell>
+                <Grid container alignItems="center">
+                  <Grid item>{rowData.accessRole}</Grid>
+                  <Grid item className={classes.manageAccessIcon}>
+                    <Link
+                      to={`${pluginRoutePrefix}/projects/${rowData.id}/access`}
+                      component={NavLink}
+                    >
+                      <IconButton
+                        ref={filterIconRef}
+                        onClick={handleFilterToggle}
+                      >
+                        <UserGroupIcon color="primary" />
+                      </IconButton>
+                    </Link>
+                  </Grid>
+                </Grid>
+              </TableCell>
             ) : (
               <TableCell>
                 <LinkButton color="primary" to="#">

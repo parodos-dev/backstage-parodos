@@ -7,12 +7,17 @@ import { WorkFlowDetail } from './workflow/workflowDetail/WorkFlowDetail';
 import { WorkflowsOverview } from './workflow/WorkflowsOverview';
 import { ProjectsOverview } from './projects/ProjectsOverview';
 import { ProjectsNew } from './projects/New/ProjectsNew';
+import { ProjectAccessManager } from './projects/ProjectAccessManager';
 
 export const PluginRouter = () => (
   <Routes>
     <Route path="/" element={<ProjectsOverview />} />
     <Route path="/projects" element={<ProjectsOverview />} />
     <Route path="/projects/new" element={<ProjectsNew />} />
+    <Route
+      path="/projects/:projectId/access"
+      element={<ProjectAccessManager />}
+    />
     <Route path="/workflows" element={<WorkflowsOverview />} />
     <Route path="/onboarding" element={<Workflow />} />
     <Route path="/notification" element={<Notification />} />
