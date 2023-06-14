@@ -23,7 +23,6 @@ import pipelineComponentFactory from './pipelineComponentFactory';
 import { useDemoPipelineNodes } from './useDemoPipelineNodes';
 import { WorkflowTask } from '../../../../models/workflowTaskSchema';
 import { useParentSize } from '@cutting/use-get-parent-size';
-import { assert } from 'assert-ts';
 import { FirstTaskId } from '../../../../hooks/getWorkflowDefinitions';
 
 export const PIPELINE_NODE_SEPARATION_VERTICAL = 10;
@@ -79,7 +78,9 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
   useEventListener<SelectionEventListener>(SELECTION_EVENT, ([taskId]) => {
     const selected = tasks.find(task => task.id === taskId);
 
-    assert(!!selected, `no selected task for ${taskId}`);
+    if (!selected) {
+      return;
+    }
 
     if (taskId === FirstTaskId || selected.status === 'PENDING') {
       return;
