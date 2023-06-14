@@ -128,8 +128,8 @@ export function Workflow(): JSX.Element {
                 {(inProgress || complete) && (
                   <Grid item xs={7} xl={5}>
                     <ProgressBar
-                      variant="linear"
-                      value={complete ? 100 : workflowProgress ?? 1}
+                      variant="circular"
+                      value={complete ? 67 : workflowProgress ?? 1}
                     />
                   </Grid>
                 )}
