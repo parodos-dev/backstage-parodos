@@ -50,7 +50,7 @@ export async function pollWorkflowStatus(
 
     if (previousProgress >= progress) {
       if (previousProgress < 99) {
-        previousProgress = previousProgress + 0.2;
+        previousProgress = previousProgress + 0.5;
       }
     } else {
       previousProgress = progress;

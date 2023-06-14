@@ -125,11 +125,12 @@ export function Workflow(): JSX.Element {
                   inProgress ? 'IN PROGRESS' : 'START ASSESSMENT'
                 }
               >
-                {inProgress && (
+                {(inProgress || complete) && (
                   <Grid item xs={7} xl={5}>
-                    <>
-                      <ProgressBar value={workflowProgress ?? 1} />
-                    </>
+                    <ProgressBar
+                      variant="linear"
+                      value={complete ? 100 : workflowProgress ?? 1}
+                    />
                   </Grid>
                 )}
               </Form>
