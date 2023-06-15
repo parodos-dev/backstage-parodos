@@ -102,7 +102,7 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
       // eslint-disable-next-line no-console
       console.error(error);
 
-      errorApi.post(new Error('Start workflow failed'));
+      errorApi.post(new Error('Failed to request access'));
     }
   }, [errorApi, error]);
 
