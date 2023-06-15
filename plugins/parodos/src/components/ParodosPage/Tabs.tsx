@@ -49,7 +49,6 @@ export function Tabs(): JSX.Element {
                 <span {...tabProps} ref={ref}>
                   <NavLink to={`${pluginRoutePrefix}${route}`}>
                     {navigationMap[index].icon}
-                    {tabChildren}
                     {notifyIcon && (
                       <Badge
                         color="secondary"
@@ -59,6 +58,7 @@ export function Tabs(): JSX.Element {
                         <NotificationImportantIcon color="secondary" />
                       </Badge>
                     )}
+                    {tabChildren}
                   </NavLink>
                 </span>
               ),

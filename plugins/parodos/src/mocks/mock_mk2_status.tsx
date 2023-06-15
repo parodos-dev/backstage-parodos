@@ -12,7 +12,8 @@ export const M2k: WorkflowStatus = {
         {
           name: 'jiraTicketCreationWorkFlowTask',
           type: 'TASK',
-          status: 'EXTERNAL_INPUT_REQUIRED',
+          status: 'PENDING',
+          alertMessage: '[link](http://localhost:8080)',
         },
         {
           name: 'jiraTicketEmailNotificationWorkFlowTask',

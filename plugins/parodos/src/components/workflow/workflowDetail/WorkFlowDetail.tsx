@@ -50,7 +50,7 @@ const useStyles = makeStyles(_theme => ({
   },
 }));
 
-export const WorkFlowDetail = () => {
+export function WorkFlowDetail(): JSX.Element {
   const { projectId, executionId } = useParams();
   assert(!!projectId, 'no projectId param');
   const project = useStore(state => state.getProjectById(projectId));
@@ -72,8 +72,13 @@ export const WorkFlowDetail = () => {
       for (const work of works) {
         if (work.type === 'TASK') {
           const foundTask = tasks.find(task => task.id === work.name);
+
           if (foundTask && foundTask.status !== work.status) {
             foundTask.status = work.status;
+            needUpdate = true;
+          }
+          if (foundTask && work.alertMessage !== foundTask?.alertMessage) {
+            foundTask.alertMessage = work.alertMessage;
             needUpdate = true;
           }
         } else if (work.works) {
@@ -197,4 +202,4 @@ export const WorkFlowDetail = () => {
       </InfoCard>
     </ParodosPage>
   );
-};
+}

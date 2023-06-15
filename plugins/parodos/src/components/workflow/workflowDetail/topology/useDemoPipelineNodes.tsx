@@ -21,7 +21,7 @@ function getTaskIcon(task: WorkflowTask): JSX.Element | null {
     return <LockIcon color="error" />;
   }
 
-  if (task.status === 'EXTERNAL_INPUT_REQUIRED') {
+  if (task.alertMessage) {
     return <OpenInNewIcon className="external-task" color="primary" />;
   }
 
@@ -34,7 +34,6 @@ const WorkflowStatusRunStatusMap: Record<WorkflowTask['status'], RunStatus> = {
   ['FAILED']: RunStatus.Failed,
   ['REJECTED']: RunStatus.Failed,
   ['PENDING']: RunStatus.Pending,
-  ['EXTERNAL_INPUT_REQUIRED']: RunStatus.Skipped,
 };
 
 const RunStatusWhenStatusMap = {

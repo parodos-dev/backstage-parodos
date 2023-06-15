@@ -75,7 +75,6 @@ const statusMap: Record<ProjectWorkflow['workStatus'], string> = {
   FAILED: 'Failed',
   PENDING: 'Pending',
   REJECTED: 'Aborted',
-  EXTERNAL_INPUT_REQUIRED: 'Running',
 };
 
 const statusColorMap: Record<ProjectWorkflow['workStatus'], string> = {
@@ -84,7 +83,6 @@ const statusColorMap: Record<ProjectWorkflow['workStatus'], string> = {
   FAILED: 'failedStatus',
   PENDING: 'pendingStatus',
   REJECTED: 'abortedStatus',
-  EXTERNAL_INPUT_REQUIRED: 'runningStatus',
 };
 
 const formatDate = new Intl.DateTimeFormat('en', {

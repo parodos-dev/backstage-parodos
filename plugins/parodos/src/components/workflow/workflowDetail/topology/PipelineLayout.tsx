@@ -49,7 +49,7 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const externalInputRequiredTask = useMemo(
-    () => tasks.find(t => t.status === 'EXTERNAL_INPUT_REQUIRED'),
+    () => tasks.find(t => !!t.alertMessage),
     [tasks],
   );
 
@@ -125,7 +125,9 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
 
   return (
     <>
-      {externaInputTask && <ExternalInputRequiredAlert />}
+      {externaInputTask && (
+        <ExternalInputRequiredAlert task={externaInputTask} />
+      )}
       <div ref={containerRef}>
         <TopologyView>
           <VisualizationSurface state={{ selectedIds }} />

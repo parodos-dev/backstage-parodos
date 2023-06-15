@@ -6,7 +6,6 @@ const status = z.union([
   z.literal('PENDING'),
   z.literal('FAILED'),
   z.literal('REJECTED'),
-  z.literal('EXTERNAL_INPUT_REQUIRED'),
 ]);
 
 export type Status = z.infer<typeof status>;
@@ -19,6 +18,7 @@ export const workflowTaskSchema = z.object({
   status: transformedStatus,
   runAfterTasks: z.array(z.string()),
   locked: z.boolean(),
+  alertMessage: z.string().nullable().optional(),
 });
 
 export const baseWorkStatusSchema = z.object({
@@ -26,6 +26,7 @@ export const baseWorkStatusSchema = z.object({
   type: z.union([z.literal('TASK'), z.literal('WORKFLOW')]),
   status: transformedStatus,
   locked: z.boolean().optional().nullable(),
+  alertMessage: z.string().nullable().optional(),
 });
 
 export type WorkStatus = z.infer<typeof baseWorkStatusSchema> & {
