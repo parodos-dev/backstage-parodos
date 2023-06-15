@@ -25,7 +25,7 @@ import { WorkflowTask } from '../../../../models/workflowTaskSchema';
 import { useParentSize } from '@cutting/use-get-parent-size';
 import { FirstTaskId } from '../../../../hooks/getWorkflowDefinitions';
 import { useWorkflowContext } from '../WorkflowContext';
-import { ExternalInputRequiredAlert } from './ExternalInputRequiredAlert';
+import { WorkflowAlert } from './WorkflowAlert';
 
 export const PIPELINE_NODE_SEPARATION_VERTICAL = 10;
 
@@ -48,10 +48,7 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
   const controller = useVisualizationController();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const externalInputRequiredTask = useMemo(
-    () => tasks.find(t => !!t.alertMessage),
-    [tasks],
-  );
+  const alertTask = useMemo(() => tasks.find(t => !!t.alertMessage), [tasks]);
 
   useParentSize(containerRef, {
     callback: () => {
@@ -61,19 +58,16 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
   });
 
   useEffect(() => {
-    if (workflowMode === 'RUNNING' && !!externalInputRequiredTask) {
-      setInputRequired(externalInputRequiredTask);
+    if (workflowMode === 'RUNNING' && !!alertTask) {
+      setInputRequired(alertTask);
     }
-  }, [externalInputRequiredTask, setInputRequired, workflowMode]);
+  }, [alertTask, setInputRequired, workflowMode]);
 
   useEffect(() => {
-    if (
-      workflowMode === 'EXTERNAL_INPUT_REQUIRED' &&
-      !externalInputRequiredTask
-    ) {
+    if (workflowMode === 'TASK_ALERT' && !alertTask) {
       clearInputRequired();
     }
-  }, [clearInputRequired, externalInputRequiredTask, workflowMode]);
+  }, [clearInputRequired, alertTask, workflowMode]);
 
   useEffect(() => {
     const spacerNodes = getSpacerNodes(pipelineNodes);
@@ -125,9 +119,7 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
 
   return (
     <>
-      {externaInputTask && (
-        <ExternalInputRequiredAlert task={externaInputTask} />
-      )}
+      {externaInputTask && <WorkflowAlert task={externaInputTask} />}
       <div ref={containerRef}>
         <TopologyView>
           <VisualizationSurface state={{ selectedIds }} />

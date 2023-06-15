@@ -35,13 +35,13 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-interface ExternalInputRequiredAlertProps {
+interface WorkflowAlertProps {
   task: WorkflowTask;
 }
 
-export function ExternalInputRequiredAlert({
+export function WorkflowAlert({
   task,
-}: ExternalInputRequiredAlertProps): JSX.Element | null {
+}: WorkflowAlertProps): JSX.Element | null {
   const { externaInputTask } = useWorkflowContext();
   const styles = useStyles();
   const [open, setOpen] = useState(false);
@@ -62,7 +62,7 @@ export function ExternalInputRequiredAlert({
         const domRect = el.getBoundingClientRect();
 
         setDimensions({
-          top: domRect.top + window.scrollY + DEFAULT_TASK_HEIGHT,
+          top: domRect.top + window.scrollY + DEFAULT_TASK_HEIGHT + 10,
           left: domRect.left + window.scrollX + 5,
         });
       } catch {

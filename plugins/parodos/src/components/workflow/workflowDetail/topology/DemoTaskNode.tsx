@@ -79,7 +79,7 @@ const DemoTaskNode: any = ({
         truncateLength={20}
         className={cs({
           [styles.disabled]:
-            workflowMode === 'EXTERNAL_INPUT_REQUIRED' && hasTaskIcon === false,
+            workflowMode === 'TASK_ALERT' && hasTaskIcon === false,
         })}
       >
         {whenDecorator}

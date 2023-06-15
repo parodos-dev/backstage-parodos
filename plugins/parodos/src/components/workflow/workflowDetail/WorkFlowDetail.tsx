@@ -13,6 +13,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import * as urls from '../../../urls';
 import {
   Status,
+  WorkflowStatus,
   workflowStatusSchema,
   WorkflowTask,
   WorkStatus,
@@ -24,7 +25,7 @@ import {
   getWorkflowTasksForTopology,
 } from '../../../hooks/getWorkflowDefinitions';
 import { assert } from 'assert-ts';
-import { M2k } from '../../../mocks/mock_mk2_status';
+// import { M2k } from '../../../mocks/mock_mk2_status';
 
 const useStyles = makeStyles(_theme => ({
   container: {
@@ -91,10 +92,14 @@ export function WorkFlowDetail(): JSX.Element {
     };
 
     const updateWorksFromApi = async () => {
-      // const data = await fetch(`${workflowsUrl}/${executionId}/status`);
+      const data = await fetch(`${workflowsUrl}/${executionId}/status`);
       const response = workflowStatusSchema.parse(
-        M2k, // (await data.json()) as WorkflowStatus,
+        (await data.json()) as WorkflowStatus,
       );
+      // );
+      // const response = workflowStatusSchema.parse(
+      //   M2k, // (await data.json()) as WorkflowStatus,
+      // );
 
       if (response.status === 'FAILED') {
         setStatus(response.status);

@@ -4,7 +4,7 @@ import { createContext, useMemo } from 'react';
 import { useImmerReducer } from 'use-immer';
 import { WorkflowTask } from '../../../models/workflowTaskSchema';
 
-type WorkFlowMode = 'RUNNING' | 'EXTERNAL_INPUT_REQUIRED';
+type WorkFlowMode = 'RUNNING' | 'TASK_ALERT';
 
 export interface WorkFlowContext {
   workflowMode: WorkFlowMode;
@@ -15,7 +15,7 @@ export interface WorkFlowContext {
 
 export type WorkflowActions =
   | {
-      type: 'EXTERNAL_INPUT_REQUIRED';
+      type: 'TASK_ALERT';
       payload: {
         workflow: WorkflowTask;
       };
@@ -31,9 +31,9 @@ interface State {
 
 const reducer = (draft: State, action: WorkflowActions) => {
   switch (action.type) {
-    case 'EXTERNAL_INPUT_REQUIRED': {
+    case 'TASK_ALERT': {
       draft.externaInputTask = action.payload.workflow;
-      draft.workflowMode = 'EXTERNAL_INPUT_REQUIRED';
+      draft.workflowMode = 'TASK_ALERT';
       break;
     }
     case 'CLEAR_INPUT': {
@@ -66,7 +66,7 @@ export function WorkflowProvider({
     () => ({
       workflowMode: state.workflowMode,
       setInputRequired: (workflow: WorkflowTask) =>
-        dispatch({ type: 'EXTERNAL_INPUT_REQUIRED', payload: { workflow } }),
+        dispatch({ type: 'TASK_ALERT', payload: { workflow } }),
       clearInputRequired: () => dispatch({ type: 'CLEAR_INPUT' }),
       externaInputTask: state.externaInputTask,
     }),
