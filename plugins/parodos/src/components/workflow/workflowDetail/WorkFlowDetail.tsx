@@ -25,7 +25,6 @@ import {
   getWorkflowTasksForTopology,
 } from '../../../hooks/getWorkflowDefinitions';
 import { assert } from 'assert-ts';
-// import { M2k } from '../../../mocks/mock_mk2_status';
 
 const useStyles = makeStyles(_theme => ({
   container: {
@@ -96,10 +95,6 @@ export function WorkFlowDetail(): JSX.Element {
       const response = workflowStatusSchema.parse(
         (await data.json()) as WorkflowStatus,
       );
-      // );
-      // const response = workflowStatusSchema.parse(
-      //   M2k, // (await data.json()) as WorkflowStatus,
-      // );
 
       if (response.status === 'FAILED') {
         setStatus(response.status);
