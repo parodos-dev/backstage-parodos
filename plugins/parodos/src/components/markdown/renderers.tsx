@@ -195,7 +195,14 @@ export const renderers: Components = {
   ul: Ul,
   li: Li,
   code: Code,
-  a: props => <Link to={props.href as string} children={props.children} />,
+  a: props => (
+    <Link
+      target="_blank"
+      rel="noopener noreferrer"
+      to={props.href as string}
+      children={props.children}
+    />
+  ),
   blockquote: Blockquote,
   table: StyledTable,
   thead: props => <TableHead children={props.children} />,

@@ -4,7 +4,6 @@ import {
   DEFAULT_LAYER,
   DEFAULT_WHEN_OFFSET,
   Layer,
-  RunStatus,
   ScaleDetailsLevel,
   TaskNode,
   TOP_LAYER,
@@ -80,8 +79,7 @@ const DemoTaskNode: any = ({
         truncateLength={20}
         className={cs({
           [styles.disabled]:
-            workflowMode === 'EXTERNAL_INPUT_REQUIRED' &&
-            passedData.status !== RunStatus.Skipped,
+            workflowMode === 'EXTERNAL_INPUT_REQUIRED' && hasTaskIcon === false,
         })}
       >
         {whenDecorator}

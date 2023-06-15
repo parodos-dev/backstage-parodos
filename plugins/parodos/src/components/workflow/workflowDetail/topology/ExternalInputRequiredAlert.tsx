@@ -45,7 +45,10 @@ export function ExternalInputRequiredAlert({
   const { externaInputTask } = useWorkflowContext();
   const styles = useStyles();
   const [open, setOpen] = useState(false);
-  const [{ top, left }, setDimensions] = useState({ top: -999, left: -999 });
+  const [{ top, left }, setDimensions] = useState({
+    top: window.innerHeight / 2,
+    left: window.innerWidth / 2,
+  });
 
   assert(!!externaInputTask, `no workflowTask in WorkflowContext`);
 
@@ -59,7 +62,7 @@ export function ExternalInputRequiredAlert({
         const domRect = el.getBoundingClientRect();
 
         setDimensions({
-          top: domRect.top + window.scrollY + DEFAULT_TASK_HEIGHT * 2,
+          top: domRect.top + window.scrollY + DEFAULT_TASK_HEIGHT,
           left: domRect.left + window.scrollX + 5,
         });
       } catch {
@@ -69,6 +72,7 @@ export function ExternalInputRequiredAlert({
         el = document.querySelector('.pf-topology-visualization-surface__svg');
 
         if (!el) {
+          // this really should not happen but center on screen
           setOpen(true);
           return;
         }
