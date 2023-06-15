@@ -43,7 +43,10 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
   const controller = useVisualizationController();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const alertTask = useMemo(() => tasks.find(t => !!t.alertMessage), [tasks]);
+  const alertTask = useMemo(
+    () => tasks.find(t => !!t.alertMessage && t.status !== 'COMPLETED'),
+    [tasks],
+  );
 
   useParentSize(containerRef, {
     callback: () => {

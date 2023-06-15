@@ -21,7 +21,7 @@ function getTaskIcon(task: WorkflowTask): JSX.Element | null {
     return <LockIcon color="error" />;
   }
 
-  if (task.alertMessage) {
+  if (task.alertMessage && task.status !== 'COMPLETED') {
     return <OpenInNewIcon className="external-task" color="primary" />;
   }
 

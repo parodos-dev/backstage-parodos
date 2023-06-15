@@ -68,6 +68,7 @@ export function WorkFlowDetail(): JSX.Element {
   useEffect(() => {
     const updateWorks = (works: WorkStatus[]) => {
       let needUpdate = false;
+      // TODO: use immer here after demo
       const tasks = [...allTasks];
       for (const work of works) {
         if (work.type === 'TASK') {
