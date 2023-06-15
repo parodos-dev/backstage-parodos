@@ -8,37 +8,30 @@ type WorkFlowMode = 'RUNNING' | 'TASK_ALERT';
 
 export interface WorkFlowContext {
   workflowMode: WorkFlowMode;
-  setInputRequired(workflow: WorkflowTask): void;
-  clearInputRequired(): void;
-  externaInputTask?: WorkflowTask;
+  showAlert(workflow: WorkflowTask): void;
+  clearAlert(): void;
 }
 
 export type WorkflowActions =
   | {
       type: 'TASK_ALERT';
-      payload: {
-        workflow: WorkflowTask;
-      };
     }
   | {
-      type: 'CLEAR_INPUT';
+      type: 'CLEAR_ALERT';
     };
 
 interface State {
   workflowMode: WorkFlowMode;
-  externaInputTask?: WorkflowTask;
 }
 
 const reducer = (draft: State, action: WorkflowActions) => {
   switch (action.type) {
     case 'TASK_ALERT': {
-      draft.externaInputTask = action.payload.workflow;
       draft.workflowMode = 'TASK_ALERT';
       break;
     }
-    case 'CLEAR_INPUT': {
+    case 'CLEAR_ALERT': {
       draft.workflowMode = 'RUNNING';
-      draft.externaInputTask = undefined;
       break;
     }
     default:
@@ -52,7 +45,6 @@ export const WorkflowContext = createContext<WorkFlowContext | undefined>(
 
 const initialState: State = {
   workflowMode: 'RUNNING',
-  externaInputTask: undefined,
 };
 
 export function WorkflowProvider({
@@ -65,12 +57,10 @@ export function WorkflowProvider({
   const value = useMemo(
     () => ({
       workflowMode: state.workflowMode,
-      setInputRequired: (workflow: WorkflowTask) =>
-        dispatch({ type: 'TASK_ALERT', payload: { workflow } }),
-      clearInputRequired: () => dispatch({ type: 'CLEAR_INPUT' }),
-      externaInputTask: state.externaInputTask,
+      showAlert: () => dispatch({ type: 'TASK_ALERT' }),
+      clearAlert: () => dispatch({ type: 'CLEAR_ALERT' }),
     }),
-    [dispatch, state.workflowMode, state.externaInputTask],
+    [dispatch, state.workflowMode],
   );
 
   return (

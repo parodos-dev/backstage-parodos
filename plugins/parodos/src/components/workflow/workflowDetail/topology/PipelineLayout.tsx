@@ -37,12 +37,7 @@ type Props = {
 };
 
 const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
-  const {
-    workflowMode,
-    externaInputTask,
-    setInputRequired,
-    clearInputRequired,
-  } = useWorkflowContext();
+  const { workflowMode, showAlert, clearAlert } = useWorkflowContext();
   const [selectedIds, setSelectedIds] = useState<string[]>();
   const pipelineNodes = useDemoPipelineNodes(tasks);
   const controller = useVisualizationController();
@@ -59,15 +54,15 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
 
   useEffect(() => {
     if (workflowMode === 'RUNNING' && !!alertTask) {
-      setInputRequired(alertTask);
+      showAlert(alertTask);
     }
-  }, [alertTask, setInputRequired, workflowMode]);
+  }, [alertTask, showAlert, workflowMode]);
 
   useEffect(() => {
     if (workflowMode === 'TASK_ALERT' && !alertTask) {
-      clearInputRequired();
+      clearAlert();
     }
-  }, [clearInputRequired, alertTask, workflowMode]);
+  }, [clearAlert, alertTask, workflowMode]);
 
   useEffect(() => {
     const spacerNodes = getSpacerNodes(pipelineNodes);
@@ -119,7 +114,7 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
 
   return (
     <>
-      {externaInputTask && <WorkflowAlert task={externaInputTask} />}
+      {alertTask && <WorkflowAlert task={alertTask} />}
       <div ref={containerRef}>
         <TopologyView>
           <VisualizationSurface state={{ selectedIds }} />

@@ -1,7 +1,6 @@
 import { Box, Fade, makeStyles, Paper } from '@material-ui/core';
 import assert from 'assert-ts';
 import React, { useLayoutEffect, useState } from 'react';
-import { useWorkflowContext } from '../WorkflowContext';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 import { waitForElement } from '../../../../utils/wait';
 import {
@@ -42,15 +41,12 @@ interface WorkflowAlertProps {
 export function WorkflowAlert({
   task,
 }: WorkflowAlertProps): JSX.Element | null {
-  const { externaInputTask } = useWorkflowContext();
   const styles = useStyles();
   const [open, setOpen] = useState(false);
   const [{ top, left }, setDimensions] = useState({
     top: window.innerHeight / 2,
     left: window.innerWidth / 2,
   });
-
-  assert(!!externaInputTask, `no workflowTask in WorkflowContext`);
 
   useLayoutEffect(() => {
     async function positionAlert() {

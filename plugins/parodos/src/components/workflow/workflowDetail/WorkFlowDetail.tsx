@@ -116,9 +116,10 @@ export function WorkFlowDetail(): JSX.Element {
 
     updateWorksFromApi();
 
-    if (status === 'FAILED') {
-      clearInterval(taskInterval);
-    }
+    // //
+    // if (status === 'FAILED') {
+    //   clearInterval(taskInterval);
+    // }
 
     return () => clearInterval(taskInterval);
   }, [
