@@ -51,6 +51,9 @@ export const Notification = () => {
   const styles = useStyles();
   const notifications = useStore(state => state.notifications);
   const fetchNotifications = useStore(state => state.fetchNotifications);
+  const unreadNotificationsCount = useStore(
+    state => state.unreadNotificationsCount,
+  );
   const deleteNotification = useStore(state => state.deleteNotifications);
   const setNotificationState = useStore(state => state.setNotificationState);
   const notificationsCount = useStore(state => state.notificationsCount);
@@ -68,6 +71,7 @@ export const Notification = () => {
     });
   }, [
     fetchNotifications,
+    unreadNotificationsCount,
     state.page,
     state.rowsPerPage,
     state.notificationFilter,

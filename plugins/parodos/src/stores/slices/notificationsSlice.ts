@@ -4,6 +4,21 @@ import type { NotificationsSlice, State, StateMiddleware } from '../types';
 import { Notifications } from '../../models/notification';
 import * as urls from '../../urls';
 
+async function fetchNotifications(
+  baseUrl: string,
+  options: Parameters<NotificationsSlice['fetchNotifications']>[0],
+) {
+  const { filter, page, rowsPerPage, fetch } = options;
+  let urlQuery = `?page=${page}&size=${rowsPerPage}&sort=notificationMessage.createdOn,notificationMessage.subject`;
+  if (filter !== 'ALL') {
+    urlQuery += `&state=${filter}`;
+  }
+
+  const response = await fetch(`${baseUrl}${urls.Notifications}${urlQuery}`);
+
+  return (await response.json()) as Notifications;
+}
+
 export const createNotificationsSlice: StateCreator<
   State,
   StateMiddleware,
@@ -14,6 +29,23 @@ export const createNotificationsSlice: StateCreator<
   notificationsError: undefined,
   notifications: new Map(),
   notificationsCount: 0,
+  unreadNotificationsCount: 0,
+  async fetchUnreadNotificationsCount(fetch) {
+    try {
+      const notifications = await fetchNotifications(get().baseUrl as string, {
+        filter: 'UNREAD',
+        page: 0,
+        rowsPerPage: 0,
+        fetch,
+      });
+      set(state => {
+        state.unreadNotificationsCount = notifications.totalElements ?? 0;
+      });
+    } catch (e: unknown) {
+      // eslint-disable-next-line no-console
+      console.error('Error fetching notifications', e);
+    }
+  },
   async fetchNotifications({ filter = 'ALL', page, rowsPerPage, fetch }) {
     if (get().notificationsLoading) {
       return;
@@ -24,16 +56,12 @@ export const createNotificationsSlice: StateCreator<
     });
 
     try {
-      let urlQuery = `?page=${page}&size=${rowsPerPage}&sort=notificationMessage.createdOn,notificationMessage.subject`;
-      if (filter !== 'ALL') {
-        urlQuery += `&state=${filter}`;
-      }
-
-      const response = await fetch(
-        `${get().baseUrl}${urls.Notifications}${urlQuery}`,
-      );
-
-      const notifications = (await response.json()) as Notifications;
+      const notifications = await fetchNotifications(get().baseUrl as string, {
+        filter,
+        page,
+        rowsPerPage,
+        fetch,
+      });
 
       const existing = get().notifications;
 

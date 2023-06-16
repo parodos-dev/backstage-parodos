@@ -12,15 +12,8 @@ export interface TabLabelProps {
 
 export function Tabs(): JSX.Element {
   const { pathname } = useLocation();
-  const notifications = useStore(state => state.notifications);
-
-  const unreadNotificaitons = useMemo(
-    () =>
-      [...notifications.values()].reduce(
-        (acc, n) => (!n.read ? acc + 1 : acc),
-        0,
-      ),
-    [notifications],
+  const unreadNotificationsCount = useStore(
+    state => state.unreadNotificationsCount,
   );
 
   const selectedTab = useMemo(
@@ -35,7 +28,8 @@ export function Tabs(): JSX.Element {
   const tabs = useMemo(
     () =>
       navigationMap.map(({ label, route }, index) => {
-        const notifyIcon = label === 'Notification' && unreadNotificaitons > 0;
+        const notifyIcon =
+          label === 'Notification' && unreadNotificationsCount > 0;
 
         return {
           id: index.toString(),
@@ -52,7 +46,7 @@ export function Tabs(): JSX.Element {
                     {notifyIcon && (
                       <Badge
                         color="secondary"
-                        badgeContent={unreadNotificaitons}
+                        badgeContent={unreadNotificationsCount}
                         overlap="rectangular"
                       >
                         <NotificationImportantIcon color="secondary" />
@@ -66,7 +60,7 @@ export function Tabs(): JSX.Element {
           },
         };
       }),
-    [unreadNotificaitons],
+    [unreadNotificationsCount],
   );
 
   return <HeaderTabs tabs={tabs} selectedIndex={selectedTab} />;

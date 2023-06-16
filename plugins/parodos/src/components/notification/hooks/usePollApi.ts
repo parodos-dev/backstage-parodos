@@ -5,7 +5,9 @@ import { useEffect } from 'react';
 
 export function usePollApi() {
   const { fetch } = useApi(fetchApiRef);
-  const fetchNotifications = useStore(state => state.fetchNotifications);
+  const fetchUnreadNotificationsCount = useStore(
+    state => state.fetchUnreadNotificationsCount,
+  );
   const pollingInterval = useStore(state => state.pollingInterval);
   const initialized = useStore(state => state.initialized());
   const notificationsError = useStore(state => state.notificationsError);
@@ -34,12 +36,7 @@ export function usePollApi() {
       return;
     }
 
-    fetchNotifications({
-      filter: 'ALL',
-      page: 0,
-      rowsPerPage: 50,
-      fetch,
-    });
+    fetchUnreadNotificationsCount(fetch);
 
     fetchProjects(fetch);
   }, pollingInterval);

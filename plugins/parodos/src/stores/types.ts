@@ -54,6 +54,8 @@ export type NotificationOperation = 'READ' | 'ARCHIVE' | 'UNARCHIVE';
 export interface NotificationsSlice {
   notifications: Map<string, NotificationContent>;
   notificationsCount: number;
+  unreadNotificationsCount: number;
+  fetchUnreadNotificationsCount(fetch: FetchApi['fetch']): Promise<void>;
   fetchNotifications(params: {
     fetch: FetchApi['fetch'];
     filter: NotificationState;
