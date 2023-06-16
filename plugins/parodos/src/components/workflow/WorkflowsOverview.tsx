@@ -120,7 +120,7 @@ export function WorkflowsOverview(): JSX.Element {
           />
         </Grid>
         <Grid item xs={5} md={3} lg={2} className={classes.mtaReportLinkItem}>
-          <Link target="_blank" href="#">
+          <Link target="_blank" href="#" rel="noopener noreferrer">
             <Typography className={classes.mtaReportLink}>
               View MTA assessment report
             </Typography>
