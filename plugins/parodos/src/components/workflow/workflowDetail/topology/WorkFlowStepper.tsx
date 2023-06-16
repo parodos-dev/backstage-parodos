@@ -4,6 +4,7 @@ import { PipelineLayout } from './PipelineLayout';
 
 import { makeStyles } from '@material-ui/core';
 import { WorkflowTask } from '../../../../models/workflowTaskSchema';
+import { WorkflowProvider } from '../WorkflowContext';
 
 const useStyles = makeStyles(theme => ({
   pfRi__topologyDemo: {
@@ -23,7 +24,9 @@ export const WorkFlowStepper = (props: Props) => {
   const classes = useStyles();
   return (
     <div className={classes.pfRi__topologyDemo}>
-      <PipelineLayout {...props} />
+      <WorkflowProvider>
+        <PipelineLayout {...props} />
+      </WorkflowProvider>
     </div>
   );
 };

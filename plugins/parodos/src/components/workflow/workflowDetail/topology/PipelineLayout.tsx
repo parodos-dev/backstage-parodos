@@ -24,6 +24,8 @@ import { useDemoPipelineNodes } from './useDemoPipelineNodes';
 import { WorkflowTask } from '../../../../models/workflowTaskSchema';
 import { useParentSize } from '@cutting/use-get-parent-size';
 import { FirstTaskId } from '../../../../hooks/getWorkflowDefinitions';
+import { useWorkflowContext } from '../WorkflowContext';
+import { WorkflowAlert } from './WorkflowAlert';
 
 export const PIPELINE_NODE_SEPARATION_VERTICAL = 10;
 
@@ -35,10 +37,16 @@ type Props = {
 };
 
 const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
+  const { workflowMode, showAlert, clearAlert } = useWorkflowContext();
   const [selectedIds, setSelectedIds] = useState<string[]>();
   const pipelineNodes = useDemoPipelineNodes(tasks);
   const controller = useVisualizationController();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const alertTask = useMemo(
+    () => tasks.find(t => !!t.alertMessage && t.status !== 'COMPLETED'),
+    [tasks],
+  );
 
   useParentSize(containerRef, {
     callback: () => {
@@ -46,6 +54,18 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
     },
     debounceDelay: 500,
   });
+
+  useEffect(() => {
+    if (workflowMode === 'RUNNING' && !!alertTask) {
+      showAlert(alertTask);
+    }
+  }, [alertTask, showAlert, workflowMode]);
+
+  useEffect(() => {
+    if (workflowMode === 'TASK_ALERT' && !alertTask) {
+      clearAlert();
+    }
+  }, [clearAlert, alertTask, workflowMode]);
 
   useEffect(() => {
     const spacerNodes = getSpacerNodes(pipelineNodes);
@@ -76,6 +96,10 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
   }, [controller, pipelineNodes]);
 
   useEventListener<SelectionEventListener>(SELECTION_EVENT, ([taskId]) => {
+    if (!taskId) {
+      return;
+    }
+
     const selected = tasks.find(task => task.id === taskId);
 
     if (!selected) {
@@ -83,6 +107,7 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
     }
 
     if (taskId === FirstTaskId || selected.status === 'PENDING') {
+      setSelectedTask(taskId);
       return;
     }
 
@@ -91,11 +116,14 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
   });
 
   return (
-    <div ref={containerRef}>
-      <TopologyView>
-        <VisualizationSurface state={{ selectedIds }} />
-      </TopologyView>
-    </div>
+    <>
+      {alertTask && <WorkflowAlert task={alertTask} />}
+      <div ref={containerRef}>
+        <TopologyView>
+          <VisualizationSurface state={{ selectedIds }} />
+        </TopologyView>
+      </div>
+    </>
   );
 };
 

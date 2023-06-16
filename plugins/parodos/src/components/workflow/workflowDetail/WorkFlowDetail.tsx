@@ -1,6 +1,7 @@
 import { ParodosPage } from '../../ParodosPage';
 import {
   ContentHeader,
+  InfoCard,
   Progress,
   SupportButton,
 } from '@backstage/core-components';
@@ -19,13 +20,17 @@ import {
 } from '../../../models/workflowTaskSchema';
 import { useStore } from '../../../stores/workflowStore/workflowStore';
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
-import { getWorkflowTasksForTopology } from '../../../hooks/getWorkflowDefinitions';
+import {
+  FirstTaskId,
+  getWorkflowTasksForTopology,
+} from '../../../hooks/getWorkflowDefinitions';
 import { assert } from 'assert-ts';
 
 const useStyles = makeStyles(_theme => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
+    flex: 1,
   },
   badge: {
     alignSelf: 'flex-start',
@@ -40,9 +45,12 @@ const useStyles = makeStyles(_theme => ({
     display: 'grid',
     minHeight: 0,
   },
+  card: {
+    height: '100%',
+  },
 }));
 
-export const WorkFlowDetail = () => {
+export function WorkFlowDetail(): JSX.Element {
   const { projectId, executionId } = useParams();
   assert(!!projectId, 'no projectId param');
   const project = useStore(state => state.getProjectById(projectId));
@@ -60,12 +68,18 @@ export const WorkFlowDetail = () => {
   useEffect(() => {
     const updateWorks = (works: WorkStatus[]) => {
       let needUpdate = false;
+      // TODO: use immer here after demo
       const tasks = [...allTasks];
       for (const work of works) {
         if (work.type === 'TASK') {
           const foundTask = tasks.find(task => task.id === work.name);
+
           if (foundTask && foundTask.status !== work.status) {
             foundTask.status = work.status;
+            needUpdate = true;
+          }
+          if (foundTask && work.alertMessage !== foundTask?.alertMessage) {
+            foundTask.alertMessage = work.alertMessage;
             needUpdate = true;
           }
         } else if (work.works) {
@@ -100,11 +114,13 @@ export const WorkFlowDetail = () => {
     const taskInterval = setInterval(() => {
       updateWorksFromApi();
     }, 5000);
+
     updateWorksFromApi();
 
-    if (status === 'FAILED') {
-      clearInterval(taskInterval);
-    }
+    // TOOD: review after Demo
+    // if (status === 'FAILED') {
+    //   clearInterval(taskInterval);
+    // }
 
     return () => clearInterval(taskInterval);
   }, [
@@ -119,6 +135,17 @@ export const WorkFlowDetail = () => {
 
   useEffect(() => {
     const updateWorkFlowLogs = async () => {
+      const selected = allTasks.find(task => task.id === selectedTask);
+      if (selectedTask === FirstTaskId) {
+        setLog('Start workflow');
+        return;
+      }
+
+      if (selected && selected?.status === 'PENDING') {
+        setLog('Pending....');
+        return;
+      }
+
       if (selectedTask === '') {
         setLog('');
         return;
@@ -138,7 +165,7 @@ export const WorkFlowDetail = () => {
     updateWorkFlowLogs();
 
     return () => clearInterval(logInterval);
-  }, [executionId, selectedTask, fetch, workflowsUrl]);
+  }, [executionId, selectedTask, fetch, workflowsUrl, allTasks]);
 
   return (
     <ParodosPage className={styles.container}>
@@ -152,21 +179,29 @@ export const WorkFlowDetail = () => {
       <ContentHeader title="Onboarding">
         <SupportButton title="Need help?">Lorem Ipsum</SupportButton>
       </ContentHeader>
-      <Typography paragraph>
-        You are onboarding <strong>{project?.name || '...'}</strong> project,
-        running workflow "{workflowName}" (execution ID: {executionId})
-      </Typography>
+      <InfoCard className={styles.card}>
+        <Typography paragraph>
+          Please provide additional information related to your project.
+        </Typography>
+        <Typography paragraph>
+          You are onboarding <strong>{project?.name || '...'}</strong> project,
+          running workflow "{workflowName}" (execution ID: {executionId})
+        </Typography>
 
-      <Box className={styles.detailContainer}>
-        {allTasks.length > 0 ? (
-          <WorkFlowStepper tasks={allTasks} setSelectedTask={setSelectedTask} />
-        ) : (
-          <Progress />
-        )}
-        <div className={styles.viewerContainer}>
-          {log !== '' && <WorkFlowLogViewer log={log} />}
-        </div>
-      </Box>
+        <Box className={styles.detailContainer}>
+          {allTasks.length > 0 ? (
+            <WorkFlowStepper
+              tasks={allTasks}
+              setSelectedTask={setSelectedTask}
+            />
+          ) : (
+            <Progress />
+          )}
+          <div className={styles.viewerContainer}>
+            {log !== '' && <WorkFlowLogViewer log={log} />}
+          </div>
+        </Box>
+      </InfoCard>
     </ParodosPage>
   );
-};
+}

@@ -1,10 +1,9 @@
-import * as React from 'react';
+import React, { useMemo } from 'react';
 import { observer } from 'mobx-react';
 import {
   DEFAULT_LAYER,
   DEFAULT_WHEN_OFFSET,
   Layer,
-  Node,
   ScaleDetailsLevel,
   TaskNode,
   TOP_LAYER,
@@ -13,12 +12,25 @@ import {
   WhenDecorator,
   WithContextMenuProps,
   WithSelectionProps,
+  type Node,
 } from '@patternfly/react-topology';
+import { makeStyles } from '@material-ui/core';
+import pickBy from 'lodash.pickby';
+import cs from 'classnames';
+import { useWorkflowContext } from '../WorkflowContext';
 
 type DemoTaskNodeProps = {
   element: Node;
 } & WithContextMenuProps &
   WithSelectionProps;
+
+const useStyles = makeStyles(_theme => ({
+  disabled: {
+    '& g': {
+      opacity: 0.6,
+    },
+  },
+}));
 
 const DemoTaskNode: any = ({
   element,
@@ -26,18 +38,14 @@ const DemoTaskNode: any = ({
   contextMenuOpen,
   ...rest
 }: DemoTaskNodeProps) => {
+  const { workflowMode } = useWorkflowContext();
+  const styles = useStyles();
   const data = element.getData();
   const [hover, hoverRef] = useHover();
   const detailsLevel = useDetailsLevel();
 
-  const passedData = React.useMemo(() => {
-    const newData = { ...data };
-    Object.keys(newData).forEach(key => {
-      if (newData[key] === undefined) {
-        delete newData[key];
-      }
-    });
-    return newData;
+  const passedData: any = useMemo(() => {
+    return pickBy(data, n => typeof n !== 'undefined');
   }, [data]);
 
   const hasTaskIcon = !!(data.taskIconClass || data.taskIcon);
@@ -69,6 +77,10 @@ const DemoTaskNode: any = ({
         {...passedData}
         {...rest}
         truncateLength={20}
+        className={cs({
+          [styles.disabled]:
+            workflowMode === 'TASK_ALERT' && hasTaskIcon === false,
+        })}
       >
         {whenDecorator}
       </TaskNode>

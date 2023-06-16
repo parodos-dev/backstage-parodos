@@ -18,6 +18,7 @@ export const workflowTaskSchema = z.object({
   status: transformedStatus,
   runAfterTasks: z.array(z.string()),
   locked: z.boolean(),
+  alertMessage: z.string().nullable().optional(),
 });
 
 export const baseWorkStatusSchema = z.object({
@@ -25,6 +26,7 @@ export const baseWorkStatusSchema = z.object({
   type: z.union([z.literal('TASK'), z.literal('WORKFLOW')]),
   status: transformedStatus,
   locked: z.boolean().optional().nullable(),
+  alertMessage: z.string().nullable().optional(),
 });
 
 export type WorkStatus = z.infer<typeof baseWorkStatusSchema> & {
