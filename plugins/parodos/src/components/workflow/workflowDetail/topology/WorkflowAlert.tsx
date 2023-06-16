@@ -53,7 +53,7 @@ export function WorkflowAlert({
       let el: HTMLElement | null;
 
       try {
-        el = await waitForElement('.external-task');
+        el = await waitForElement('.workflow-alert');
 
         const domRect = el.getBoundingClientRect();
 
@@ -63,7 +63,7 @@ export function WorkflowAlert({
         });
       } catch {
         // unfortunately in smaller resolutions, patternfly/react-topology does
-        // not show the taskIcon so the .external-task selector will fail
+        // not show the taskIcon so the .workflow-alert selector will fail
         // In this case we center at the bottom of the svg
         el = document.querySelector('.pf-topology-visualization-surface__svg');
 

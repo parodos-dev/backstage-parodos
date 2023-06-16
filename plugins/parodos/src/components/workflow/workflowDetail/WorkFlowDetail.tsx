@@ -117,7 +117,7 @@ export function WorkFlowDetail(): JSX.Element {
 
     updateWorksFromApi();
 
-    // //
+    // TOOD: review after Demo
     // if (status === 'FAILED') {
     //   clearInterval(taskInterval);
     // }

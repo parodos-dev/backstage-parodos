@@ -22,7 +22,7 @@ function getTaskIcon(task: WorkflowTask): JSX.Element | null {
   }
 
   if (task.alertMessage && task.status !== 'COMPLETED') {
-    return <OpenInNewIcon className="external-task" color="primary" />;
+    return <OpenInNewIcon className="workflow-alert" color="primary" />;
   }
 
   return null;
