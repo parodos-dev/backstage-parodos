@@ -70,9 +70,16 @@ export function Workflow(): JSX.Element {
 
       setAssessmentStatus('inprogress');
 
-      setWorkflowOptions(
-        await createWorkflow({ project: selectedProject, formData }),
-      );
+      const options = await createWorkflow({
+        project: selectedProject,
+        formData,
+      });
+
+      if (!Array.isArray(options)) {
+        return;
+      }
+
+      setWorkflowOptions(options);
 
       setAssessmentStatus('complete');
     },

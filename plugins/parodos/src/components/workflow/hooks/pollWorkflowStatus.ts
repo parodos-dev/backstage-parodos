@@ -39,6 +39,12 @@ export async function pollWorkflowStatus(
       break;
     }
 
+    if (workflowStatus.works.some(w => w.status === 'REJECTED')) {
+      throw new Error(
+        `A workflow task has been rejected.  Please check the logs for this task.`,
+      );
+    }
+
     const completed = workflowStatus.works.reduce(
       (acc, work) => (work.status === 'COMPLETED' ? acc + 1 : acc),
       0,
@@ -50,7 +56,7 @@ export async function pollWorkflowStatus(
 
     if (previousProgress >= progress) {
       if (previousProgress < 99) {
-        previousProgress = previousProgress + 0.5;
+        previousProgress = previousProgress + 0.1;
       }
     } else {
       previousProgress = progress;
