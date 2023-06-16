@@ -9,7 +9,7 @@ async function fetchNotifications(
   options: Parameters<NotificationsSlice['fetchNotifications']>[0],
 ) {
   const { filter, page, rowsPerPage, fetch } = options;
-  let urlQuery = `?page=${page}&size=${rowsPerPage}&sort=notificationMessage.createdOn,notificationMessage.subject`;
+  let urlQuery = `?page=${page}&size=${rowsPerPage}&sort=notificationMessage.createdOn,desc`;
   if (filter !== 'ALL') {
     urlQuery += `&state=${filter}`;
   }
