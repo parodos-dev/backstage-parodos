@@ -1,10 +1,25 @@
 import React, { useRef, useState } from 'react';
-import { LinkButton, Table, TableColumn } from '@backstage/core-components';
+import {
+  LinkButton,
+  Table,
+  TableColumn,
+  StatusRunning,
+  StatusOK,
+  StatusError,
+  StatusWarning,
+  StatusAborted,
+  SubvalueCell,
+} from '@backstage/core-components';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import LaunchIcon from '@material-ui/icons/Launch';
 import { pluginRoutePrefix } from '../ParodosPage/navigationMap';
 import { ProjectWorkflow } from '../../models/workflowTaskSchema';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   ClickAwayListener,
   Grow,
   IconButton,
@@ -15,6 +30,7 @@ import {
   Popper,
   TableCell,
   Typography,
+  Link,
 } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
@@ -32,29 +48,39 @@ const useStyles = makeStyles(theme => ({
     borderRadius: '50%',
     marginRight: '8px',
   },
-  runningStatus: {
-    backgroundColor: theme.palette.info.main,
+  workflowDescriptionContainer: {
+    background: 'inherit',
+    padding: '0',
+    boxShadow: 'none',
   },
-  completedStatus: {
-    backgroundColor: theme.palette.success.main,
+  workflowDescriptionSummary: {
+    flexDirection: 'row-reverse',
+    padding: '0',
   },
-  failedStatus: {
-    backgroundColor: theme.palette.error.main,
+  workflowDescriptionSummaryContent: {
+    flexDirection: 'column',
   },
-  pendingStatus: {
-    backgroundColor: theme.palette.warning.main,
+  expandIcon: {
+    marginRight: theme.spacing(2),
+    padding: '0',
   },
-  abortedStatus: {
-    backgroundColor: theme.palette.grey[500],
+  urlIcon: {
+    color: theme.palette.primary.dark,
+  },
+  workflowDescriptionDetails: {
+    flexDirection: 'column',
+    marginLeft: theme.spacing(3),
+    gap: theme.spacing(0.5),
   },
 }));
 
 interface WorkflowTableData {
   id: string;
   name: string;
+  description?: string;
   type: string;
   processingType: 'SEQUENTIAL' | 'PARALLEL';
-  status: string;
+  StatusComponent: () => JSX.Element;
   author: string;
   startDate: string;
   endDate: string;
@@ -69,6 +95,14 @@ const columns: TableColumn<WorkflowTableData>[] = [
   { title: '', field: 'view', width: '5%' },
 ];
 
+const statuses: ProjectWorkflow['workStatus'][] = [
+  'IN_PROGRESS',
+  'COMPLETED',
+  'FAILED',
+  'PENDING',
+  'REJECTED',
+];
+
 const statusMap: Record<ProjectWorkflow['workStatus'], string> = {
   IN_PROGRESS: 'Running',
   COMPLETED: 'Completed',
@@ -77,12 +111,15 @@ const statusMap: Record<ProjectWorkflow['workStatus'], string> = {
   REJECTED: 'Aborted',
 };
 
-const statusColorMap: Record<ProjectWorkflow['workStatus'], string> = {
-  IN_PROGRESS: 'runningStatus',
-  COMPLETED: 'completedStatus',
-  FAILED: 'failedStatus',
-  PENDING: 'pendingStatus',
-  REJECTED: 'abortedStatus',
+const StatusComponents: Record<
+  ProjectWorkflow['workStatus'],
+  () => JSX.Element
+> = {
+  IN_PROGRESS: () => <StatusRunning>Running</StatusRunning>,
+  COMPLETED: () => <StatusOK>Completed</StatusOK>,
+  FAILED: () => <StatusError>Failed</StatusError>,
+  PENDING: () => <StatusWarning>Pending</StatusWarning>,
+  REJECTED: () => <StatusAborted>Aborted</StatusAborted>,
 };
 
 const formatDate = new Intl.DateTimeFormat('en', {
@@ -139,10 +176,10 @@ export const WorkflowsTable: React.FC<{
       return {
         id: workflow.workFlowExecutionId,
         name: workflow.workFlowName,
+        description: 'Description of workflow',
         type: definition?.type,
         processingType: definition?.processingType,
-        status: statusMap[workflow.workStatus],
-        statusColor: statusColorMap[workflow.workStatus],
+        StatusComponent: StatusComponents[workflow.workStatus],
         author: workflow.executeBy,
         startDate: formatDate.format(Date.parse(workflow.startDate)),
         endDate: workflow.endDate
@@ -192,11 +229,7 @@ export const WorkflowsTable: React.FC<{
                       onKeyDown={handleListKeyDown}
                     >
                       <MenuItem onClick={handleChangeFilter}>All</MenuItem>
-                      {(
-                        Object.keys(
-                          statusMap,
-                        ) as ProjectWorkflow['workStatus'][]
-                      ).map(status => (
+                      {statuses.map(status => (
                         <MenuItem
                           key={status}
                           onClick={e => handleChangeFilter(e, status)}
@@ -217,8 +250,62 @@ export const WorkflowsTable: React.FC<{
       columns={columns}
       data={data}
       components={{
-        Cell: ({ columnDef, rowData }) => {
-          if (columnDef.field === 'view') {
+        Cell: ({ columnDef, rowData: { StatusComponent, ...rowData } }) => {
+          if (columnDef.field === 'name') {
+            return (
+              <TableCell>
+                <Accordion className={classes.workflowDescriptionContainer}>
+                  <AccordionSummary
+                    className={classes.workflowDescriptionSummary}
+                    classes={{
+                      content: classes.workflowDescriptionSummaryContent,
+                    }}
+                    IconButtonProps={{ className: classes.expandIcon }}
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="workflow-description-content"
+                    id="workflow-description-header"
+                  >
+                    <SubvalueCell
+                      value={rowData.name}
+                      subvalue={rowData.description}
+                    />
+                  </AccordionSummary>
+                  <AccordionDetails
+                    className={classes.workflowDescriptionDetails}
+                  >
+                    <Link target="_blank" href="#">
+                      MTA assessment report{' '}
+                      <LaunchIcon
+                        fontSize="inherit"
+                        className={classes.urlIcon}
+                      />
+                    </Link>
+                    <Link target="_blank" href="#">
+                      Jira ticket{' '}
+                      <LaunchIcon
+                        fontSize="inherit"
+                        className={classes.urlIcon}
+                      />
+                    </Link>
+                    <Link target="_blank" href="#">
+                      VCS branch{' '}
+                      <LaunchIcon
+                        fontSize="inherit"
+                        className={classes.urlIcon}
+                      />
+                    </Link>
+                    <Link target="_blank" href="#">
+                      Deployment{' '}
+                      <LaunchIcon
+                        fontSize="inherit"
+                        className={classes.urlIcon}
+                      />
+                    </Link>
+                  </AccordionDetails>
+                </Accordion>
+              </TableCell>
+            );
+          } else if (columnDef.field === 'view') {
             return (
               <TableCell>
                 <LinkButton
@@ -232,12 +319,7 @@ export const WorkflowsTable: React.FC<{
           } else if (columnDef.field === 'status') {
             return (
               <TableCell data-testid={`${rowData.id} '${rowData.status}'`}>
-                <div
-                  className={`${classes.filterIcon} ${
-                    classes[rowData.statusColor as keyof typeof classes]
-                  }`}
-                />
-                {rowData.status}
+                <StatusComponent />
               </TableCell>
             );
           }
