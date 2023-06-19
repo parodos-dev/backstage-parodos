@@ -14,6 +14,7 @@ export interface ExecuteWorkflow {
 export function useExecuteWorkflow(assessment: string) {
   const { fetch } = useApi(fetchApiRef);
   const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
+  const assessmentId = useStore(state => state.assessmentWorkflowExecutionId);
   const workflow = useStore(state =>
     state.getWorkDefinitionBy('byName', assessment),
   );
@@ -27,11 +28,14 @@ export function useExecuteWorkflow(assessment: string) {
         workflow,
         schema: formData,
       });
-
       // TODO:  task here should be dynamic based on assessment workflow definition
       const workFlowResponse = await fetch(workflowsUrl, {
         method: 'POST',
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          ...payload,
+          invokingExecutionId:
+            workflow.type.toLowerCase() !== 'assessment' ? assessmentId : null,
+        }),
       });
 
       if (!workFlowResponse.ok) {
@@ -42,6 +46,6 @@ export function useExecuteWorkflow(assessment: string) {
 
       return workflowExecute.parse(await workFlowResponse.json());
     },
-    [workflow, fetch, workflowsUrl],
+    [workflow, fetch, workflowsUrl, assessmentId],
   );
 }

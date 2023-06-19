@@ -34,8 +34,10 @@ export interface WorkflowSlice {
   workflowDefinitionsLoading: boolean;
   workflowError: unknown | undefined;
   workflowProgress: number | undefined;
+  assessmentWorkflowExecutionId: string | undefined;
   setWorkflowError(e: unknown | undefined): void;
   setWorkflowProgress(percentage: number): void;
+  setAssessmentWorkflowExecutionId(id: string): void;
   cleanUpWorkflow(): void;
 }
 
