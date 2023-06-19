@@ -87,3 +87,19 @@ jobs:
           body: >
             This PR is auto-generated
           branch: 'release/${{ steps.new-version.outputs.new_version }}'
+
+      - name: Login to Quay
+        uses: docker/login-action@v2
+        with:
+          registry: 'quay.io'
+          username: 'parodos-dev+githubpush'
+          password: '${{ secrets.QUAY_GITHUB_TOKEN }}'
+
+      - name: 'Build and push container images'
+        env:
+          DOCKER_BUILDKIT: 1
+        run: |
+          make build-image GIT_BRANCH="${{ steps.new-version.outputs.new_version }}"
+          make build-image-openshift GIT_BRANCH="${{ steps.new-version.outputs.new_version }}"
+          make push-image GIT_BRANCH="${{ steps.new-version.outputs.new_version }}"
+          make push-image-openshift GIT_BRANCH="${{ steps.new-version.outputs.new_version }}"
