@@ -48,6 +48,11 @@ export const workflowStatusSchema = z.object({
   status: transformedStatus,
 });
 
+export const additionalInfoSchema = z.object({
+  key: z.string(),
+  value: z.string().optional().nullable(),
+});
+
 export const projectWorkflowSchema = z.object({
   workFlowExecutionId: z.string(),
   projectId: z.string(),
@@ -56,6 +61,7 @@ export const projectWorkflowSchema = z.object({
   startDate: z.string(),
   endDate: z.string().optional(),
   executeBy: z.string(),
+  additionalInfos: z.array(additionalInfoSchema).optional().nullable(),
 });
 
 export const projectWorkflowsSchema = z.array(projectWorkflowSchema);

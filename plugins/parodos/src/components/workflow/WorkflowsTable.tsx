@@ -185,6 +185,7 @@ export const WorkflowsTable: React.FC<{
         endDate: workflow.endDate
           ? formatDate.format(Date.parse(workflow.endDate))
           : undefined,
+        additionalInfos: workflow.additionalInfos,
       } as WorkflowTableData;
     })
     .filter(workflow =>
@@ -273,34 +274,17 @@ export const WorkflowsTable: React.FC<{
                   <AccordionDetails
                     className={classes.workflowDescriptionDetails}
                   >
-                    <Link target="_blank" href="#">
-                      MTA assessment report{' '}
-                      <LaunchIcon
-                        fontSize="inherit"
-                        className={classes.urlIcon}
-                      />
-                    </Link>
-                    <Link target="_blank" href="#">
-                      Jira ticket{' '}
-                      <LaunchIcon
-                        fontSize="inherit"
-                        className={classes.urlIcon}
-                      />
-                    </Link>
-                    <Link target="_blank" href="#">
-                      VCS branch{' '}
-                      <LaunchIcon
-                        fontSize="inherit"
-                        className={classes.urlIcon}
-                      />
-                    </Link>
-                    <Link target="_blank" href="#">
-                      Deployment{' '}
-                      <LaunchIcon
-                        fontSize="inherit"
-                        className={classes.urlIcon}
-                      />
-                    </Link>
+                    {rowData?.additionalInfos?.map((additionalInfo: any) => {
+                      return (
+                        <Link target="_blank" href={additionalInfo.value}>
+                          {additionalInfo.key}{' '}
+                          <LaunchIcon
+                            fontSize="inherit"
+                            className={classes.urlIcon}
+                          />
+                        </Link>
+                      );
+                    })}
                   </AccordionDetails>
                 </Accordion>
               </TableCell>
