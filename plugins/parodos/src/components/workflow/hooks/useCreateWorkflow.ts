@@ -1,4 +1,4 @@
-import useAsyncFn from 'react-use/lib/useAsyncFn';
+import useAsyncFn, { AsyncFnReturn } from 'react-use/lib/useAsyncFn';
 import {
   displayableWorkflowOptions,
   WorkflowOptionItem,
@@ -24,15 +24,19 @@ export interface ProjectsPayload {
   project?: Project;
 }
 
-export function useCreateWorkflow(assessment: string) {
+export function useCreateWorkflow(assessment: string): AsyncFnReturn<
+  (executionOptions: ExecuteWorkflow) => Promise<{
+    options: WorkflowOptionsListItem[];
+    assessmentWorkflowExecutionId: string;
+  }>
+> {
   const setWorkflowError = useStore(state => state.setWorkflowError);
   const setWorkflowProgress = useStore(state => state.setWorkflowProgress);
-  const setAssessmentId = useStore(
-    state => state.setAssessmentWorkflowExecutionId,
-  );
   const { fetch } = useApi(fetchApiRef);
   const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
-  const executeWorkflow = useExecuteWorkflow(assessment);
+  const executeWorkflow = useExecuteWorkflow({
+    workflowDefinitionName: assessment,
+  });
 
   return useAsyncFn(
     async (executionOptions: ExecuteWorkflow) => {
@@ -49,7 +53,7 @@ export function useCreateWorkflow(assessment: string) {
         workflowsUrl,
         executionId: workFlowExecutionId,
       });
-      setAssessmentId(workFlowExecutionId);
+
       const options = displayableWorkflowOptions.flatMap(option => {
         const items = workflowOptions[option] ?? [];
 
@@ -65,10 +69,9 @@ export function useCreateWorkflow(assessment: string) {
         }));
       }) as WorkflowOptionsListItem[];
 
-      return options;
+      return { options, assessmentWorkflowExecutionId: workFlowExecutionId };
     },
     [
-      setAssessmentId,
       executeWorkflow,
       fetch,
       setWorkflowError,

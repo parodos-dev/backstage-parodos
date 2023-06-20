@@ -18,6 +18,7 @@ import { WorkflowOptionsListItem } from './hooks/useCreateWorkflow';
 interface WorkflowOptionsListProps {
   project: Project;
   workflowOptions: WorkflowOptionsListItem[];
+  assessmentWorkflowExecutionId: string;
   isNew: boolean;
 }
 
@@ -39,6 +40,7 @@ const useStyles = makeStyles(theme => ({
 export function WorkflowOptionsList({
   project,
   workflowOptions,
+  assessmentWorkflowExecutionId,
   isNew,
 }: WorkflowOptionsListProps): JSX.Element {
   const commonStyles = useCommonStyles();
@@ -75,7 +77,7 @@ export function WorkflowOptionsList({
                   color="primary"
                   component={Link}
                   // passing the workflow option as query param as a short term measure.  Need proper state management
-                  to={`/parodos/onboarding/${project?.id}/${workflowOption.workFlowName}/new/?option=${workflowOption.displayName}`}
+                  to={`/parodos/onboarding/${project?.id}/${workflowOption.workFlowName}/${assessmentWorkflowExecutionId}/new/?option=${workflowOption.displayName}`}
                 >
                   START
                 </Button>
