@@ -10,7 +10,9 @@ export function useRequestAccess(): AsyncFnReturn<
     state => state.addRequestAccessWorkflowExecutionId,
   );
   const identityApi = useApi(identityApiRef);
-  const executeWorkflow = useExecuteWorkflow('projectAccessRequestWorkFlow');
+  const executeWorkflow = useExecuteWorkflow({
+    workflowDefinitionName: 'projectAccessRequestWorkFlow',
+  });
 
   return useAsyncFn(
     async (projectId: string) => {

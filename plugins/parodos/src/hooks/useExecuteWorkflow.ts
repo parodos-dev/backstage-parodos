@@ -11,15 +11,23 @@ export interface ExecuteWorkflow {
   formData?: Record<string, any>;
 }
 
-export function useExecuteWorkflow(assessment: string) {
+export function useExecuteWorkflow({
+  workflowDefinitionName,
+  assessmentWorkflowExecutionId,
+}: {
+  workflowDefinitionName: string;
+  assessmentWorkflowExecutionId?: string;
+}) {
   const { fetch } = useApi(fetchApiRef);
   const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
-  const assessmentId = useStore(state => state.assessmentWorkflowExecutionId);
   const workflow = useStore(state =>
-    state.getWorkDefinitionBy('byName', assessment),
+    state.getWorkDefinitionBy('byName', workflowDefinitionName),
   );
 
-  assert(!!workflow, `no assessmentWorkflow found for ${assessment}`);
+  assert(
+    !!workflow,
+    `no assessmentWorkflow found for ${workflowDefinitionName}`,
+  );
 
   return useCallback(
     async ({ projectId, formData = {} }: ExecuteWorkflow) => {
@@ -34,7 +42,9 @@ export function useExecuteWorkflow(assessment: string) {
         body: JSON.stringify({
           ...payload,
           invokingExecutionId:
-            workflow.type.toLowerCase() !== 'assessment' ? assessmentId : null,
+            workflow.type !== 'ASSESSMENT'
+              ? assessmentWorkflowExecutionId
+              : null,
         }),
       });
 
@@ -46,6 +56,6 @@ export function useExecuteWorkflow(assessment: string) {
 
       return workflowExecute.parse(await workFlowResponse.json());
     },
-    [workflow, fetch, workflowsUrl, assessmentId],
+    [workflow, fetch, workflowsUrl, assessmentWorkflowExecutionId],
   );
 }

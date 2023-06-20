@@ -68,10 +68,19 @@ export const workSchema: z.ZodType<WorkType, z.ZodTypeDef> =
     works: z.lazy(() => workSchema.array()).optional(),
   });
 
+const workflowDefinitionType = z.union([
+  z.literal('ASSESSMENT'),
+  z.literal('CHECKER'),
+  z.literal('INFRASTRUCTURE'),
+  z.literal('ESCALATION'),
+]);
+
+export type WorkflowDefinitionType = z.infer<typeof workflowDefinitionType>;
+
 export const workflowDefinitionSchema = z.object({
   id: z.string(),
   name: z.string(),
-  type: z.string(),
+  type: workflowDefinitionType,
   processingType,
   author: z.string().optional().nullable(),
   createDate: z.string(),

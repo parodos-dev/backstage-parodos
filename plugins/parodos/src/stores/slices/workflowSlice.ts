@@ -19,7 +19,6 @@ export const createWorkflowSlice: StateCreator<
   workflowDefinitionsLoading: true,
   workflowError: undefined,
   workflowProgress: undefined,
-  assessmentWorkflowExecutionId: undefined,
   setWorkflowError(e) {
     set(state => {
       state.workflowError = e;
@@ -28,11 +27,6 @@ export const createWorkflowSlice: StateCreator<
   setWorkflowProgress(percentage) {
     set(state => {
       state.workflowProgress = percentage;
-    });
-  },
-  setAssessmentWorkflowExecutionId(id) {
-    set(state => {
-      state.assessmentWorkflowExecutionId = id;
     });
   },
   cleanUpWorkflow() {

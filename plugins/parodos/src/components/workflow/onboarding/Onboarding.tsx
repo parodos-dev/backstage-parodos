@@ -34,7 +34,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export function Onboarding({ isNew }: OnboardingProps): JSX.Element {
-  const { workflowName, projectId } = useParams();
+  const { workflowName, projectId, assessmentWorkflowExecutionId } =
+    useParams();
 
   assert(!!workflowName, `no workflowId in Onboarding`);
 
@@ -49,12 +50,18 @@ export function Onboarding({ isNew }: OnboardingProps): JSX.Element {
     'byName',
   );
 
+  assert(
+    !!assessmentWorkflowExecutionId,
+    `no assessmentWorkflowExecutionId in Onboarding`,
+  );
+
   assert(!!projectId);
 
   const [{ error, loading }, startWorkflow] = useStartWorkflow({
     workflowName,
     projectId,
     isNew,
+    assessmentWorkflowExecutionId,
   });
 
   useEffect(() => {

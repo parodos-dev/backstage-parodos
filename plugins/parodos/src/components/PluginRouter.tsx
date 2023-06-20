@@ -22,7 +22,7 @@ export const PluginRouter = () => (
     <Route path="/onboarding" element={<Workflow />} />
     <Route path="/notification" element={<Notification />} />
     <Route
-      path="/onboarding/:projectId/:workflowName/new/"
+      path="/onboarding/:projectId/:workflowName/:assessmentWorkflowExecutionId/new/"
       element={<Onboarding isNew />}
     />
     <Route

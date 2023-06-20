@@ -8,15 +8,21 @@ interface UseStartWorkflow {
   workflowName: string;
   projectId: string;
   isNew: boolean;
+  assessmentWorkflowExecutionId: string;
 }
 
 export function useStartWorkflow({
   workflowName,
   projectId,
+  assessmentWorkflowExecutionId,
   isNew,
 }: UseStartWorkflow): AsyncFnReturn<(e?: IChangeEvent) => Promise<void>> {
   const navigate = useNavigate();
-  const executeWorkflow = useExecuteWorkflow(workflowName);
+
+  const executeWorkflow = useExecuteWorkflow({
+    assessmentWorkflowExecutionId,
+    workflowDefinitionName: workflowName,
+  });
 
   return useAsyncFn(
     async ({ formData = {} } = {} as IChangeEvent<StrictRJSFSchema>) => {

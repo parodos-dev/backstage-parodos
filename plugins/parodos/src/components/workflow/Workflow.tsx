@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Reducer, useEffect, useReducer } from 'react';
 import {
   ContentHeader,
   InfoCard,
@@ -40,6 +40,43 @@ const useStyles = makeStyles(theme => ({
   progress: {},
 }));
 
+interface State {
+  workflowOptions?: WorkflowOptionsListItem[];
+  assessmentStatus: AssessmentStatusType;
+  assessmentWorkflowExecutionId?: string;
+}
+
+type Actions =
+  | {
+      type: 'START';
+    }
+  | {
+      type: 'COMPLETE';
+      payload: Required<
+        Pick<State, 'workflowOptions' | 'assessmentWorkflowExecutionId'>
+      >;
+    };
+
+const initialState: State = {
+  workflowOptions: undefined,
+  assessmentStatus: 'none',
+  assessmentWorkflowExecutionId: undefined,
+};
+
+const reducer: Reducer<State, Actions> = (_, action) => {
+  switch (action.type) {
+    case 'START':
+      return {
+        assessmentStatus: 'inprogress',
+      };
+    case 'COMPLETE':
+      return { ...action.payload, assessmentStatus: 'complete' };
+    default: {
+      throw new Error(`should not get here`);
+    }
+  }
+};
+
 export function Workflow(): JSX.Element {
   const assessment = useStore(state => state.workflows.assessment);
   const workflowError = useStore(state => state.workflowError);
@@ -50,12 +87,11 @@ export function Workflow(): JSX.Element {
   const workflowProgress = useStore(state => state.workflowProgress);
   const cleanupWorkflow = useStore(state => state.cleanUpWorkflow);
   const isNewProject = searchParams.get('isnew') === 'true';
+  const [
+    { workflowOptions, assessmentStatus, assessmentWorkflowExecutionId },
+    dispatch,
+  ] = useReducer(reducer, initialState);
 
-  const [assessmentStatus, setAssessmentStatus] =
-    useState<AssessmentStatusType>('none');
-  const [workflowOptions, setWorkflowOptions] = useState<
-    WorkflowOptionsListItem[]
-  >([]);
   const styles = useStyles();
 
   const formSchema = useGetProjectAssessmentSchema();
@@ -67,20 +103,25 @@ export function Workflow(): JSX.Element {
     async ({ formData }: IChangeEvent<Record<string, ProjectsPayload>>) => {
       assert(!!formData, `no formData`);
 
-      setAssessmentStatus('inprogress');
+      dispatch({ type: 'START' });
 
-      const options = await createWorkflow({
-        projectId: selectedProject.id,
-        formData,
-      });
+      const { options, assessmentWorkflowExecutionId: workflowExecutionId } =
+        await createWorkflow({
+          projectId: selectedProject.id,
+          formData,
+        });
 
       if (!Array.isArray(options)) {
         return;
       }
 
-      setWorkflowOptions(options);
-
-      setAssessmentStatus('complete');
+      dispatch({
+        type: 'COMPLETE',
+        payload: {
+          workflowOptions: options,
+          assessmentWorkflowExecutionId: workflowExecutionId,
+        },
+      });
     },
     [createWorkflow, selectedProject],
   );
@@ -108,7 +149,10 @@ export function Workflow(): JSX.Element {
 
   const disableForm = inProgress || complete;
 
-  const displayOptions = assessmentStatus === 'complete';
+  const displayOptions =
+    assessmentStatus === 'complete' &&
+    workflowOptions &&
+    assessmentWorkflowExecutionId;
 
   return (
     <ParodosPage stretch>
@@ -147,6 +191,7 @@ export function Workflow(): JSX.Element {
                   isNew={isNewProject}
                   project={selectedProject}
                   workflowOptions={workflowOptions}
+                  assessmentWorkflowExecutionId={assessmentWorkflowExecutionId}
                 />
               )}
             </Grid>
