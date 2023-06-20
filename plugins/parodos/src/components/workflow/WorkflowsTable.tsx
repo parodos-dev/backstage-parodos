@@ -255,38 +255,47 @@ export const WorkflowsTable: React.FC<{
           if (columnDef.field === 'name') {
             return (
               <TableCell>
-                <Accordion className={classes.workflowDescriptionContainer}>
-                  <AccordionSummary
-                    className={classes.workflowDescriptionSummary}
-                    classes={{
-                      content: classes.workflowDescriptionSummaryContent,
-                    }}
-                    IconButtonProps={{ className: classes.expandIcon }}
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="workflow-description-content"
-                    id="workflow-description-header"
-                  >
-                    <SubvalueCell
-                      value={rowData.name}
-                      subvalue={rowData.description}
-                    />
-                  </AccordionSummary>
-                  <AccordionDetails
-                    className={classes.workflowDescriptionDetails}
-                  >
-                    {rowData?.additionalInfos?.map((additionalInfo: any) => {
-                      return (
-                        <Link target="_blank" href={additionalInfo.value}>
-                          {additionalInfo.key}{' '}
-                          <LaunchIcon
-                            fontSize="inherit"
-                            className={classes.urlIcon}
-                          />
-                        </Link>
-                      );
-                    })}
-                  </AccordionDetails>
-                </Accordion>
+                {rowData?.additionalInfos?.length ? (
+                  <Accordion className={classes.workflowDescriptionContainer}>
+                    <AccordionSummary
+                      className={classes.workflowDescriptionSummary}
+                      classes={{
+                        content: classes.workflowDescriptionSummaryContent,
+                      }}
+                      IconButtonProps={{
+                        classes: { edgeEnd: classes.expandIcon },
+                      }}
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="workflow-description-content"
+                      id="workflow-description-header"
+                    >
+                      <SubvalueCell
+                        value={rowData.name}
+                        subvalue={rowData.description}
+                      />
+                    </AccordionSummary>
+                    <AccordionDetails
+                      className={classes.workflowDescriptionDetails}
+                    >
+                      {rowData?.additionalInfos?.map((additionalInfo: any) => {
+                        return (
+                          <Link target="_blank" href={additionalInfo.value}>
+                            {additionalInfo.key}{' '}
+                            <LaunchIcon
+                              fontSize="inherit"
+                              className={classes.urlIcon}
+                            />
+                          </Link>
+                        );
+                      })}
+                    </AccordionDetails>
+                  </Accordion>
+                ) : (
+                  <SubvalueCell
+                    value={rowData.name}
+                    subvalue={rowData.description}
+                  />
+                )}
               </TableCell>
             );
           } else if (columnDef.field === 'view') {
