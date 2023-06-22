@@ -15,7 +15,7 @@ export const mockDeepRecursiveWorks: WorkflowDefinition = {
       workType: 'TASK',
       parameters: {
         domainName: {
-          format: 'url',
+          format: 'uri',
           description: 'The domain name',
           type: 'string',
           required: true,

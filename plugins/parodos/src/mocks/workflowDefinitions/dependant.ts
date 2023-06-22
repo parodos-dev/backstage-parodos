@@ -10,7 +10,7 @@ export const mockDependantDefinition: WorkflowDefinition = {
   modifyDate: '2023-05-02T09:53:35.450+00:00',
   parameters: {
     projectUrl: {
-      format: 'url',
+      format: 'uri',
       description: 'The project url',
       type: 'string',
       required: false,
@@ -55,7 +55,7 @@ export const mockDependantDefinition: WorkflowDefinition = {
           workType: 'TASK',
           parameters: {
             domainName: {
-              format: 'url',
+              format: 'uri',
               description: 'The domain name',
               type: 'string',
               required: true,
@@ -166,7 +166,7 @@ export const mockDependantDefinition: WorkflowDefinition = {
           workType: 'TASK',
           parameters: {
             hostname: {
-              format: 'url',
+              format: 'uri',
               description: 'The hostname',
               type: 'string',
               required: true,

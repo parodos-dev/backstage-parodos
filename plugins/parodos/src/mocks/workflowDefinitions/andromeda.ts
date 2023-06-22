@@ -20,7 +20,7 @@ export const mockAndromedaWorkflowDefinition: WorkflowDefinition = {
           description: 'The api server',
           required: false,
           type: 'string',
-          format: 'url',
+          format: 'uri',
         },
       },
       workType: 'TASK',
@@ -54,7 +54,7 @@ export const mockWorkflowParams: Record<string, WorkFlowTaskParameter> = {
     description: 'An URL parameter',
     required: true,
     type: 'string',
-    format: 'url',
+    format: 'uri',
   },
   param3: {
     description: 'Date parameter type.',
