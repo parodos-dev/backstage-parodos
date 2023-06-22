@@ -1,11 +1,18 @@
 import { Table, TableColumn } from '@backstage/core-components';
+import { BackstageTheme } from '@backstage/theme';
 import {
   Button,
   Checkbox,
   FormControlLabel,
   Grid,
+  IconButton,
+  makeStyles,
+  Snackbar,
+  SnackbarContent,
   TableCell,
 } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
+import classNames from 'classnames';
 import React, { useCallback, useState } from 'react';
 import { AccessRole, Project } from '../../models/project';
 
@@ -68,14 +75,51 @@ function useMockMembers() {
   return { members, addMember, removeMember, transferOwnership, changeRole };
 }
 
+const useStyles = makeStyles<BackstageTheme>(theme => ({
+  root: {
+    padding: theme.spacing(0),
+    marginBottom: theme.spacing(0),
+    marginTop: theme.spacing(0),
+    display: 'flex',
+    flexFlow: 'row nowrap',
+  },
+  content: {
+    width: '100%',
+    maxWidth: 'inherit',
+    flexWrap: 'nowrap',
+    color: theme.palette.banner.text,
+  },
+  message: {
+    display: 'flex',
+    alignItems: 'center',
+    '& a': {
+      color: theme.palette.banner.link,
+    },
+  },
+  icon: {
+    fontSize: theme.typography.h6.fontSize,
+  },
+  button: {
+    color: theme.palette.banner.closeButtonColor ?? 'inherit',
+  },
+  success: {
+    backgroundColor: theme.palette.status.ok,
+  },
+}));
+
 export function ProjectAccessTable({
   project,
 }: ProjectAccessTableProps): JSX.Element {
   // TODO Use real data when it will be available
-  const { members, removeMember, transferOwnership, changeRole } =
+  const { members, addMember, removeMember, transferOwnership, changeRole } =
     useMockMembers();
 
-  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const classes = useStyles();
+  const [snackbarMessage, setSnackbarMessage] = useState<string>();
+  const [undoRemove, setUndoRemove] = useState<() => void>();
+  const [selectedMembers, setSelectedMembers] = useState<
+    { name: string; role: AccessRole }[]
+  >([]);
 
   const columns: TableColumn<AccessTableData>[] = [
     {
@@ -96,14 +140,37 @@ export function ProjectAccessTable({
       const name =
         event.target instanceof HTMLInputElement ? event.target.name : '';
       if (selected) {
-        setSelectedMembers(prevSelected => [...prevSelected, name]);
+        setSelectedMembers(prevSelected => [
+          ...prevSelected,
+          members.find(member => member.name === name)!,
+        ]);
       } else {
         setSelectedMembers(prevSelected =>
-          prevSelected.filter(member => member !== name),
+          prevSelected.filter(member => member.name !== name),
         );
       }
     },
-    [],
+    [members],
+  );
+
+  const handleTransferOwnership = useCallback(
+    (name: string) => {
+      transferOwnership(name);
+      setSnackbarMessage(
+        `User ownership has been successfully transferred to ${name}.`,
+      );
+    },
+    [transferOwnership],
+  );
+
+  const handleChangeRole = useCallback(
+    (name: string, role: Exclude<AccessRole, 'Owner'>) => {
+      changeRole(name, role);
+      setSnackbarMessage(
+        `User role for ${name} has been successfully changed to ${role}.`,
+      );
+    },
+    [changeRole],
   );
 
   const Cell = useCallback(
@@ -139,11 +206,12 @@ export function ProjectAccessTable({
                         isOwner ||
                         (project.accessRole !== 'Owner' && roleName === 'Owner')
                       }
-                      onChange={() =>
-                        roleName === 'Owner'
-                          ? transferOwnership(rowData.member)
-                          : changeRole(rowData.member, roleName)
-                      }
+                      onChange={() => {
+                        if (selected) return;
+                        if (roleName === 'Owner')
+                          handleTransferOwnership(rowData.member);
+                        else handleChangeRole(rowData.member, roleName);
+                      }}
                     />
                   </Grid>
                 ),
@@ -154,16 +222,77 @@ export function ProjectAccessTable({
       }
       return <TableCell>{rowData[columnDef.field]}</TableCell>;
     },
-    [project.accessRole, changeRole, transferOwnership, handleSelectMember],
+    [
+      project.accessRole,
+      handleSelectMember,
+      handleTransferOwnership,
+      handleChangeRole,
+    ],
   );
 
   const handleRemoveSelected = () => {
-    selectedMembers.forEach(removeMember);
+    selectedMembers.forEach(member => removeMember(member.name));
     setSelectedMembers([]);
+    setSnackbarMessage(
+      `You have successfully removed ${selectedMembers.length} contributor${
+        selectedMembers.length > 1 ? 's' : ''
+      } from this project.`,
+    );
+    setUndoRemove(
+      () => () =>
+        [...selectedMembers]
+          .reverse()
+          .forEach(member => addMember(member.name, member.role)),
+    );
   };
 
   return (
     <>
+      <Snackbar
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        open={!!snackbarMessage}
+        autoHideDuration={5000}
+        onClose={(_, reason) => {
+          if (reason === 'clickaway') return;
+          setUndoRemove(undefined);
+          setSnackbarMessage(undefined);
+        }}
+        classes={{ root: classes.root }}
+      >
+        <SnackbarContent
+          classes={{
+            root: classNames(classes.content, classes.success),
+            message: classes.message,
+          }}
+          message={snackbarMessage}
+          action={[
+            ...(undoRemove
+              ? [
+                  <Button
+                    key="undo"
+                    color="inherit"
+                    size="small"
+                    onClick={() => {
+                      undoRemove?.();
+                      setUndoRemove(undefined);
+                      setSnackbarMessage(undefined);
+                    }}
+                  >
+                    undo this action
+                  </Button>,
+                ]
+              : []),
+            <IconButton
+              key="dismiss"
+              title="Dismiss"
+              className={classes.button}
+              onClick={() => setSnackbarMessage(undefined)}
+            >
+              <CloseIcon />
+            </IconButton>,
+          ]}
+        />
+      </Snackbar>
       <Table
         options={{ paging: false, search: false }}
         columns={columns}
