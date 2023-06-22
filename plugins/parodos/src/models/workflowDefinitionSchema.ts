@@ -12,7 +12,7 @@ const parameterFormat = z.union([
   z.literal('email'),
   z.literal('date'),
   z.literal('number'),
-  z.literal('url'),
+  z.literal('uri'),
   z.literal('boolean'),
   z.literal('select'),
   z.literal('multi-select'),

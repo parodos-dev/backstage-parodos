@@ -42,6 +42,46 @@ describe('<Form />', () => {
 
       expect(onSubmit).toHaveBeenCalled();
     });
+
+    it('can submit the form with ssh url', async () => {
+      const onSubmit = jest.fn();
+
+      const { getByRole } = render(
+        <Form formSchema={formSchema} onSubmit={onSubmit} />,
+      );
+
+      await fireEvent.change(getByRole('textbox', { name: 'api-server' }), {
+        target: {
+          value: 'ssh://git@bitbucket.org:Example-org/spring-world.git',
+        },
+      });
+
+      await act(async () => {
+        await fireEvent.click(getByRole('button', { name: 'NEXT' }));
+      });
+
+      expect(onSubmit).toHaveBeenCalled();
+    });
+
+    it('cannot submit the form with invalid git url', async () => {
+      const onSubmit = jest.fn();
+
+      const { getByRole } = render(
+        <Form formSchema={formSchema} onSubmit={onSubmit} />,
+      );
+
+      await fireEvent.change(getByRole('textbox', { name: 'api-server' }), {
+        target: {
+          value: 'gitaaa@bitbucket.org:Example-org/spring-world.git',
+        },
+      });
+
+      await act(async () => {
+        await fireEvent.click(getByRole('button', { name: 'NEXT' }));
+      });
+
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
   });
 
   describe('with stepper', () => {

@@ -95,7 +95,7 @@ export function Onboarding({ isNew }: OnboardingProps): JSX.Element {
             transformErrors={(errors: RJSFValidationError[]) => {
               return errors.map(err =>
                 err?.message?.includes('must match pattern')
-                  ? { ...err, message: 'invalid url' }
+                  ? { ...err, message: 'invalid uri' }
                   : err,
               );
             }}

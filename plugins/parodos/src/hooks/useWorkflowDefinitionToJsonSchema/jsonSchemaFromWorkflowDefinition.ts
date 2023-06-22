@@ -34,10 +34,11 @@ export function getJsonSchemaType(
         type: 'string',
         format: 'email',
       };
-    case 'url':
+    case 'uri':
       return {
         type: 'string',
-        pattern: '^(https?)://', // TODO: better regex
+        pattern:
+          '^(https://www.|https://|git@|ssh://[a-z]+@)?[a-zA-Z0-9]+([-.]{1}[a-zA-Z0-9]+)*.[:a-zA-Z-0-9]+(:[0-9]{1,5})?(/.*)?$',
       };
     case 'boolean': {
       return {
@@ -92,7 +93,7 @@ export function getUiSchema(type: ParameterFormat) {
       return {
         'ui:widget': 'checkboxes',
       };
-    case 'url':
+    case 'uri':
     case 'number':
       return {};
     default:

@@ -18,7 +18,7 @@ describe('getWorkflowsPayload', () => {
           description: 'The project url',
           required: false,
           type: 'string',
-          format: 'url',
+          format: 'uri',
         },
         workloadId: {
           description: 'The workload id',
