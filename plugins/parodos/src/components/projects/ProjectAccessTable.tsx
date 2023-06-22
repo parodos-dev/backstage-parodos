@@ -44,19 +44,13 @@ function useMockMembers() {
       setMembers(prevMembers => [...prevMembers, { name, role }]),
     [],
   );
-  const removeMember = useCallback((name: string) => {
-    let removedMember: { name: string; role: AccessRole } | undefined;
-    setMembers(prevMembers =>
-      prevMembers.filter(member => {
-        if (member.name === name) {
-          removedMember = member;
-          return false;
-        }
-        return true;
-      }),
-    );
-    return removedMember;
-  }, []);
+  const removeMember = useCallback(
+    (name: string) =>
+      setMembers(prevMembers =>
+        prevMembers.filter(member => member.name !== name),
+      ),
+    [],
+  );
   const transferOwnership = useCallback(
     (name: string) =>
       setMembers(prevMembers =>
@@ -123,7 +117,9 @@ export function ProjectAccessTable({
   const classes = useStyles();
   const [snackbarMessage, setSnackbarMessage] = useState<string>();
   const [undoRemove, setUndoRemove] = useState<() => void>();
-  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [selectedMembers, setSelectedMembers] = useState<
+    { name: string; role: AccessRole }[]
+  >([]);
 
   const columns: TableColumn<AccessTableData>[] = [
     {
@@ -144,14 +140,17 @@ export function ProjectAccessTable({
       const name =
         event.target instanceof HTMLInputElement ? event.target.name : '';
       if (selected) {
-        setSelectedMembers(prevSelected => [...prevSelected, name]);
+        setSelectedMembers(prevSelected => [
+          ...prevSelected,
+          members.find(member => member.name === name)!,
+        ]);
       } else {
         setSelectedMembers(prevSelected =>
-          prevSelected.filter(member => member !== name),
+          prevSelected.filter(member => member.name !== name),
         );
       }
     },
-    [],
+    [members],
   );
 
   const handleTransferOwnership = useCallback(
@@ -232,17 +231,18 @@ export function ProjectAccessTable({
   );
 
   const handleRemoveSelected = () => {
-    const removedMembers = selectedMembers
-      .map(removeMember)
-      .filter(<T extends any>(x: T): x is NonNullable<T> => !!x);
+    selectedMembers.forEach(member => removeMember(member.name));
     setSelectedMembers([]);
     setSnackbarMessage(
-      `You have successfully removed ${removedMembers.length} contributor${
-        removedMembers.length > 1 ? 's' : ''
+      `You have successfully removed ${selectedMembers.length} contributor${
+        selectedMembers.length > 1 ? 's' : ''
       } from this project.`,
     );
-    setUndoRemove(() =>
-      removedMembers.forEach(member => addMember(member.name, member.role)),
+    setUndoRemove(
+      () => () =>
+        [...selectedMembers]
+          .reverse()
+          .forEach(member => addMember(member.name, member.role)),
     );
   };
 
@@ -274,6 +274,7 @@ export function ProjectAccessTable({
                     size="small"
                     onClick={() => {
                       undoRemove?.();
+                      setUndoRemove(undefined);
                       setSnackbarMessage(undefined);
                     }}
                   >
