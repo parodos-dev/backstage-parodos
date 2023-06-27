@@ -1,13 +1,22 @@
 import { ParodosPage } from '../../ParodosPage';
 import {
+  Breadcrumbs,
   ContentHeader,
   InfoCard,
   Progress,
   SupportButton,
+  Link,
 } from '@backstage/core-components';
-import { Box, Chip, makeStyles, Typography } from '@material-ui/core';
+import {
+  Box,
+  Chip,
+  makeStyles,
+  Typography,
+  Button,
+  Collapse,
+} from '@material-ui/core';
 import { WorkFlowLogViewer } from './WorkFlowLogViewer';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { WorkFlowStepper } from './topology/WorkFlowStepper';
 import { useLocation, useParams } from 'react-router-dom';
 import * as urls from '../../../urls';
@@ -25,8 +34,10 @@ import {
   getWorkflowTasksForTopology,
 } from '../../../hooks/getWorkflowDefinitions';
 import { assert } from 'assert-ts';
+import ChevronRight from '@material-ui/icons/ChevronRight';
+import ChevronDown from '@material-ui/icons/KeyboardArrowDown';
 
-const useStyles = makeStyles(_theme => ({
+const useStyles = makeStyles(theme => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
@@ -38,15 +49,20 @@ const useStyles = makeStyles(_theme => ({
   detailContainer: {
     flex: 1,
     display: 'grid',
-    gridTemplateRows: '1fr 1fr',
+    gridTemplateRows: '1fr auto 1fr',
     minHeight: 0,
   },
   viewerContainer: {
     display: 'grid',
+    height: '100%',
     minHeight: 0,
   },
   card: {
     height: '100%',
+  },
+  viewMoreButton: {
+    color: theme.palette.primary.main,
+    textDecoration: 'underline',
   },
 }));
 
@@ -64,6 +80,7 @@ export function WorkFlowDetail(): JSX.Element {
   const styles = useStyles();
   const { fetch } = useApi(fetchApiRef);
   const [status, setStatus] = useState<Status>('IN_PROGRESS');
+  const [showMoreWorkflows, setShowMoreWorkflows] = useState(false);
 
   useEffect(() => {
     const updateWorks = (works: WorkStatus[]) => {
@@ -159,13 +176,20 @@ export function WorkFlowDetail(): JSX.Element {
         `checking logs for ${selectedTask?.toUpperCase()} in execution: ${executionId}\n${response}`,
       );
     };
+
     const logInterval = setInterval(() => {
       updateWorkFlowLogs();
     }, 3000);
+
     updateWorkFlowLogs();
 
     return () => clearInterval(logInterval);
   }, [executionId, selectedTask, fetch, workflowsUrl, allTasks]);
+
+  const showMoreWorkflowsToggle = useCallback(
+    () => setShowMoreWorkflows(!showMoreWorkflows),
+    [showMoreWorkflows],
+  );
 
   return (
     <ParodosPage className={styles.container}>
@@ -176,19 +200,28 @@ export function WorkFlowDetail(): JSX.Element {
           color="secondary"
         />
       )}
+      <Box mb={3}>
+        <Breadcrumbs aria-label="breadcrumb">
+          <Link to="/onboarding/${projectId}/${projectId}/${executionId}/options/">
+            Return to Assessment results
+          </Link>
+          <Typography>Workflow Detail</Typography>
+        </Breadcrumbs>
+      </Box>
       <ContentHeader title="Onboarding">
         <SupportButton title="Need help?">Lorem Ipsum</SupportButton>
       </ContentHeader>
-      <InfoCard className={styles.card}>
-        <Typography paragraph>
-          Please provide additional information related to your project.
-        </Typography>
-        <Typography paragraph>
-          You are onboarding <strong>{project?.name || '...'}</strong> project,
-          running workflow "{workflowName}" (execution ID: {executionId})
-        </Typography>
 
-        <Box className={styles.detailContainer}>
+      <Box className={styles.detailContainer}>
+        <InfoCard className={styles.card}>
+          <Typography paragraph>
+            Please provide additional information related to your project.
+          </Typography>
+          <Typography paragraph>
+            You are onboarding <strong>{project?.name || '...'}</strong>{' '}
+            project, running workflow "{workflowName}" (execution ID:{' '}
+            {executionId})
+          </Typography>
           {allTasks.length > 0 ? (
             <WorkFlowStepper
               tasks={allTasks}
@@ -197,11 +230,23 @@ export function WorkFlowDetail(): JSX.Element {
           ) : (
             <Progress />
           )}
-          <div className={styles.viewerContainer}>
-            {log !== '' && <WorkFlowLogViewer log={log} />}
-          </div>
+        </InfoCard>
+        <Box>
+          <Button
+            onClick={showMoreWorkflowsToggle}
+            className={styles.viewMoreButton}
+          >
+            {showMoreWorkflows ? <ChevronDown /> : <ChevronRight />}
+            View More Workflows
+          </Button>
+          <Collapse in={showMoreWorkflows} timeout="auto" unmountOnExit>
+            <h1>Fuck</h1>
+          </Collapse>
         </Box>
-      </InfoCard>
+        <div className={styles.viewerContainer}>
+          {log !== '' && <WorkFlowLogViewer log={log} />}
+        </div>
+      </Box>
     </ParodosPage>
   );
 }
