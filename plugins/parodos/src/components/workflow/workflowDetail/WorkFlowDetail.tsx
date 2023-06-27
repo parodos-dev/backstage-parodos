@@ -1,22 +1,13 @@
 import { ParodosPage } from '../../ParodosPage';
 import {
-  Breadcrumbs,
   ContentHeader,
   InfoCard,
   Progress,
   SupportButton,
-  Link,
 } from '@backstage/core-components';
-import {
-  Box,
-  Chip,
-  makeStyles,
-  Typography,
-  Button,
-  Collapse,
-} from '@material-ui/core';
+import { Box, Chip, makeStyles, Typography } from '@material-ui/core';
 import { WorkFlowLogViewer } from './WorkFlowLogViewer';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { WorkFlowStepper } from './topology/WorkFlowStepper';
 import { useLocation, useParams } from 'react-router-dom';
 import * as urls from '../../../urls';
@@ -34,10 +25,9 @@ import {
   getWorkflowTasksForTopology,
 } from '../../../hooks/getWorkflowDefinitions';
 import { assert } from 'assert-ts';
-import ChevronRight from '@material-ui/icons/ChevronRight';
-import ChevronDown from '@material-ui/icons/KeyboardArrowDown';
+import { AssessmentBreadCrumb } from '../../AssessmentBreadCrumb/AssessmentBreadCrumb';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(_theme => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
@@ -49,26 +39,22 @@ const useStyles = makeStyles(theme => ({
   detailContainer: {
     flex: 1,
     display: 'grid',
-    gridTemplateRows: '1fr auto 1fr',
+    gridTemplateRows: '1fr 1fr',
     minHeight: 0,
   },
   viewerContainer: {
     display: 'grid',
-    height: '100%',
     minHeight: 0,
   },
   card: {
     height: '100%',
-  },
-  viewMoreButton: {
-    color: theme.palette.primary.main,
-    textDecoration: 'underline',
   },
 }));
 
 export function WorkFlowDetail(): JSX.Element {
   const { projectId, executionId } = useParams();
   assert(!!projectId, 'no projectId param');
+  assert(!!executionId, 'no executionId param');
   const project = useStore(state => state.getProjectById(projectId));
   const { isNew = false } = useLocation().state ?? {};
   const getWorkDefinitionBy = useStore(state => state.getWorkDefinitionBy);
@@ -80,7 +66,6 @@ export function WorkFlowDetail(): JSX.Element {
   const styles = useStyles();
   const { fetch } = useApi(fetchApiRef);
   const [status, setStatus] = useState<Status>('IN_PROGRESS');
-  const [showMoreWorkflows, setShowMoreWorkflows] = useState(false);
 
   useEffect(() => {
     const updateWorks = (works: WorkStatus[]) => {
@@ -176,20 +161,13 @@ export function WorkFlowDetail(): JSX.Element {
         `checking logs for ${selectedTask?.toUpperCase()} in execution: ${executionId}\n${response}`,
       );
     };
-
     const logInterval = setInterval(() => {
       updateWorkFlowLogs();
     }, 3000);
-
     updateWorkFlowLogs();
 
     return () => clearInterval(logInterval);
   }, [executionId, selectedTask, fetch, workflowsUrl, allTasks]);
-
-  const showMoreWorkflowsToggle = useCallback(
-    () => setShowMoreWorkflows(!showMoreWorkflows),
-    [showMoreWorkflows],
-  );
 
   return (
     <ParodosPage className={styles.container}>
@@ -200,28 +178,24 @@ export function WorkFlowDetail(): JSX.Element {
           color="secondary"
         />
       )}
-      <Box mb={3}>
-        <Breadcrumbs aria-label="breadcrumb">
-          <Link to="/onboarding/${projectId}/${projectId}/${executionId}/options/">
-            Return to Assessment results
-          </Link>
-          <Typography>Workflow Detail</Typography>
-        </Breadcrumbs>
-      </Box>
       <ContentHeader title="Onboarding">
         <SupportButton title="Need help?">Lorem Ipsum</SupportButton>
       </ContentHeader>
-
-      <Box className={styles.detailContainer}>
-        <InfoCard className={styles.card}>
-          <Typography paragraph>
-            Please provide additional information related to your project.
-          </Typography>
-          <Typography paragraph>
-            You are onboarding <strong>{project?.name || '...'}</strong>{' '}
-            project, running workflow "{workflowName}" (execution ID:{' '}
-            {executionId})
-          </Typography>
+      <Box mb={3}>
+        <AssessmentBreadCrumb projectId={projectId} executionId={executionId}>
+          Return to Assessment results
+        </AssessmentBreadCrumb>
+      </Box>
+      <InfoCard className={styles.card}>
+        <Typography paragraph>
+          Please provide additional information related to your project.
+        </Typography>
+        <Typography paragraph>
+          You are onboarding <strong>{project?.name || '...'}</strong> project,
+          running workflow "{workflowName}" (execution ID: {executionId})
+        </Typography>{' '}
+        ddd
+        <Box className={styles.detailContainer}>
           {allTasks.length > 0 ? (
             <WorkFlowStepper
               tasks={allTasks}
@@ -230,23 +204,11 @@ export function WorkFlowDetail(): JSX.Element {
           ) : (
             <Progress />
           )}
-        </InfoCard>
-        <Box>
-          <Button
-            onClick={showMoreWorkflowsToggle}
-            className={styles.viewMoreButton}
-          >
-            {showMoreWorkflows ? <ChevronDown /> : <ChevronRight />}
-            View More Workflows
-          </Button>
-          <Collapse in={showMoreWorkflows} timeout="auto" unmountOnExit>
-            <h1>Fuck</h1>
-          </Collapse>
+          <div className={styles.viewerContainer}>
+            {log !== '' && <WorkFlowLogViewer log={log} />}
+          </div>
         </Box>
-        <div className={styles.viewerContainer}>
-          {log !== '' && <WorkFlowLogViewer log={log} />}
-        </div>
-      </Box>
+      </InfoCard>
     </ParodosPage>
   );
 }
