@@ -11,12 +11,12 @@ import { useStore } from '../../stores/workflowStore/workflowStore';
 import { NavLink, useParams } from 'react-router-dom';
 import { ProjectAccessTable } from './ProjectAccessTable';
 
-const useStyles = makeStyles(_theme => ({
+const useStyles = makeStyles(theme => ({
   supportButton: {
     marginLeft: 'auto',
   },
   tableContainer: {
-    marginTop: '2em',
+    marginTop: theme.spacing(3),
   },
 }));
 

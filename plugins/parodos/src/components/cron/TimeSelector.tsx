@@ -17,12 +17,11 @@ import {
 } from './helpers';
 import { Period, TimeUnit } from './types';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   menuGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(6, 1fr)',
-    gridGap: '8px',
-    width: '300px',
+    gridGap: theme.spacing(1),
   },
 }));
 

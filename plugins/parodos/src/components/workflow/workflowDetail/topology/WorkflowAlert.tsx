@@ -14,13 +14,14 @@ import { renderers } from '../../../markdown/renderers';
 
 const useStyles = makeStyles(theme => ({
   container: {
+    position: 'absolute',
     backgroundColor: 'transparent',
     borderRadius: theme.spacing(2),
     zIndex: 33,
   },
   message: {
     display: 'flex',
-    padding: '6px 16px',
+    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
     fontSize: 'inherit',
     fontFamily: 'inherit',
     fontWeight: 400,
@@ -94,10 +95,7 @@ export function WorkflowAlert({
 
   return (
     <Fade in={open} timeout={500}>
-      <Box
-        style={{ position: 'absolute', top, left }}
-        className={styles.container}
-      >
+      <Box style={{ top, left }} className={styles.container}>
         <Paper elevation={4}>
           <div className={styles.message}>
             <div>

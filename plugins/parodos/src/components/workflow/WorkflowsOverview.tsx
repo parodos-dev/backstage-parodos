@@ -21,8 +21,7 @@ import { useSearchParams } from 'react-router-dom';
 const useStyles = makeStyles(theme => ({
   titleIcon: {
     alignSelf: 'center',
-    height: '3.5em',
-    color: '#616161',
+    height: theme.spacing(6),
   },
   supportButton: {
     marginLeft: 'auto',
@@ -32,7 +31,7 @@ const useStyles = makeStyles(theme => ({
     marginRight: 0,
   },
   tableContainer: {
-    marginTop: '2em',
+    marginTop: theme.spacing(3),
   },
   addProjectButton: {
     marginRight: theme.spacing(1),
