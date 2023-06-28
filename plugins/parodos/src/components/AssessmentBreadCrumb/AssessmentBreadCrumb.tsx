@@ -18,7 +18,7 @@ const useStyles = makeStyles(theme => ({
 export function AssessmentBreadCrumb({
   projectId,
   executionId,
-  linkText = 'Return to Assessment results',
+  linkText = 'Assessment results',
   current,
 }: AssessmentBreadCrumbProps): JSX.Element {
   const styles = useStyles();

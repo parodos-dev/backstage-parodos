@@ -1,15 +1,17 @@
 /* eslint-disable no-console */
 import React, { useEffect } from 'react';
 import {
+  Breadcrumbs,
   ContentHeader,
   EmptyState,
   InfoCard,
+  Link,
   Progress,
   SupportButton,
 } from '@backstage/core-components';
 import { useParams } from 'react-router-dom';
 import { ParodosPage } from '../../ParodosPage';
-import { Grid, makeStyles } from '@material-ui/core';
+import { Box, Grid, makeStyles, Typography } from '@material-ui/core';
 import { assert } from 'assert-ts';
 import { WorkflowOptionsList } from '../WorkflowOptionsList';
 import useAsync from 'react-use/lib/useAsync';
@@ -18,9 +20,12 @@ import { errorApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { getWorkflowOptions } from '../hooks/getWorkflowOptions';
 import * as urls from '../../../urls';
 
-const useStyles = makeStyles(_theme => ({
+const useStyles = makeStyles(theme => ({
   fullHeight: {
     height: '100%',
+  },
+  link: {
+    color: theme.palette.primary.main,
   },
 }));
 
@@ -67,6 +72,14 @@ export function AssessmentWorkflow(): JSX.Element {
       <ContentHeader title="Assessment">
         <SupportButton title="Need help?">Lorem Ipsum</SupportButton>
       </ContentHeader>
+      <Box mb={3}>
+        <Breadcrumbs aria-label="breadcrumb">
+          <Link className={styles.link} to="/parodos/workflows">
+            Workflows
+          </Link>
+          <Typography>Assessment results</Typography>
+        </Breadcrumbs>
+      </Box>
       <InfoCard className={styles.fullHeight}>
         <Grid container direction="row">
           <Grid item xs={12}>

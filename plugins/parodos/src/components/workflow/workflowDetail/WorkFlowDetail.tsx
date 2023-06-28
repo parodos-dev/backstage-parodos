@@ -26,6 +26,7 @@ import {
 } from '../../../hooks/getWorkflowDefinitions';
 import { assert } from 'assert-ts';
 import { AssessmentBreadCrumb } from '../../AssessmentBreadCrumb/AssessmentBreadCrumb';
+import { useSearchParams } from 'react-router-dom';
 
 const useStyles = makeStyles(_theme => ({
   container: {
@@ -66,6 +67,11 @@ export function WorkFlowDetail(): JSX.Element {
   const styles = useStyles();
   const { fetch } = useApi(fetchApiRef);
   const [status, setStatus] = useState<Status>('IN_PROGRESS');
+  const [searchParams] = useSearchParams();
+
+  const assessmentWorkflowExecutionId = searchParams.get(
+    'assessmentexecutionid',
+  );
 
   useEffect(() => {
     const updateWorks = (works: WorkStatus[]) => {
@@ -119,10 +125,9 @@ export function WorkFlowDetail(): JSX.Element {
 
     updateWorksFromApi();
 
-    // TOOD: review after Demo
-    // if (status === 'FAILED') {
-    //   clearInterval(taskInterval);
-    // }
+    if (status === 'FAILED') {
+      clearInterval(taskInterval);
+    }
 
     return () => clearInterval(taskInterval);
   }, [
@@ -181,13 +186,15 @@ export function WorkFlowDetail(): JSX.Element {
       <ContentHeader title="Onboarding">
         <SupportButton title="Need help?">Lorem Ipsum</SupportButton>
       </ContentHeader>
-      <Box mb={3}>
-        <AssessmentBreadCrumb
-          projectId={projectId}
-          executionId={executionId}
-          current="Workflow Detail"
-        />
-      </Box>
+      {assessmentWorkflowExecutionId && (
+        <Box mb={3}>
+          <AssessmentBreadCrumb
+            projectId={projectId}
+            executionId={assessmentWorkflowExecutionId}
+            current="Workflow Detail"
+          />
+        </Box>
+      )}
       <InfoCard className={styles.card}>
         <Typography paragraph>
           Please provide additional information related to your project.
