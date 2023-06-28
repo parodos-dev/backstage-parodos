@@ -63,6 +63,7 @@ export const TestApp: React.FC = ({ children }) => {
               JSON.stringify([
                 {
                   workFlowExecutionId: '511da8ce-4df7-438b-a9ec-0130f14884bd',
+                  workFlowType: 'INFRASTRUCTURE',
                   projectId: '511da8ce-4df7-438b-a9ec-0130f14884bd',
                   workFlowName: 'myWorkflow',
                   workStatus: 'IN_PROGRESS',

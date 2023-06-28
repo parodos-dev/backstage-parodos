@@ -6,6 +6,7 @@ export const workflowOptionItem = z.object({
   description: z.string(),
   details: z.array(z.string()),
   workFlowName: z.string(),
+  recommended: z.boolean(),
 });
 
 export const workflowOptions = z.object({

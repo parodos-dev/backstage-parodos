@@ -15,6 +15,7 @@ describe('workflow', () => {
             description: 'An example of a complex WorkFlow',
             details: ['An example of a complex WorkFlow with Status checks'],
             workFlowName: 'onboardingWorkFlow_INFRASTRUCTURE_WORKFLOW',
+            recommended: false,
           },
         ],
         continuationOptions: [],

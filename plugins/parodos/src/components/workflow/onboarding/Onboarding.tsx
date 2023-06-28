@@ -84,9 +84,8 @@ export function Onboarding({ isNew }: OnboardingProps): JSX.Element {
         <AssessmentBreadCrumb
           projectId={projectId}
           executionId={assessmentWorkflowExecutionId}
-        >
-          Onboarding
-        </AssessmentBreadCrumb>
+          current="Onboarding"
+        />
       </Box>
       {loading && <Progress />}
       {formSchema.steps.length === 0 && <Empty startWorkflow={startWorkflow} />}

@@ -1,11 +1,12 @@
-import React, { type ReactNode } from 'react';
+import React from 'react';
 import { makeStyles, Typography } from '@material-ui/core';
 import { Link, Breadcrumbs } from '@backstage/core-components';
 
 interface AssessmentBreadCrumbProps {
-  children: ReactNode;
+  linkText?: string;
   projectId: string;
   executionId: string;
+  current: string;
 }
 
 const useStyles = makeStyles(theme => ({
@@ -17,7 +18,8 @@ const useStyles = makeStyles(theme => ({
 export function AssessmentBreadCrumb({
   projectId,
   executionId,
-  children,
+  linkText = 'Return to Assessment results',
+  current,
 }: AssessmentBreadCrumbProps): JSX.Element {
   const styles = useStyles();
 
@@ -27,9 +29,9 @@ export function AssessmentBreadCrumb({
         className={styles.link}
         to={`/parodos/workflows/assessment/${projectId}/${executionId}`}
       >
-        Return to Assessment results
+        {linkText}
       </Link>
-      <Typography>{children}</Typography>
+      <Typography>{current}</Typography>
     </Breadcrumbs>
   );
 }

@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import {
   ContentHeader,
+  EmptyState,
   InfoCard,
   Progress,
   SupportButton,
@@ -43,23 +44,23 @@ export function AssessmentWorkflow(): JSX.Element {
     error,
     value: workflowOptions,
   } = useAsync(async () => {
-    const options = await getWorkflowOptions(fetch, {
+    return await getWorkflowOptions(fetch, {
       workflowsUrl,
       executionId: assessmentWorkflowExecutionId,
     });
-
-    // TODO: Are we only interested in newOptions?
-    return (options.newOptions ?? []).map(option => ({
-      ...option,
-      type: 'New Option',
-    }));
   }, [assessmentWorkflowExecutionId, fetch, workflowsUrl]);
+
+  console.log(workflowOptions);
 
   useEffect(() => {
     if (error) {
       errorApi.post(new Error(`Failure retrieving workflow options`));
     }
   }, [error, errorApi]);
+
+  const noOptions =
+    loading === false && workflowOptions && workflowOptions.length === 0;
+  const hasOptions = workflowOptions && workflowOptions.length > 0;
 
   return (
     <ParodosPage stretch>
@@ -70,7 +71,13 @@ export function AssessmentWorkflow(): JSX.Element {
         <Grid container direction="row">
           <Grid item xs={12}>
             {loading && <Progress />}
-            {workflowOptions && (
+            {noOptions && (
+              <EmptyState
+                missing="data"
+                title="There are no further workflow options to complete for this assessment."
+              />
+            )}
+            {hasOptions && (
               <WorkflowOptionsList
                 isNew={false}
                 project={selectedProject}

@@ -182,9 +182,11 @@ export function WorkFlowDetail(): JSX.Element {
         <SupportButton title="Need help?">Lorem Ipsum</SupportButton>
       </ContentHeader>
       <Box mb={3}>
-        <AssessmentBreadCrumb projectId={projectId} executionId={executionId}>
-          Return to Assessment results
-        </AssessmentBreadCrumb>
+        <AssessmentBreadCrumb
+          projectId={projectId}
+          executionId={executionId}
+          current="Workflow Detail"
+        />
       </Box>
       <InfoCard className={styles.card}>
         <Typography paragraph>
@@ -193,8 +195,7 @@ export function WorkFlowDetail(): JSX.Element {
         <Typography paragraph>
           You are onboarding <strong>{project?.name || '...'}</strong> project,
           running workflow "{workflowName}" (execution ID: {executionId})
-        </Typography>{' '}
-        ddd
+        </Typography>
         <Box className={styles.detailContainer}>
           {allTasks.length > 0 ? (
             <WorkFlowStepper
