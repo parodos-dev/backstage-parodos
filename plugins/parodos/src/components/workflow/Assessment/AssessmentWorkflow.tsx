@@ -50,7 +50,7 @@ export function AssessmentWorkflow(): JSX.Element {
     });
   }, [assessmentWorkflowExecutionId, fetch, workflowsUrl]);
 
-  console.log(workflowOptions);
+  // console.log(workflowOptions);
 
   useEffect(() => {
     if (error) {
