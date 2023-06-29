@@ -4,12 +4,16 @@ import { useTheme } from '@material-ui/core';
 import { ParodosPluginTheme } from '../types';
 
 export const PageHeader: React.FC = () => {
-  const theme = useTheme<ParodosPluginTheme>();
+  const theme = useTheme<Partial<ParodosPluginTheme>>();
 
   return (
     <Header
       title="Parodos"
-      style={{ background: theme.parodos.headerBackground }}
+      style={
+        theme.parodos?.headerBackground
+          ? { background: theme.parodos.headerBackground }
+          : undefined
+      }
     />
   );
 };
