@@ -23,20 +23,21 @@ import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import cs from 'classnames';
 import { renderers } from '../markdown/renderers';
+import { BackstageTheme } from '@backstage/theme';
 
-const useRowStyles = makeStyles(theme => ({
+const useRowStyles = makeStyles<BackstageTheme>(theme => ({
   root: {
     backgroundColor: 'inherit !IMPORTANT',
     borderTop: `1px solid ${theme.palette.grey.A100}`,
     '&$selected': {
-      backgroundColor: '#E8F1FA !IMPORTANT',
+      backgroundColor: `${theme.palette.infoBackground} !IMPORTANT`,
     },
     '&:not(.read) [role="cell"]': {
       fontWeight: 600,
     },
     '&.read [role="cell"]': {
       fontWeight: 400,
-      color: '#BABABA',
+      color: theme.palette.text.disabled,
     },
     '& [role="cell"]:first-of-type': {
       width: '50%',
@@ -46,7 +47,7 @@ const useRowStyles = makeStyles(theme => ({
       width: 'auto',
     },
     '& [role="cell"]:nth-child(4)': {
-      width: '2rem',
+      width: theme.spacing(4),
     },
   },
   nested: {
@@ -57,6 +58,7 @@ const useRowStyles = makeStyles(theme => ({
   body: {
     fontWeight: 800,
   },
+  cell: { paddingBottom: 0, paddingTop: 0 },
 }));
 
 interface NotificationListItemProps {
@@ -136,7 +138,7 @@ export function NotificationListItem({
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={4}>
+        <TableCell className={styles.cell} colSpan={4}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box margin={1}>
               <Table>

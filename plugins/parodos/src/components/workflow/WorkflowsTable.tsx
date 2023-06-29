@@ -39,14 +39,7 @@ const useStyles = makeStyles(theme => ({
     alignSelf: 'flex-end',
   },
   filterHeader: {
-    marginLeft: '16px',
-  },
-  filterIcon: {
-    display: 'inline-block',
-    width: '8px',
-    height: '8px',
-    borderRadius: '50%',
-    marginRight: '8px',
+    marginLeft: theme.spacing(2),
   },
   workflowDescriptionContainer: {
     background: 'inherit',

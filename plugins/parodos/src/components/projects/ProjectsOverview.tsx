@@ -12,11 +12,10 @@ import Star from '@material-ui/icons/StarOutline';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import { ProjectsTable } from './ProjectsTable';
 
-const useStyles = makeStyles(_theme => ({
+const useStyles = makeStyles(theme => ({
   titleIcon: {
     alignSelf: 'center',
-    height: '3.5em',
-    color: '#616161',
+    height: theme.spacing(6),
   },
   supportButton: {
     marginLeft: 'auto',
@@ -25,7 +24,7 @@ const useStyles = makeStyles(_theme => ({
     alignSelf: 'flex-start',
   },
   tableContainer: {
-    marginTop: '2em',
+    marginTop: theme.spacing(3),
   },
 }));
 

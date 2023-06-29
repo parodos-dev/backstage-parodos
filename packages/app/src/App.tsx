@@ -33,14 +33,39 @@ import { AppRouter, FlatRoutes } from '@backstage/core-app-api';
 import { CatalogGraphPage } from '@backstage/plugin-catalog-graph';
 import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
-import { ParodosPage } from '@parodos/plugin-parodos';
+import {
+  createParodosTheme,
+  ParodosPage,
+  ParodosPluginTheme,
+} from '@parodos/plugin-parodos';
 import { ParodosSignInPage } from '@parodos/plugin-parodos-auth';
+import { CssBaseline, ThemeProvider } from '@material-ui/core';
+import { lightTheme } from '@backstage/theme';
+
+const parodosTheme: ParodosPluginTheme = createParodosTheme({
+  ...lightTheme,
+  parodos: {
+    headerBackground: '#003B70',
+  },
+});
 
 const app = createApp({
   apis,
   components: {
     SignInPage: ParodosSignInPage,
   },
+  themes: [
+    {
+      id: 'parodos',
+      title: 'Parodos',
+      variant: 'light',
+      Provider: ({ children }) => (
+        <ThemeProvider theme={parodosTheme}>
+          <CssBaseline>{children}</CssBaseline>
+        </ThemeProvider>
+      ),
+    },
+  ],
   bindRoutes({ bind }) {
     bind(catalogPlugin.externalRoutes, {
       createComponent: scaffolderPlugin.routes.root,

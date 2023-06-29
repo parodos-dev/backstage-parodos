@@ -31,22 +31,25 @@ const useStyles = makeStyles(theme => ({
   },
   selected: {
     marginLeft: theme.spacing(2),
-    color: '#E20074',
+    color: theme.palette.error.main,
     position: 'relative',
-    top: '0.75rem',
+    top: theme.spacing(2),
   },
   actions: {
     position: 'relative',
-    top: '0.75rem',
+    top: theme.spacing(2),
     display: 'flex',
     justifyContent: 'flex-end',
     marginRight: theme.spacing(1),
   },
   accordionIcon: {
-    top: '1rem',
+    top: theme.spacing(2),
   },
   buttons: {
     display: 'flex',
+  },
+  filterIcon: {
+    color: theme.palette.primary.main,
   },
 }));
 
@@ -95,7 +98,7 @@ export function NotificationListHeader({
         })}
       >
         {view === 'Filter' ? (
-          <span>
+          <span className={styles.filterIcon}>
             <AccordionIcon />
           </span>
         ) : (
