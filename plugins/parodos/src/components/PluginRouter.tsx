@@ -8,6 +8,7 @@ import { WorkflowsOverview } from './workflow/WorkflowsOverview';
 import { ProjectsOverview } from './projects/ProjectsOverview';
 import { ProjectsNew } from './projects/New/ProjectsNew';
 import { ProjectAccessManager } from './projects/ProjectAccessManager';
+import { AssessmentWorkflow } from './workflow/Assessment/AssessmentWorkflow';
 
 export const PluginRouter = () => (
   <Routes>
@@ -19,6 +20,10 @@ export const PluginRouter = () => (
       element={<ProjectAccessManager />}
     />
     <Route path="/workflows" element={<WorkflowsOverview />} />
+    <Route
+      path="/workflows/assessment/:projectId/:assessmentWorkflowExecutionId"
+      element={<AssessmentWorkflow />}
+    />
     <Route path="/onboarding" element={<Workflow />} />
     <Route path="/notification" element={<Notification />} />
     <Route

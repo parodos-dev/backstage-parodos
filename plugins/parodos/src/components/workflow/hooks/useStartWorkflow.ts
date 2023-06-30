@@ -32,12 +32,18 @@ export function useStartWorkflow({
       });
 
       navigate(
-        `/parodos/onboarding/${projectId}/${workFlowExecutionId}/workflow-detail`,
+        `/parodos/onboarding/${projectId}/${workFlowExecutionId}/workflow-detail?assessmentexecutionid=${assessmentWorkflowExecutionId}`,
         {
           state: { isNew },
         },
       );
     },
-    [projectId, navigate, isNew, executeWorkflow],
+    [
+      executeWorkflow,
+      projectId,
+      navigate,
+      assessmentWorkflowExecutionId,
+      isNew,
+    ],
   );
 }

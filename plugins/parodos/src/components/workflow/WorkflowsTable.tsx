@@ -179,6 +179,7 @@ export const WorkflowsTable: React.FC<{
           ? formatDate.format(Date.parse(workflow.endDate))
           : undefined,
         additionalInfos: workflow.additionalInfos,
+        workFlowType: workflow.workFlowType,
       } as WorkflowTableData;
     })
     .filter(workflow =>
@@ -296,7 +297,13 @@ export const WorkflowsTable: React.FC<{
               <TableCell>
                 <LinkButton
                   color="primary"
-                  to={`${pluginRoutePrefix}/onboarding/${projectId}/${rowData.id}/workflow-detail`}
+                  to={`${pluginRoutePrefix}/onboarding/${projectId}/${
+                    rowData.id
+                  }/workflow-detail${
+                    rowData.workFlowType === 'ASSESSMENT'
+                      ? `?assessmentexecutionid=${rowData.id}`
+                      : ''
+                  }`}
                 >
                   VIEW
                 </LinkButton>

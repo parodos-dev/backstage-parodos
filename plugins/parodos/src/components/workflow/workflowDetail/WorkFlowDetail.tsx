@@ -25,6 +25,8 @@ import {
   getWorkflowTasksForTopology,
 } from '../../../hooks/getWorkflowDefinitions';
 import { assert } from 'assert-ts';
+import { AssessmentBreadCrumb } from '../../AssessmentBreadCrumb/AssessmentBreadCrumb';
+import { useSearchParams } from 'react-router-dom';
 
 const useStyles = makeStyles(_theme => ({
   container: {
@@ -53,6 +55,7 @@ const useStyles = makeStyles(_theme => ({
 export function WorkFlowDetail(): JSX.Element {
   const { projectId, executionId } = useParams();
   assert(!!projectId, 'no projectId param');
+  assert(!!executionId, 'no executionId param');
   const project = useStore(state => state.getProjectById(projectId));
   const { isNew = false } = useLocation().state ?? {};
   const getWorkDefinitionBy = useStore(state => state.getWorkDefinitionBy);
@@ -64,6 +67,11 @@ export function WorkFlowDetail(): JSX.Element {
   const styles = useStyles();
   const { fetch } = useApi(fetchApiRef);
   const [status, setStatus] = useState<Status>('IN_PROGRESS');
+  const [searchParams] = useSearchParams();
+
+  const assessmentWorkflowExecutionId = searchParams.get(
+    'assessmentexecutionid',
+  );
 
   useEffect(() => {
     const updateWorks = (works: WorkStatus[]) => {
@@ -117,10 +125,9 @@ export function WorkFlowDetail(): JSX.Element {
 
     updateWorksFromApi();
 
-    // TOOD: review after Demo
-    // if (status === 'FAILED') {
-    //   clearInterval(taskInterval);
-    // }
+    if (status === 'FAILED') {
+      clearInterval(taskInterval);
+    }
 
     return () => clearInterval(taskInterval);
   }, [
@@ -179,6 +186,15 @@ export function WorkFlowDetail(): JSX.Element {
       <ContentHeader title="Onboarding">
         <SupportButton title="Need help?">Lorem Ipsum</SupportButton>
       </ContentHeader>
+      {assessmentWorkflowExecutionId && (
+        <Box mb={3}>
+          <AssessmentBreadCrumb
+            projectId={projectId}
+            executionId={assessmentWorkflowExecutionId}
+            current="Workflow Detail"
+          />
+        </Box>
+      )}
       <InfoCard className={styles.card}>
         <Typography paragraph>
           Please provide additional information related to your project.
@@ -187,7 +203,6 @@ export function WorkFlowDetail(): JSX.Element {
           You are onboarding <strong>{project?.name || '...'}</strong> project,
           running workflow "{workflowName}" (execution ID: {executionId})
         </Typography>
-
         <Box className={styles.detailContainer}>
           {allTasks.length > 0 ? (
             <WorkFlowStepper

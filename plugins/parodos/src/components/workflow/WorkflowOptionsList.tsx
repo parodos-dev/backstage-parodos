@@ -14,6 +14,7 @@ import { useCommonStyles } from '../../styles';
 import { Link } from 'react-router-dom';
 import { type Project } from '../../models/project';
 import { WorkflowOptionsListItem } from './hooks/useCreateWorkflow';
+import cs from 'classnames';
 
 interface WorkflowOptionsListProps {
   project: Project;
@@ -34,6 +35,9 @@ const useStyles = makeStyles(theme => ({
     background: theme.palette.background.default,
     color: theme.palette.text.secondary,
     height: '100%',
+  },
+  recommended: {
+    border: `2px solid ${theme.palette.primary.main}`,
   },
 }));
 
@@ -59,7 +63,9 @@ export function WorkflowOptionsList({
         {workflowOptions.map(workflowOption => (
           <Grid item xs={12} lg={6} xl={4} key={workflowOption.identifier}>
             <Card
-              className={styles.applicationCard}
+              className={cs(styles.applicationCard, {
+                [styles.recommended]: workflowOption.recommended,
+              })}
               variant="elevation"
               elevation={3}
             >

@@ -53,8 +53,16 @@ export const additionalInfoSchema = z.object({
   value: z.string().optional().nullable(),
 });
 
+export const workFlowType = z.union([
+  z.literal('ASSESSMENT'),
+  z.literal('INFRASTRUCTURE'),
+]);
+
+export type WorkFlowType = z.infer<typeof workFlowType>;
+
 export const projectWorkflowSchema = z.object({
   workFlowExecutionId: z.string(),
+  workFlowType,
   projectId: z.string(),
   workFlowName: z.string(),
   workStatus: transformedStatus,

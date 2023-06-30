@@ -8,7 +8,7 @@ import {
 } from '@backstage/core-components';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ParodosPage } from '../../ParodosPage';
-import { Button, Chip, makeStyles, Typography } from '@material-ui/core';
+import { Box, Button, Chip, makeStyles, Typography } from '@material-ui/core';
 import { useWorkflowDefinitionToJsonSchema } from '../../../hooks/useWorkflowDefinitionToJsonSchema/useWorkflowDefinitionToJsonSchema';
 import { assert } from 'assert-ts';
 import { Form } from '../../Form/Form';
@@ -16,6 +16,7 @@ import { type RJSFValidationError } from '@rjsf/utils';
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
 import { useStartWorkflow } from '../hooks/useStartWorkflow';
 import { Empty } from './Empty';
+import { AssessmentBreadCrumb } from '../../AssessmentBreadCrumb/AssessmentBreadCrumb';
 
 interface OnboardingProps {
   isNew: boolean;
@@ -79,7 +80,13 @@ export function Onboarding({ isNew }: OnboardingProps): JSX.Element {
       <ContentHeader title={`${workflowOption}`}>
         <SupportButton title="Need help?">Lorem Ipsum</SupportButton>
       </ContentHeader>
-      <Typography paragraph>You are onboarding {workflowOption}.</Typography>
+      <Box mb={3}>
+        <AssessmentBreadCrumb
+          projectId={projectId}
+          executionId={assessmentWorkflowExecutionId}
+          current="Onboarding"
+        />
+      </Box>
       {loading && <Progress />}
       {formSchema.steps.length === 0 && <Empty startWorkflow={startWorkflow} />}
       {formSchema.steps.length > 0 && (

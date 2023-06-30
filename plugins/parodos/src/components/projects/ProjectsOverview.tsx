@@ -64,7 +64,7 @@ export function ProjectsOverview(): JSX.Element {
           title="There are no projects to display."
           description="Want to learn more about Parodos? Check out our documentation."
           action={
-            <Button variant="contained" type="button" color="primary">
+            <Button variant="contained" type="button" color="secondary">
               Docs
             </Button>
           }

@@ -1,10 +1,6 @@
 import useAsyncFn, { AsyncFnReturn } from 'react-use/lib/useAsyncFn';
-import {
-  displayableWorkflowOptions,
-  WorkflowOptionItem,
-} from '../../../models/workflow';
+import { WorkflowOptionItem } from '../../../models/workflow';
 import * as urls from '../../../urls';
-import { taskDisplayName } from '../../../utils/string';
 import type { Project } from '../../../models/project';
 import { useStore } from '../../../stores/workflowStore/workflowStore';
 import { getWorkflowOptions } from './getWorkflowOptions';
@@ -54,22 +50,10 @@ export function useCreateWorkflow(assessment: string): AsyncFnReturn<
         executionId: workFlowExecutionId,
       });
 
-      const options = displayableWorkflowOptions.flatMap(option => {
-        const items = workflowOptions[option] ?? [];
-
-        if (items.length === 0) {
-          return items;
-        }
-
-        const optionType = taskDisplayName(option);
-
-        return items.map(item => ({
-          ...item,
-          type: optionType,
-        }));
-      }) as WorkflowOptionsListItem[];
-
-      return { options, assessmentWorkflowExecutionId: workFlowExecutionId };
+      return {
+        options: workflowOptions,
+        assessmentWorkflowExecutionId: workFlowExecutionId,
+      };
     },
     [
       executeWorkflow,
