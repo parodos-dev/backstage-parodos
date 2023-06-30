@@ -11,22 +11,13 @@ import React, { useEffect, useState } from 'react';
 import { WorkFlowStepper } from './topology/WorkFlowStepper';
 import { useLocation, useParams } from 'react-router-dom';
 import * as urls from '../../../urls';
-import {
-  Status,
-  WorkflowStatus,
-  workflowStatusSchema,
-  WorkflowTask,
-  WorkStatus,
-} from '../../../models/workflowTaskSchema';
 import { useStore } from '../../../stores/workflowStore/workflowStore';
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
-import {
-  FirstTaskId,
-  getWorkflowTasksForTopology,
-} from '../../../hooks/getWorkflowDefinitions';
+import { FirstTaskId } from '../../../hooks/getWorkflowDefinitions';
 import { assert } from 'assert-ts';
 import { AssessmentBreadCrumb } from '../../AssessmentBreadCrumb/AssessmentBreadCrumb';
 import { useSearchParams } from 'react-router-dom';
+import { useUpdateWorks } from '../hooks/useUpdateWorks';
 
 const useStyles = makeStyles(_theme => ({
   container: {
@@ -58,91 +49,22 @@ export function WorkFlowDetail(): JSX.Element {
   assert(!!executionId, 'no executionId param');
   const project = useStore(state => state.getProjectById(projectId));
   const { isNew = false } = useLocation().state ?? {};
-  const getWorkDefinitionBy = useStore(state => state.getWorkDefinitionBy);
   const [selectedTask, setSelectedTask] = useState<string | null>('');
-  const [workflowName, setWorkflowName] = useState<string>('');
-  const [allTasks, setAllTasks] = useState<WorkflowTask[]>([]);
   const [log, setLog] = useState<string>(``);
   const workflowsUrl = useStore(store => store.getApiUrl(urls.Workflows));
   const styles = useStyles();
   const { fetch } = useApi(fetchApiRef);
-  const [status, setStatus] = useState<Status>('IN_PROGRESS');
   const [searchParams] = useSearchParams();
 
   const assessmentWorkflowExecutionId = searchParams.get(
     'assessmentexecutionid',
   );
 
-  useEffect(() => {
-    const updateWorks = (works: WorkStatus[]) => {
-      let needUpdate = false;
-      // TODO: use immer here after demo
-      const tasks = [...allTasks];
-      for (const work of works) {
-        if (work.type === 'TASK') {
-          const foundTask = tasks.find(task => task.id === work.name);
-
-          if (foundTask && foundTask.status !== work.status) {
-            foundTask.status = work.status;
-            needUpdate = true;
-          }
-          if (foundTask && work.alertMessage !== foundTask?.alertMessage) {
-            foundTask.alertMessage = work.alertMessage;
-            needUpdate = true;
-          }
-        } else if (work.works) {
-          updateWorks(work.works);
-        }
-      }
-      if (needUpdate) {
-        setAllTasks(tasks);
-      }
-    };
-
-    const updateWorksFromApi = async () => {
-      const data = await fetch(`${workflowsUrl}/${executionId}/status`);
-      const response = workflowStatusSchema.parse(
-        (await data.json()) as WorkflowStatus,
-      );
-
-      if (response.status === 'FAILED') {
-        setStatus(response.status);
-      }
-
-      const workflow = getWorkDefinitionBy('byName', response.workFlowName);
-      if (workflow && allTasks.length === 0) {
-        setAllTasks(getWorkflowTasksForTopology(workflow));
-      }
-      setWorkflowName(response.workFlowName);
-      updateWorks(response.works);
-
-      return response.works;
-    };
-
-    const taskInterval = setInterval(() => {
-      updateWorksFromApi();
-    }, 5000);
-
-    updateWorksFromApi();
-
-    if (status === 'FAILED') {
-      clearInterval(taskInterval);
-    }
-
-    return () => clearInterval(taskInterval);
-  }, [
-    allTasks,
-    executionId,
-    fetch,
-    workflowsUrl,
-    getWorkDefinitionBy,
-    selectedTask,
-    status,
-  ]);
+  const { tasks, workflowName } = useUpdateWorks({ executionId });
 
   useEffect(() => {
     const updateWorkFlowLogs = async () => {
-      const selected = allTasks.find(task => task.id === selectedTask);
+      const selected = tasks.find(task => task.id === selectedTask);
       if (selectedTask === FirstTaskId) {
         setLog('Start workflow');
         return;
@@ -172,7 +94,7 @@ export function WorkFlowDetail(): JSX.Element {
     updateWorkFlowLogs();
 
     return () => clearInterval(logInterval);
-  }, [executionId, selectedTask, fetch, workflowsUrl, allTasks]);
+  }, [executionId, selectedTask, fetch, workflowsUrl, tasks]);
 
   return (
     <ParodosPage className={styles.container}>
@@ -204,11 +126,8 @@ export function WorkFlowDetail(): JSX.Element {
           running workflow "{workflowName}" (execution ID: {executionId})
         </Typography>
         <Box className={styles.detailContainer}>
-          {allTasks.length > 0 ? (
-            <WorkFlowStepper
-              tasks={allTasks}
-              setSelectedTask={setSelectedTask}
-            />
+          {tasks.length > 0 ? (
+            <WorkFlowStepper tasks={tasks} setSelectedTask={setSelectedTask} />
           ) : (
             <Progress />
           )}
