@@ -19,4 +19,7 @@ export const useCommonStyles = makeStyles({
   margintop1: {
     'margin-top': '1rem !important',
   },
+  fullHeight: {
+    height: '100%',
+  },
 });

@@ -32,11 +32,6 @@ export interface WorkflowSlice {
   ): WorkflowDefinition | undefined;
   fetchDefinitions(fetch: FetchApi['fetch']): Promise<void>;
   workflowDefinitionsLoading: boolean;
-  workflowError: unknown | undefined;
-  workflowProgress: number | undefined;
-  setWorkflowError(e: unknown | undefined): void;
-  setWorkflowProgress(percentage: number): void;
-  cleanUpWorkflow(): void;
 }
 
 export interface ProjectsSlice {

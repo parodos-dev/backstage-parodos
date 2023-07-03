@@ -93,11 +93,6 @@ export const createProjectsSlice: StateCreator<
           const status = await pollWorkflowStatus(fetch, {
             workflowsUrl: `${get().baseUrl}${urls.Workflows}`,
             executionId,
-            setWorkflowProgress: () => {},
-            setWorkflowError: e => {
-              // eslint-disable-next-line no-console
-              console.error('fetchRequestAccessStatuses error: ', e);
-            },
           });
           set(state => {
             state.requestAccessStatuses = {
@@ -138,11 +133,6 @@ export const createProjectsSlice: StateCreator<
           const status = await pollWorkflowStatus(fetch, {
             workflowsUrl: `${get().baseUrl}${urls.Workflows}`,
             executionId,
-            setWorkflowProgress: () => {},
-            setWorkflowError: e => {
-              // eslint-disable-next-line no-console
-              console.error('fetchRequestAccessStatuses error: ', e);
-            },
           });
           set(state => {
             state.requestAccessStatuses = {
