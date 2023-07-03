@@ -26,6 +26,7 @@ export function usePollWorkflowStatus({
   const { fetch } = useApi(fetchApiRef);
   const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
 
+  // setting delay to null stops useInterval
   const delay = status === 'IN_PROGRESS' ? 1000 : null;
 
   useInterval(() => {

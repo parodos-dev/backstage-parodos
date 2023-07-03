@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Status,
   WorkflowStatus,
@@ -10,6 +10,7 @@ import { useStore } from '../../../stores/workflowStore/workflowStore';
 import * as urls from '../../../urls';
 import { getWorkflowTasksForTopology } from '../../../hooks/getWorkflowDefinitions';
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
+import { useInterval } from '@patternfly/react-core';
 
 interface UpdateWorks {
   executionId: string;
@@ -26,8 +27,8 @@ export function useUpdateWorks({ executionId }: UpdateWorks): {
   const [allTasks, setAllTasks] = useState<WorkflowTask[]>([]);
   const { fetch } = useApi(fetchApiRef);
 
-  useEffect(() => {
-    const updateWorks = (works: WorkStatus[]) => {
+  const updateWorks = useCallback(
+    (works: WorkStatus[]) => {
       let needUpdate = false;
       const tasks = [...allTasks];
       for (const work of works) {
@@ -49,15 +50,18 @@ export function useUpdateWorks({ executionId }: UpdateWorks): {
       if (needUpdate) {
         setAllTasks(tasks);
       }
-    };
+    },
+    [allTasks],
+  );
 
-    const updateWorksFromApi = async () => {
+  const updateWorksFromApi = useCallback(
+    async function updateWorksFromApi() {
       const data = await fetch(`${workflowsUrl}/${executionId}/status`);
       const response = workflowStatusSchema.parse(
         (await data.json()) as WorkflowStatus,
       );
 
-      if (response.status === 'FAILED') {
+      if (response.status !== 'IN_PROGRESS') {
         setStatus(response.status);
       }
 
@@ -65,24 +69,32 @@ export function useUpdateWorks({ executionId }: UpdateWorks): {
       if (workflow && allTasks.length === 0) {
         setAllTasks(getWorkflowTasksForTopology(workflow));
       }
+
       setWorkflowName(response.workFlowName);
       updateWorks(response.works);
 
       return response.works;
-    };
+    },
+    [
+      allTasks.length,
+      executionId,
+      fetch,
+      getWorkDefinitionBy,
+      updateWorks,
+      workflowsUrl,
+    ],
+  );
 
-    const taskInterval = setInterval(() => {
-      updateWorksFromApi();
-    }, 5000);
+  // setting delay to null stops useInterval
+  const delay = status === 'IN_PROGRESS' ? 5000 : null;
 
+  useInterval(() => {
     updateWorksFromApi();
+  }, delay);
 
-    if (status === 'FAILED') {
-      clearInterval(taskInterval);
-    }
-
-    return () => clearInterval(taskInterval);
-  }, [allTasks, executionId, fetch, getWorkDefinitionBy, status, workflowsUrl]);
+  useEffect(() => {
+    updateWorksFromApi();
+  }, [updateWorksFromApi]);
 
   return { tasks: allTasks, status, workflowName };
 }
