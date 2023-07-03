@@ -17,7 +17,6 @@ export interface ProjectsPayload {
 
 export function useCreateWorkflow(assessment: string): AsyncFnReturn<
   (executionOptions: ExecuteWorkflow) => Promise<{
-    // options: WorkflowOptionsListItem[];
     assessmentWorkflowExecutionId: string;
   }>
 > {
@@ -29,20 +28,7 @@ export function useCreateWorkflow(assessment: string): AsyncFnReturn<
     async (executionOptions: ExecuteWorkflow) => {
       const { workFlowExecutionId } = await executeWorkflow(executionOptions);
 
-      // await usePollWorkflowStatus(fetch, {
-      //   workflowsUrl,
-      //   executionId: workFlowExecutionId,
-      //   setWorkflowError,
-      //   setWorkflowProgress,
-      // });
-
-      // const workflowOptions = await getWorkflowOptions(fetch, {
-      //   workflowsUrl,
-      //   executionId: workFlowExecutionId,
-      // });
-
       return {
-        // options: workflowOptions,
         assessmentWorkflowExecutionId: workFlowExecutionId,
       };
     },
