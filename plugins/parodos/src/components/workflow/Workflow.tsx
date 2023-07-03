@@ -1,4 +1,4 @@
-import React, { Reducer, useEffect, useReducer } from 'react';
+import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import {
   ContentHeader,
   InfoCard,
@@ -7,20 +7,31 @@ import {
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
 import { Form } from '../Form/Form';
 import { ParodosPage } from '../ParodosPage';
-import { Grid, makeStyles, Typography } from '@material-ui/core';
+import {
+  Grid,
+  makeStyles,
+  Typography,
+  Button,
+  Collapse,
+  Fade,
+} from '@material-ui/core';
 import { useGetProjectAssessmentSchema } from './useGetProjectAssessmentSchema';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 import { IChangeEvent } from '@rjsf/core-v5';
 import { WorkflowOptionsList } from './WorkflowOptionsList';
 import { assert } from 'assert-ts';
 import { useStore } from '../../stores/workflowStore/workflowStore';
-import {
-  ProjectsPayload,
-  useCreateWorkflow,
-  WorkflowOptionsListItem,
-} from './hooks/useCreateWorkflow';
+import { ProjectsPayload, useCreateWorkflow } from './hooks/useCreateWorkflow';
 import { useSearchParams } from 'react-router-dom';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
+import ChevronRight from '@material-ui/icons/ChevronRight';
+import ChevronDown from '@material-ui/icons/KeyboardArrowDown';
+import { WorkflowExplorer } from './workflowDetail/WorkflowExplorer';
+import cs from 'classnames';
+import {
+  assessmentWorkflowInitialState,
+  assessmentWorkflowReducer,
+} from './assessmentReducer';
 
 export type AssessmentStatusType = 'none' | 'inprogress' | 'complete';
 
@@ -37,45 +48,13 @@ const useStyles = makeStyles(theme => ({
       },
     },
   },
-  progress: {},
+  viewMoreButton: {
+    textDecoration: 'underline',
+  },
+  running: {
+    color: theme.palette.primary.main,
+  },
 }));
-
-interface State {
-  workflowOptions?: WorkflowOptionsListItem[];
-  assessmentStatus: AssessmentStatusType;
-  assessmentWorkflowExecutionId?: string;
-}
-
-type Actions =
-  | {
-      type: 'START';
-    }
-  | {
-      type: 'COMPLETE';
-      payload: Required<
-        Pick<State, 'workflowOptions' | 'assessmentWorkflowExecutionId'>
-      >;
-    };
-
-const initialState: State = {
-  workflowOptions: undefined,
-  assessmentStatus: 'none',
-  assessmentWorkflowExecutionId: undefined,
-};
-
-const reducer: Reducer<State, Actions> = (_, action) => {
-  switch (action.type) {
-    case 'START':
-      return {
-        assessmentStatus: 'inprogress',
-      };
-    case 'COMPLETE':
-      return { ...action.payload, assessmentStatus: 'complete' };
-    default: {
-      throw new Error(`should not get here`);
-    }
-  }
-};
 
 export function Workflow(): JSX.Element {
   const assessment = useStore(state => state.workflows.assessment);
@@ -86,11 +65,16 @@ export function Workflow(): JSX.Element {
   );
   const workflowProgress = useStore(state => state.workflowProgress);
   const cleanupWorkflow = useStore(state => state.cleanUpWorkflow);
-  const isNewProject = searchParams.get('isnew') === 'true';
   const [
-    { workflowOptions, assessmentStatus, assessmentWorkflowExecutionId },
+    {
+      workflowOptions,
+      assessmentStatus,
+      assessmentWorkflowExecutionId,
+      showMoreWorkflows,
+    },
     dispatch,
-  ] = useReducer(reducer, initialState);
+  ] = useReducer(assessmentWorkflowReducer, assessmentWorkflowInitialState);
+  const [, setWorkflowName] = useState('');
 
   const styles = useStyles();
 
@@ -144,6 +128,11 @@ export function Workflow(): JSX.Element {
     };
   }, [cleanupWorkflow]);
 
+  const showMoreWorkflowsToggle = useCallback(
+    () => dispatch({ type: 'TOGGLE_SHOW_WORKFLOWS' }),
+    [],
+  );
+
   const inProgress = assessmentStatus === 'inprogress';
   const complete = assessmentStatus === 'complete';
 
@@ -167,35 +156,74 @@ export function Workflow(): JSX.Element {
         <InfoCard className={styles.fullHeight}>
           <Grid container direction="row" className={styles.form}>
             <Grid item xs={12} xl={8}>
-              <Form
-                formSchema={formSchema}
-                onSubmit={startAssessment}
-                disabled={disableForm}
-                finalSubmitButtonText={
-                  inProgress ? 'IN PROGRESS' : 'START ASSESSMENT'
-                }
+              <Collapse
+                in={!assessmentWorkflowExecutionId}
+                timeout="auto"
+                unmountOnExit
               >
-                {(inProgress || complete) && (
-                  <Grid item xs={7} xl={5}>
-                    <ProgressBar
-                      variant="circular"
-                      value={complete ? 100 : workflowProgress ?? 1}
-                    />
-                  </Grid>
-                )}
-              </Form>
-            </Grid>
-            <Grid item xs={12}>
-              {displayOptions && (
-                <WorkflowOptionsList
-                  isNew={isNewProject}
-                  project={selectedProject}
-                  workflowOptions={workflowOptions}
-                  assessmentWorkflowExecutionId={assessmentWorkflowExecutionId}
-                />
-              )}
+                <Fade in={!assessmentWorkflowExecutionId} timeout={1000}>
+                  <Form
+                    formSchema={formSchema}
+                    onSubmit={startAssessment}
+                    disabled={disableForm}
+                    finalSubmitButtonText={
+                      inProgress ? 'IN PROGRESS' : 'START ASSESSMENT'
+                    }
+                  >
+                    {(inProgress || complete) && (
+                      <Grid item xs={7} xl={5}>
+                        <ProgressBar
+                          variant="circular"
+                          value={complete ? 100 : workflowProgress ?? 1}
+                        />
+                      </Grid>
+                    )}
+                  </Form>
+                </Fade>
+              </Collapse>
             </Grid>
           </Grid>
+          {assessmentWorkflowExecutionId && (
+            <Fade in={!!assessmentWorkflowExecutionId} timeout={1000}>
+              <>
+                <WorkflowExplorer
+                  setWorkflowName={setWorkflowName}
+                  executionId={assessmentWorkflowExecutionId}
+                >
+                  <Grid xs={12}>
+                    <Button
+                      disabled={!assessmentWorkflowExecutionId}
+                      onClick={showMoreWorkflowsToggle}
+                      className={cs(styles.viewMoreButton, {
+                        [styles.running]: assessmentStatus === 'complete',
+                      })}
+                    >
+                      {showMoreWorkflows ? <ChevronDown /> : <ChevronRight />}
+                      View More Workflows
+                    </Button>
+                    <Collapse
+                      in={showMoreWorkflows}
+                      timeout="auto"
+                      unmountOnExit
+                    >
+                      {displayOptions && (
+                        <Grid item xs={12}>
+                          <WorkflowOptionsList
+                            isNew
+                            project={selectedProject}
+                            workflowOptions={workflowOptions}
+                            assessmentWorkflowExecutionId={
+                              assessmentWorkflowExecutionId
+                            }
+                          />
+                        </Grid>
+                      )}
+                    </Collapse>
+                  </Grid>
+                </WorkflowExplorer>
+              </>
+            </Fade>
+          )}
         </InfoCard>
       )}
     </ParodosPage>

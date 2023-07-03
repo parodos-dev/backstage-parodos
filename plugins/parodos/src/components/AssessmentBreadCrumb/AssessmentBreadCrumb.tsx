@@ -25,6 +25,9 @@ export function AssessmentBreadCrumb({
 
   return (
     <Breadcrumbs aria-label="breadcrumb">
+      <Link className={styles.link} to="/parodos/workflows">
+        Workflows
+      </Link>
       <Link
         className={styles.link}
         to={`/parodos/workflows/assessment/${projectId}/${executionId}`}

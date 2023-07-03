@@ -55,8 +55,6 @@ export function AssessmentWorkflow(): JSX.Element {
     });
   }, [assessmentWorkflowExecutionId, fetch, workflowsUrl]);
 
-  // console.log(workflowOptions);
-
   useEffect(() => {
     if (error) {
       errorApi.post(new Error(`Failure retrieving workflow options`));

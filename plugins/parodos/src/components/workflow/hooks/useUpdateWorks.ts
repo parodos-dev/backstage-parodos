@@ -14,7 +14,11 @@ import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 interface UpdateWorks {
   executionId: string;
 }
-export function useUpdateWorks({ executionId }: UpdateWorks) {
+export function useUpdateWorks({ executionId }: UpdateWorks): {
+  tasks: WorkflowTask[];
+  status: Status;
+  workflowName: string;
+} {
   const [workflowName, setWorkflowName] = useState<string>('');
   const [status, setStatus] = useState<Status>('IN_PROGRESS');
   const workflowsUrl = useStore(store => store.getApiUrl(urls.Workflows));
