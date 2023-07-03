@@ -1,4 +1,6 @@
 import {
+  Box,
+  Breadcrumbs,
   Button,
   Collapse,
   Grid,
@@ -6,7 +8,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { WorkflowOptionsList } from '../WorkflowOptionsList';
 import ChevronRight from '@material-ui/icons/ChevronRight';
 import ChevronDown from '@material-ui/icons/KeyboardArrowDown';
@@ -19,7 +21,6 @@ import * as urls from '../../../urls';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 import { WorkflowOptionsListItem } from '../hooks/useCreateWorkflow';
 import { errorApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
-import { usePollWorkflowStatus } from './usePollWorkflowStatus';
 import { ParodosPage } from '../../ParodosPage';
 import {
   ContentHeader,
@@ -40,6 +41,7 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.primary.main,
   },
   options: {
+    marginTop: theme.spacing(1),
     marginBottom: theme.spacing(3),
   },
 }));
@@ -55,6 +57,8 @@ export function AssessmentWorkflowExecution(): JSX.Element {
   const errorApi = useApi(errorApiRef);
   const { fetch } = useApi(fetchApiRef);
   const commonStyles = useCommonStyles();
+  const assessmentStatus = useStore(state => state.workflowStatus);
+  const workflowError = useStore(state => state.workflowError);
 
   const showMoreWorkflowsToggle = useCallback(
     () => setShowMoreWorkflows(!showMoreWorkflows),
@@ -68,10 +72,6 @@ export function AssessmentWorkflowExecution(): JSX.Element {
   );
 
   const selectedProject = useStore(state => state.getProjectById(projectId));
-
-  const { status: assessmentStatus, workflowError } = usePollWorkflowStatus({
-    executionId: assessmentWorkflowExecutionId,
-  });
 
   const [{ error: getWorkflowOptionsError }, getOptions] =
     useAsyncFn(async () => {
@@ -110,12 +110,20 @@ export function AssessmentWorkflowExecution(): JSX.Element {
         Select a project for an assessment of what additional workflows, if any,
         it qualifies for.
       </Typography>
+      <Box mb={3}>
+        <Breadcrumbs aria-label="breadcrumb">
+          <Link className={commonStyles.link} to="/parodos/workflows">
+            Workflows
+          </Link>
+          <Typography>Assessment results</Typography>
+        </Breadcrumbs>
+      </Box>
       <InfoCard className={commonStyles.fullHeight}>
         <WorkflowExplorer
           setWorkflowName={setWorkflowName}
           executionId={assessmentWorkflowExecutionId}
         >
-          <Grid xs={12}>
+          <Grid xs={12} item className={styles.options}>
             {assessmentStatus === 'IN_PROGRESS' && <Progress />}
             <Button
               disabled={!assessmentWorkflowExecutionId}
@@ -128,17 +136,13 @@ export function AssessmentWorkflowExecution(): JSX.Element {
               View More Workflows
             </Button>
             <Collapse in={showMoreWorkflows} timeout="auto" unmountOnExit>
-              {workflowOptions && (
-                <Grid item xs={12} className={styles.options}>
-                  <WorkflowOptionsList
-                    isNew
-                    project={selectedProject}
-                    workflowOptions={workflowOptions}
-                    assessmentWorkflowExecutionId={
-                      assessmentWorkflowExecutionId
-                    }
-                  />
-                </Grid>
+              {workflowOptions?.length && (
+                <WorkflowOptionsList
+                  isNew
+                  project={selectedProject}
+                  workflowOptions={workflowOptions}
+                  assessmentWorkflowExecutionId={assessmentWorkflowExecutionId}
+                />
               )}
             </Collapse>
           </Grid>

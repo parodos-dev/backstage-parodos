@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core';
 
-export const useCommonStyles = makeStyles({
+export const useCommonStyles = makeStyles(theme => ({
   center: {
     'text-align': 'center',
   },
@@ -22,4 +22,7 @@ export const useCommonStyles = makeStyles({
   fullHeight: {
     height: '100%',
   },
-});
+  link: {
+    color: theme.palette.primary.main,
+  },
+}));

@@ -3,7 +3,7 @@ import type { Project } from '../models/project';
 import type { WorkflowDefinition } from '../models/workflowDefinitionSchema';
 import type { NotificationContent } from '../models/notification';
 import type { ParodosConfig } from '../types';
-import { WorkflowStatus } from '../models/workflowTaskSchema';
+import { Status, WorkflowStatus } from '../models/workflowTaskSchema';
 
 export interface UISlice {
   baseUrl: string | undefined;
@@ -32,6 +32,11 @@ export interface WorkflowSlice {
   ): WorkflowDefinition | undefined;
   fetchDefinitions(fetch: FetchApi['fetch']): Promise<void>;
   workflowDefinitionsLoading: boolean;
+  workflowStatus: Status | undefined;
+  workflowError: unknown | undefined;
+  cleanUpWorkflow(): void;
+  setWorkflowError(e: unknown | undefined): void;
+  setWorkflowStatus(status: Status): void;
 }
 
 export interface ProjectsSlice {

@@ -17,6 +17,28 @@ export const createWorkflowSlice: StateCreator<
 > = (set, get) => ({
   workflowDefinitions: [],
   workflowDefinitionsLoading: true,
+  workflowError: undefined,
+  workflowStatus: undefined,
+  setWorkflowError(e) {
+    set(state => {
+      state.workflowError = e;
+    });
+  },
+  setWorkflowStatus(status) {
+    set(state => {
+      state.workflowStatus = status;
+    });
+  },
+  cleanUpWorkflow() {
+    if (get().workflowStatus !== undefined) {
+      set(state => {
+        unstable_batchedUpdates(() => {
+          state.workflowError = undefined;
+          state.workflowStatus = undefined;
+        });
+      });
+    }
+  },
   getWorkDefinitionBy(filterBy, value) {
     const workflowDefinition = get().workflowDefinitions.find(
       def => predicates[filterBy](def) === value,

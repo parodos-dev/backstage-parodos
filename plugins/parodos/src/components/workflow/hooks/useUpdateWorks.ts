@@ -11,17 +11,23 @@ import * as urls from '../../../urls';
 import { getWorkflowTasksForTopology } from '../../../hooks/getWorkflowDefinitions';
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { useInterval } from '@patternfly/react-core';
+import { assert } from 'assert-ts';
 
 interface UpdateWorks {
   executionId: string;
 }
 export function useUpdateWorks({ executionId }: UpdateWorks): {
   tasks: WorkflowTask[];
-  status: Status;
+  workflowStatus: Status;
   workflowName: string;
 } {
+  const workflowStatus = useStore(
+    state => state.workflowStatus ?? 'IN_PROGRESS',
+  );
+  const setWorkflowStatus = useStore(state => state.setWorkflowStatus);
+  const setWorkflowError = useStore(state => state.setWorkflowError);
+  const cleanUpWorkflow = useStore(state => state.cleanUpWorkflow);
   const [workflowName, setWorkflowName] = useState<string>('');
-  const [status, setStatus] = useState<Status>('IN_PROGRESS');
   const workflowsUrl = useStore(store => store.getApiUrl(urls.Workflows));
   const getWorkDefinitionBy = useStore(state => state.getWorkDefinitionBy);
   const [allTasks, setAllTasks] = useState<WorkflowTask[]>([]);
@@ -62,7 +68,21 @@ export function useUpdateWorks({ executionId }: UpdateWorks): {
       );
 
       if (response.status !== 'IN_PROGRESS') {
-        setStatus(response.status);
+        setWorkflowStatus(response.status);
+      }
+
+      if (workflowStatus === 'FAILED') {
+        setWorkflowError(new Error(`workflow failed`));
+        return [];
+      }
+
+      if (response.works.some(w => w.status === 'REJECTED')) {
+        setWorkflowError(
+          new Error(
+            `A workflow task has been rejected.  Please check the logs for this task.`,
+          ),
+        );
+        return [];
       }
 
       const workflow = getWorkDefinitionBy('byName', response.workFlowName);
@@ -80,21 +100,30 @@ export function useUpdateWorks({ executionId }: UpdateWorks): {
       executionId,
       fetch,
       getWorkDefinitionBy,
+      setWorkflowError,
+      setWorkflowStatus,
       updateWorks,
+      workflowStatus,
       workflowsUrl,
     ],
   );
 
   // setting delay to null stops useInterval
-  const delay = status === 'IN_PROGRESS' ? 5000 : null;
+  const delay = workflowStatus === 'IN_PROGRESS' ? 5000 : null;
+
+  useEffect(() => {
+    updateWorksFromApi();
+  }, [updateWorksFromApi]);
 
   useInterval(() => {
     updateWorksFromApi();
   }, delay);
 
   useEffect(() => {
-    updateWorksFromApi();
-  }, [updateWorksFromApi]);
+    return () => cleanUpWorkflow();
+  }, [cleanUpWorkflow]);
 
-  return { tasks: allTasks, status, workflowName };
+  assert(!!workflowStatus, `workflowStatus is undefined`);
+
+  return { tasks: allTasks, workflowStatus, workflowName };
 }
