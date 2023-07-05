@@ -18,22 +18,26 @@ export const createWorkflowSlice: StateCreator<
   workflowDefinitions: [],
   workflowDefinitionsLoading: true,
   workflowError: undefined,
-  workflowProgress: undefined,
+  workflowStatus: undefined,
   setWorkflowError(e) {
     set(state => {
       state.workflowError = e;
     });
   },
-  setWorkflowProgress(percentage) {
+  setWorkflowStatus(status) {
     set(state => {
-      state.workflowProgress = percentage;
+      state.workflowStatus = status;
     });
   },
   cleanUpWorkflow() {
-    set(state => {
-      state.workflowError = undefined;
-      state.workflowProgress = undefined;
-    });
+    if (get().workflowStatus !== undefined) {
+      set(state => {
+        unstable_batchedUpdates(() => {
+          state.workflowError = undefined;
+          state.workflowStatus = undefined;
+        });
+      });
+    }
   },
   getWorkDefinitionBy(filterBy, value) {
     const workflowDefinition = get().workflowDefinitions.find(
@@ -62,7 +66,7 @@ export const createWorkflowSlice: StateCreator<
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error('fetchDefinitions error: ', e);
-      get().setWorkflowError(e);
+      throw e;
     }
   },
 });

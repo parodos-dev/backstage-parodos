@@ -33,6 +33,6 @@ export const createUISlice: StateCreator<
     return get().initiallyLoaded && !get().workflowDefinitionsLoading;
   },
   error() {
-    return get().workflowError ?? get().projectsError;
+    return get().projectsError;
   },
 });

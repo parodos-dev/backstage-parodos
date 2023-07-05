@@ -1,8 +1,9 @@
 import { ItemCardHeader } from '@backstage/core-components';
 import {
+  Badge,
+  Box,
   Button,
   Card,
-  CardActions,
   CardContent,
   CardMedia,
   Grid,
@@ -15,6 +16,7 @@ import { Link } from 'react-router-dom';
 import { type Project } from '../../models/project';
 import { WorkflowOptionsListItem } from './hooks/useCreateWorkflow';
 import cs from 'classnames';
+import CheckIcon from '@material-ui/icons/Check';
 
 interface WorkflowOptionsListProps {
   project: Project;
@@ -38,6 +40,15 @@ const useStyles = makeStyles(theme => ({
   },
   recommended: {
     border: `2px solid ${theme.palette.primary.main}`,
+  },
+  badge: {
+    marginLeft: theme.spacing(15),
+  },
+  badgeContent: {
+    display: 'flex',
+    padding: '2rem .5rem',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 }));
 
@@ -77,17 +88,36 @@ export function WorkflowOptionsList({
                 />
               </CardMedia>
               <CardContent>{workflowOption.description}</CardContent>
-              <CardActions>
+              <Box
+                display="flex"
+                justifyContent="flex-start"
+                alignItems="center"
+                marginLeft="1rem"
+                marginRight="2rem"
+                marginY="1rem"
+              >
                 <Button
                   variant="text"
                   color="primary"
                   component={Link}
-                  // passing the workflow option as query param as a short term measure.  Need proper state management
                   to={`/parodos/onboarding/${project?.id}/${workflowOption.workFlowName}/${assessmentWorkflowExecutionId}/new/?option=${workflowOption.displayName}`}
                 >
                   START
                 </Button>
-              </CardActions>
+                {workflowOption.recommended && (
+                  <Badge
+                    color="primary"
+                    badgeContent={
+                      <div className={styles.badgeContent}>
+                        <span>Recommended</span>
+                        <CheckIcon />
+                      </div>
+                    }
+                    overlap="circular"
+                    className={styles.badge}
+                  />
+                )}
+              </Box>
             </Card>
           </Grid>
         ))}
