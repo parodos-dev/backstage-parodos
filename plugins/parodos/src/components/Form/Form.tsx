@@ -22,6 +22,7 @@ import { useStyles } from './styles';
 import { type RegistryWidgetsType } from '@rjsf/utils';
 import { SelectWidget } from './widgets/SelectWidget';
 import type { UpdateSchemaAction } from '../../hooks/useWorkflowDefinitionToJsonSchema/useWorkflowDefinitionToJsonSchema';
+import { friendlyErrorsTransformer } from './friendlyErrorsTransformer';
 
 type FormProps = Pick<
   JsonFormProps,
@@ -44,7 +45,7 @@ export function Form({
   onChange = (e: IChangeEvent) => e,
   disabled = false,
   className,
-  transformErrors,
+  transformErrors = friendlyErrorsTransformer,
   updateSchema,
   hideTitle = false,
   stepLess = false,

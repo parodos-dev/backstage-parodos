@@ -12,7 +12,6 @@ import { Box, Button, Chip, makeStyles, Typography } from '@material-ui/core';
 import { useWorkflowDefinitionToJsonSchema } from '../../../hooks/useWorkflowDefinitionToJsonSchema/useWorkflowDefinitionToJsonSchema';
 import { assert } from 'assert-ts';
 import { Form } from '../../Form/Form';
-import { type RJSFValidationError } from '@rjsf/utils';
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
 import { useStartWorkflow } from '../hooks/useStartWorkflow';
 import { Empty } from './Empty';
@@ -99,13 +98,6 @@ export function Onboarding({ isNew }: OnboardingProps): JSX.Element {
             onSubmit={startWorkflow}
             disabled={loading}
             updateSchema={updateSchema}
-            transformErrors={(errors: RJSFValidationError[]) => {
-              return errors.map(err =>
-                err?.message?.includes('must match pattern')
-                  ? { ...err, message: 'invalid uri' }
-                  : err,
-              );
-            }}
           >
             <Button
               variant="text"
