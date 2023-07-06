@@ -81,6 +81,18 @@ describe('<Form />', () => {
       });
 
       expect(onSubmit).not.toHaveBeenCalled();
+
+      await fireEvent.change(getByRole('textbox', { name: 'api-server' }), {
+        target: {
+          value: 'aaaa',
+        },
+      });
+
+      await act(async () => {
+        await fireEvent.click(getByRole('button', { name: 'NEXT' }));
+      });
+
+      expect(onSubmit).not.toHaveBeenCalled();
     });
   });
 

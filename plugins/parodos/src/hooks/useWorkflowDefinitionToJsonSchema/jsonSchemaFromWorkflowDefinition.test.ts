@@ -1,5 +1,8 @@
 import { mockRecursiveWorksWorkflowDefinition } from '../../mocks/workflowDefinitions/recursiveWorks';
-import { jsonSchemaFromWorkflowDefinition } from './jsonSchemaFromWorkflowDefinition';
+import {
+  jsonSchemaFromWorkflowDefinition,
+  UriPattern,
+} from './jsonSchemaFromWorkflowDefinition';
 import get from 'lodash.get';
 import {
   WorkflowDefinition,
@@ -96,5 +99,30 @@ describe('jsonSchemaFromWorkflowDefinition', () => {
     );
 
     expect(Object.keys(stepUI ?? {})).toEqual(['credentials', 'uri', 'branch']);
+  });
+
+  describe('uri validation', () => {
+    it('should validate uris', () => {
+      const urlRegex = new RegExp(UriPattern);
+
+      // good
+      expect(
+        urlRegex.test('ssh://git@bitbucket.org:Example-org/spring-world.git'),
+      ).toBe(true);
+      expect(urlRegex.test('https://www.google.com')).toBe(true);
+      expect(urlRegex.test('git@github.com:user/repo.git')).toBe(true);
+      expect(urlRegex.test('www.google.com')).toBe(true);
+      expect(urlRegex.test('https://github.com/dagda1/frontendsupport')).toBe(
+        true,
+      );
+
+      // bad
+      expect(urlRegex.test('aaaaaa')).toBe(false);
+      expect(urlRegex.test('://www.google.com')).toBe(false);
+      expect(urlRegex.test('http://www.google.com')).toBe(false);
+      expect(
+        urlRegex.test('gitaaa@bitbucket.org:Example-org/spring-world.git'),
+      ).toBe(false);
+    });
   });
 });

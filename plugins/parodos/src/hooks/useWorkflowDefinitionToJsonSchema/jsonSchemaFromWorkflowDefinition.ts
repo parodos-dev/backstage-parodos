@@ -10,6 +10,9 @@ import { taskDisplayName } from '../../utils/string';
 import type { StrictRJSFSchema, UiSchema } from '@rjsf/utils';
 import { assert } from 'assert-ts';
 
+export const UriPattern =
+  '^(https:\\/\\/www.|https:\\/\\/|git@|ssh:\\/\\/[a-z]+@)?[a-zA-Z0-9]+([-.]{1}[a-zA-Z0-9]+)*\\.[:a-zA-Z-0-9]+(:[0-9]{1,5})?(/.*)?$';
+
 export function getJsonSchemaType(
   type: ParameterFormat,
   options: string[] = [],
@@ -37,8 +40,7 @@ export function getJsonSchemaType(
     case 'uri':
       return {
         type: 'string',
-        pattern:
-          '^(https://www.|https://|git@|ssh://[a-z]+@)?[a-zA-Z0-9]+([-.]{1}[a-zA-Z0-9]+)*.[:a-zA-Z-0-9]+(:[0-9]{1,5})?(/.*)?$',
+        pattern: UriPattern,
       };
     case 'boolean': {
       return {
