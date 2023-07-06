@@ -111,6 +111,7 @@ describe('jsonSchemaFromWorkflowDefinition', () => {
       ).toBe(true);
       expect(urlRegex.test('https://www.google.com')).toBe(true);
       expect(urlRegex.test('git@github.com:user/repo.git')).toBe(true);
+      expect(urlRegex.test('google.com')).toBe(true);
       expect(urlRegex.test('www.google.com')).toBe(true);
       expect(urlRegex.test('https://github.com/dagda1/frontendsupport')).toBe(
         true,
