@@ -10,7 +10,7 @@ import {
 import * as urls from '../../urls';
 import { ParodosPage } from '../ParodosPage';
 import Star from '@material-ui/icons/StarOutline';
-import { Button, Grid, Link, makeStyles, Typography } from '@material-ui/core';
+import { Button, Grid, makeStyles } from '@material-ui/core';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import { pluginRoutePrefix } from '../ParodosPage/navigationMap';
 import { WorkflowsTable } from './WorkflowsTable';
