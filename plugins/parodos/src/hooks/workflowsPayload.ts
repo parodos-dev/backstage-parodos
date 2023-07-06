@@ -1,5 +1,5 @@
 import {
-  WorkType,
+  Work,
   type WorkflowDefinition,
 } from '../models/workflowDefinitionSchema';
 import { type WorkflowsPayload } from '../models/worksPayloadSchema';
@@ -13,17 +13,17 @@ interface GetWorkflowsPayload {
 }
 
 type Works = WorkflowsPayload['works'];
-type Work = WorkflowsPayload['works'][number];
+type WorkPayload = WorkflowsPayload['works'][number];
 
 export function walkWorks(
-  works: WorkType[],
+  works: Work[],
   // TODO: improve type
   formData: Record<string, any>,
   prefix: string = '',
 ): Works {
   const result: Works = [];
   for (const [index, work] of works.entries()) {
-    const next: Work = {
+    const next: WorkPayload = {
       workName: work.name,
       type: work.workType,
       arguments: Object.keys(work.parameters ?? {}).map(key => {

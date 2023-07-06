@@ -1,7 +1,7 @@
 import {
   type ParameterFormat,
   type WorkflowDefinition,
-  type WorkType,
+  type Work,
 } from '../../models/workflowDefinitionSchema';
 import type { FormSchema, Step } from '../../components/types';
 import set from 'lodash.set';
@@ -103,7 +103,7 @@ export function getUiSchema(type: ParameterFormat) {
   }
 }
 
-function* transformWorkToStep(work: WorkType) {
+function* transformWorkToStep(work: Work) {
   const title = taskDisplayName(work.name); // TODO: task label would be good here
 
   const childWorks = (work.works ?? []).filter(worksWithParameter);
@@ -226,7 +226,7 @@ function* transformWorkToStep(work: WorkType) {
   yield { schema, uiSchema, title, mergedSchema: schema, parent: undefined };
 }
 
-export function* getAllSteps(work: WorkType) {
+export function* getAllSteps(work: Work) {
   yield* transformWorkToStep(work);
 }
 
@@ -241,7 +241,7 @@ export function jsonSchemaFromWorkflowDefinition(
       ...transformWorkToStep({
         name: workflowDefinition.name,
         parameters,
-      } as WorkType),
+      } as Work),
     ][0];
 
     formSchema.steps.push(masterStep);
@@ -261,7 +261,7 @@ export function jsonSchemaFromWorkflowDefinition(
   return formSchema;
 }
 
-function worksWithParameter(work: WorkType): boolean {
+function worksWithParameter(work: Work): boolean {
   if ((work.works ?? []).length === 0) {
     return Object.keys(work.parameters ?? {}).length > 0;
   }

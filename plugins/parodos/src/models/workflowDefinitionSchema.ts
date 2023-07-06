@@ -37,6 +37,14 @@ export const workFlowTaskParameterTypeSchema = z.object({
   valueProviderName: z.string().optional(),
 });
 
+const workType = z.union([
+  z.literal('TASK'),
+  z.literal('WORKFLOW'),
+  z.literal('CHECKER'),
+]);
+
+export type WorkType = z.infer<typeof workType>;
+
 export const baseWorkSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -44,7 +52,7 @@ export const baseWorkSchema = z.object({
     .record(z.string(), workFlowTaskParameterTypeSchema)
     .optional()
     .nullable(),
-  workType: z.union([z.literal('TASK'), z.literal('WORKFLOW')]),
+  workType,
   processingType: processingType.optional(),
   author: z.string().optional().nullable(),
   outputs: z
@@ -59,14 +67,13 @@ export const baseWorkSchema = z.object({
     .optional(),
 });
 
-export type WorkType = z.infer<typeof baseWorkSchema> & {
-  works?: WorkType[];
+export type Work = z.infer<typeof baseWorkSchema> & {
+  works?: Work[];
 };
 
-export const workSchema: z.ZodType<WorkType, z.ZodTypeDef> =
-  baseWorkSchema.extend({
-    works: z.lazy(() => workSchema.array()).optional(),
-  });
+export const workSchema: z.ZodType<Work, z.ZodTypeDef> = baseWorkSchema.extend({
+  works: z.lazy(() => workSchema.array()).optional(),
+});
 
 const workflowDefinitionType = z.union([
   z.literal('ASSESSMENT'),

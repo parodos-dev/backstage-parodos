@@ -1,7 +1,4 @@
-import {
-  WorkflowDefinition,
-  WorkType,
-} from '../models/workflowDefinitionSchema';
+import { WorkflowDefinition, Work } from '../models/workflowDefinitionSchema';
 import { taskDisplayName } from '../utils/string';
 import { WorkflowTask } from '../models/workflowTaskSchema';
 
@@ -29,7 +26,7 @@ export function getWorkflowTasksForTopology(
 
 function addTasks(
   result: WorkflowTask[],
-  work: WorkType | WorkflowDefinition,
+  work: Work | WorkflowDefinition,
   runAfterTasks: string[],
 ): string[] {
   let previousTasks: string[] = [];

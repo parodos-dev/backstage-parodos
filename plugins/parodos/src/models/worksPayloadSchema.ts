@@ -6,7 +6,11 @@ const argument = z.object({
 });
 
 export const baseWorkSchema = z.object({
-  type: z.union([z.literal('TASK'), z.literal('WORKFLOW')]),
+  type: z.union([
+    z.literal('TASK'),
+    z.literal('WORKFLOW'),
+    z.literal('CHECKER'),
+  ]),
   workName: z.string(),
   arguments: z.array(argument),
 });
