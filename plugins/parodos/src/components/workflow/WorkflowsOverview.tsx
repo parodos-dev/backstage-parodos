@@ -27,21 +27,13 @@ const useStyles = makeStyles(theme => ({
     marginLeft: 'auto',
   },
   newProjectButton: {
-    marginLeft: 'auto',
-    marginRight: 0,
+    alignSelf: 'flex-end',
   },
   tableContainer: {
     marginTop: theme.spacing(3),
   },
   addProjectButton: {
     marginRight: theme.spacing(1),
-  },
-  mtaReportLinkItem: {
-    alignSelf: 'flex-end',
-  },
-  mtaReportLink: {
-    fontSize: '0.75rem',
-    padding: `${theme.spacing(1.5)}px 0`,
   },
   selectContainer: {
     '& div[class^="MuiFormControl-root"]': {
@@ -117,13 +109,6 @@ export function WorkflowsOverview(): JSX.Element {
             }
             margin="none"
           />
-        </Grid>
-        <Grid item xs={5} md={3} lg={2} className={classes.mtaReportLinkItem}>
-          <Link target="_blank" href="#" rel="noopener noreferrer">
-            <Typography className={classes.mtaReportLink}>
-              View MTA assessment report
-            </Typography>
-          </Link>
         </Grid>
         <Grid item className={classes.newProjectButton}>
           <LinkButton
