@@ -73,7 +73,6 @@ export function useUpdateWorks({ executionId }: UpdateWorks): {
 
       if (workflowStatus === 'FAILED') {
         setWorkflowError(new Error(`workflow failed`));
-        return [];
       }
 
       if (response.works.some(w => w.status === 'REJECTED')) {
@@ -82,7 +81,6 @@ export function useUpdateWorks({ executionId }: UpdateWorks): {
             `A workflow task has been rejected.  Please check the logs for this task.`,
           ),
         );
-        return [];
       }
 
       const workflow = getWorkDefinitionBy('byName', response.workFlowName);

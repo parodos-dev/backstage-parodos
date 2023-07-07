@@ -26,6 +26,7 @@ import { useParentSize } from '@cutting/use-get-parent-size';
 import { FirstTaskId } from '../../../../hooks/getWorkflowDefinitions';
 import { useWorkflowContext } from '../WorkflowContext';
 import { WorkflowAlert } from './WorkflowAlert';
+import { makeStyles } from '@material-ui/core';
 
 export const PIPELINE_NODE_SEPARATION_VERTICAL = 10;
 
@@ -36,7 +37,14 @@ type Props = {
   setSelectedTask: (selectedTask: string) => void;
 };
 
+const useStyles = makeStyles(_theme => ({
+  container: {
+    height: '100%',
+  },
+}));
+
 const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
+  const styles = useStyles();
   const { workflowMode, showAlert, clearAlert } = useWorkflowContext();
   const [selectedIds, setSelectedIds] = useState<string[]>();
   const pipelineNodes = useDemoPipelineNodes(tasks);
@@ -118,7 +126,7 @@ const TopologyPipelineLayout = ({ tasks, setSelectedTask }: Props) => {
   return (
     <>
       {alertTask && <WorkflowAlert task={alertTask} />}
-      <div ref={containerRef}>
+      <div className={styles.container} ref={containerRef}>
         <TopologyView>
           <VisualizationSurface state={{ selectedIds }} />
         </TopologyView>

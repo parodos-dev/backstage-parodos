@@ -118,7 +118,7 @@ export function AssessmentWorkflowExecution(): JSX.Element {
           <Typography>Assessment results</Typography>
         </Breadcrumbs>
       </Box>
-      <InfoCard className={commonStyles.fullHeight}>
+      <InfoCard className={commonStyles.svgCard}>
         <WorkflowExplorer
           setWorkflowName={setWorkflowName}
           executionId={assessmentWorkflowExecutionId}

@@ -12,6 +12,7 @@ import { assert } from 'assert-ts';
 import { AssessmentBreadCrumb } from '../../AssessmentBreadCrumb/AssessmentBreadCrumb';
 import { useSearchParams } from 'react-router-dom';
 import { WorkflowExplorer } from './WorkflowExplorer';
+import { useCommonStyles } from '../../../styles';
 
 const useStyles = makeStyles(_theme => ({
   container: {
@@ -22,12 +23,10 @@ const useStyles = makeStyles(_theme => ({
   badge: {
     alignSelf: 'flex-start',
   },
-  card: {
-    height: '100%',
-  },
 }));
 
 export function WorkFlowDetail(): JSX.Element {
+  const commonStyles = useCommonStyles();
   const { projectId, executionId } = useParams();
   assert(!!projectId, 'no projectId param');
   assert(!!executionId, 'no executionId param');
@@ -62,7 +61,7 @@ export function WorkFlowDetail(): JSX.Element {
           />
         </Box>
       )}
-      <InfoCard className={styles.card}>
+      <InfoCard className={commonStyles.svgCard}>
         <Typography paragraph>
           Please provide additional information related to your project.
         </Typography>
