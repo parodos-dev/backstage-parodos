@@ -1,6 +1,5 @@
 import {
   workflowDefinitionSchema,
-  type ParameterFormat,
   type WorkflowDefinition,
 } from '../../models/workflowDefinitionSchema';
 import { FormSchema, Step } from '../../components/types';
@@ -13,7 +12,6 @@ import get from 'lodash.get';
 import set from 'lodash.set';
 import { assert } from 'assert-ts';
 import { ValueProviderResponse } from '../../models/valueProviderResponse';
-import { current } from 'immer';
 
 type UpdateSchema = {
   type: 'UPDATE_SCHEMA';
@@ -40,6 +38,30 @@ type State = {
   updateSchema?: UpdateSchemaAction;
 };
 
+function travelWorks(
+  works: any[],
+  currentUiSchema: any,
+  currentKey: string,
+  propertyPath: string,
+  key: string,
+) {
+  for (const [index, work] of Object.entries(works)) {
+    if (work.path === propertyPath) {
+      const lastPath = propertyPath.split('.').slice(-1)[0];
+      const uiSchema = get(
+        currentUiSchema,
+        `${currentKey}.works.items[${index}].${lastPath}.${key}`,
+      );
+      return {
+        schema: get(work, `properties.${lastPath}.properties.${key}`),
+        uiSchema,
+      };
+    }
+  }
+
+  return undefined;
+}
+
 function findStepFromPropertyPath(
   steps: Step[],
   propertyPath: string,
@@ -47,7 +69,6 @@ function findStepFromPropertyPath(
 ) {
   for (const step of steps) {
     if (step.path === propertyPath) {
-      console.log(`schema.properties.${propertyPath}.properties.${key}`);
       const schema = get(
         step,
         `schema.properties.${propertyPath}.properties.${key}`,
@@ -55,6 +76,26 @@ function findStepFromPropertyPath(
       const uiSchema = get(step, `uiSchema.${propertyPath}.${key}`);
 
       return { schema, uiSchema };
+    }
+
+    if (!step.schema?.properties) {
+      return undefined;
+    }
+
+    for (const [k, value] of Object.entries(step.schema.properties) as any) {
+      if (value?.properties?.works?.items) {
+        const element = travelWorks(
+          value.properties.works.items,
+          step.uiSchema,
+          k,
+          propertyPath,
+          key,
+        );
+
+        if (element) {
+          return element;
+        }
+      }
     }
   }
 
@@ -69,8 +110,6 @@ export const reducer = (draft: State, action: Actions) => {
           action.payload.definition,
           draft.formSchema,
         );
-
-        console.log(current(draft.formSchema));
 
         draft.updateSchema = action.payload.updateSchema;
         draft.initialized = true;
@@ -93,11 +132,6 @@ export const reducer = (draft: State, action: Actions) => {
           propertyPath,
           key,
         );
-
-        // console.log({
-        //   schema: current(elementToUpdate?.schema),
-        //   uiSchema: current(elementToUpdate?.uiSchema),
-        // });
 
         if (!elementToUpdate) {
           // eslint-disable-next-line no-console
@@ -126,71 +160,6 @@ export const reducer = (draft: State, action: Actions) => {
           `default`,
           originalFormat === 'multi-select' ? [value] : value,
         );
-
-        console.log(current(schema));
-
-        // if (!step) {
-        //   // eslint-disable-next-line no-console
-        //   console.log(`no step found for ${`schema.properties.${stepName}`}`);
-        //   continue;
-        // }
-
-        // let fieldPath = `schema.properties.${stepName}.properties.${key}`;
-
-        // let originalFormat = get(
-        //   step,
-        //   `uiSchema.${stepName}.${key}.['ui:original-format']`,
-        // ) as ParameterFormat;
-
-        // if (!get(step, fieldPath, undefined)) {
-        //   const worksPath = `schema.properties.${stepName}.properties.works.items`;
-
-        //   const works = get<Step, string>(step, worksPath) as Record<
-        //     string,
-        //     unknown
-        //   >[];
-
-        //   if (!works) {
-        //     // eslint-disable-next-line no-console
-        //     console.log(`no works at ${worksPath}`);
-        //     continue;
-        //   }
-
-        //   const worksKey = paths.slice(-1)[0];
-
-        //   const worksIndex = works.findIndex(work =>
-        //     get(work, `properties.${worksKey}`),
-        //   );
-
-        //   assert(
-        //     typeof worksIndex !== 'undefined',
-        //     `no field found in works at ${fieldPath}`,
-        //   );
-
-        //   fieldPath = `${worksPath}[${worksIndex}].properties.${worksKey}.properties.${key}`;
-
-        //   assert(!!get(step, fieldPath), `no field at ${fieldPath}`);
-
-        //   originalFormat = get(
-        //     step.uiSchema,
-        //     `${stepName}.works.items[${worksIndex}].${worksKey}.${key}.['ui:original-format']`,
-        //   );
-        // }
-
-        // if (options) {
-        //   assert((options ?? []).length > 0, `no options at path ${stepName}`);
-
-        //   const enumPath =
-        //     originalFormat === 'multi-select' ? 'items.enum' : 'enum';
-
-        //   set(step, `${fieldPath}.${enumPath}`, options);
-        // }
-
-        // set(
-        //   step,
-        //   `${fieldPath}.default`,
-        //   originalFormat === 'multi-select' ? [value] : value,
-        // );
       }
       break;
     }

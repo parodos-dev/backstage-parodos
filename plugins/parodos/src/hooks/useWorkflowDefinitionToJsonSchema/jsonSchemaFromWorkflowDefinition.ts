@@ -104,7 +104,6 @@ export function getUiSchema(type: ParameterFormat) {
 }
 
 function* transformWorkToStep(work: Work, path: string) {
-  console.log(path);
   const title = taskDisplayName(work.name); // TODO: task label would be good here
 
   const childWorks = (work.works ?? []).filter(worksWithParameter);
@@ -266,14 +265,12 @@ export function jsonSchemaFromWorkflowDefinition(
     formSchema.steps.push(masterStep);
   }
 
-  const uiWorks = workflowDefinition.works
-    .filter(
-      w =>
-        worksWithParameter(w) &&
-        (Object.keys(w.parameters ?? {}).length > 0 ||
-          (w?.works ?? []).length > 0),
-    )
-    .filter(w => w.name === 'subWorkFlowThree');
+  const uiWorks = workflowDefinition.works.filter(
+    w =>
+      worksWithParameter(w) &&
+      (Object.keys(w.parameters ?? {}).length > 0 ||
+        (w?.works ?? []).length > 0),
+  );
 
   for (const work of uiWorks) {
     for (const step of [

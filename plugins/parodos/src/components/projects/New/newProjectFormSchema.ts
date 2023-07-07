@@ -39,4 +39,5 @@ export const newProjectStep: Step = {
   ...newProjectFormSchema,
   mergedSchema: newProjectFormSchema.schema,
   title: 'New Project',
+  path: 'newProjectFormSchema',
 };
