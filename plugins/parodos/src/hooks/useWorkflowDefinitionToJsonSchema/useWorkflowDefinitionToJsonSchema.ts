@@ -2,16 +2,17 @@ import {
   workflowDefinitionSchema,
   type WorkflowDefinition,
 } from '../../models/workflowDefinitionSchema';
-import { FormSchema, Step } from '../../components/types';
+import type { FormSchema } from '../../components/types';
 import { jsonSchemaFromWorkflowDefinition } from './jsonSchemaFromWorkflowDefinition';
 import { GetDefinitionFilter } from '../../stores/types';
 import { useStore } from '../../stores/workflowStore/workflowStore';
 import { useImmerReducer } from 'use-immer';
 import { useCallback, useEffect } from 'react';
-import get from 'lodash.get';
 import set from 'lodash.set';
 import { assert } from 'assert-ts';
 import { ValueProviderResponse } from '../../models/valueProviderResponse';
+import { findStepFromPropertyPath } from './helpers';
+import get from 'lodash.get';
 
 type UpdateSchema = {
   type: 'UPDATE_SCHEMA';
@@ -37,70 +38,6 @@ type State = {
   initialized: boolean;
   updateSchema?: UpdateSchemaAction;
 };
-
-function travelWorks(
-  works: any[],
-  currentUiSchema: any,
-  currentKey: string,
-  propertyPath: string,
-  key: string,
-) {
-  for (const [index, work] of Object.entries(works)) {
-    if (work.path === propertyPath) {
-      const lastPath = propertyPath.split('.').slice(-1)[0];
-      const uiSchema = get(
-        currentUiSchema,
-        `${currentKey}.works.items[${index}].${lastPath}.${key}`,
-      );
-      return {
-        schema: get(work, `properties.${lastPath}.properties.${key}`),
-        uiSchema,
-      };
-    }
-  }
-
-  return undefined;
-}
-
-function findStepFromPropertyPath(
-  steps: Step[],
-  propertyPath: string,
-  key: string,
-) {
-  for (const step of steps) {
-    if (step.path === propertyPath) {
-      const schema = get(
-        step,
-        `schema.properties.${propertyPath}.properties.${key}`,
-      );
-      const uiSchema = get(step, `uiSchema.${propertyPath}.${key}`);
-
-      return { schema, uiSchema };
-    }
-
-    if (!step.schema?.properties) {
-      return undefined;
-    }
-
-    for (const [k, value] of Object.entries(step.schema.properties) as any) {
-      if (value?.properties?.works?.items) {
-        const element = travelWorks(
-          value.properties.works.items,
-          step.uiSchema,
-          k,
-          propertyPath,
-          key,
-        );
-
-        if (element) {
-          return element;
-        }
-      }
-    }
-  }
-
-  return undefined;
-}
 
 export const reducer = (draft: State, action: Actions) => {
   switch (action.type) {
@@ -144,7 +81,7 @@ export const reducer = (draft: State, action: Actions) => {
         assert(!!schema, `no schema at ${propertyPath}`);
         assert(!!uiSchema, `no uiSchema at ${propertyPath}`);
 
-        const originalFormat = uiSchema['ui:original-format'];
+        const originalFormat = get(uiSchema, 'ui:original-format');
 
         if (options) {
           assert((options ?? []).length > 0, `no options at path ${stepName}`);
