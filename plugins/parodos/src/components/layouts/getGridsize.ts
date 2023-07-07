@@ -16,6 +16,10 @@ export function getGridSize(uiSchema: UiSchema): ResponsiveGridSizes {
     return { xs: gridSize };
   }
 
+  if (Array.isArray(uiSchema.items)) {
+    return { xs: 12 };
+  }
+
   return {
     xs: 12,
     md: 6,

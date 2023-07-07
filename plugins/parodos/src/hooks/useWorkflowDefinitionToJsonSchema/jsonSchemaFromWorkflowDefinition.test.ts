@@ -6,7 +6,7 @@ import {
 import get from 'lodash.get';
 import {
   WorkflowDefinition,
-  WorkType,
+  Work,
 } from '../../models/workflowDefinitionSchema';
 import { mockDeepRecursiveWorks } from '../../mocks/workflowDefinitions/deepRecursiveWorks';
 import { mockTasksWithNoParams } from '../../mocks/workflowDefinitions/tasksWithNoParameters';
@@ -24,7 +24,7 @@ describe('jsonSchemaFromWorkflowDefinition', () => {
       result.steps[0]?.schema,
       'properties.subWorkFlowOne.properties.works.items',
       [],
-    ) as WorkType[];
+    ) as Work[];
 
     const childUiSchemaWorks = get(
       result.steps[0].uiSchema,

@@ -11,6 +11,7 @@ export interface Step {
   title: string;
   description?: string;
   parent?: Step;
+  path: string;
 }
 
 export interface FormSchema {

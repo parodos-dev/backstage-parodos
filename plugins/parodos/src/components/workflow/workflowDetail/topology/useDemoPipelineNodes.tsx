@@ -10,10 +10,10 @@ import LockIcon from '@material-ui/icons/Lock';
 import { WorkflowTask } from '../../../../models/workflowTaskSchema';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 
-export const NODE_PADDING_VERTICAL = 15;
+export const NODE_PADDING_VERTICAL = 30;
 export const NODE_PADDING_HORIZONTAL = 5;
 
-export const DEFAULT_TASK_WIDTH = 150;
+export const DEFAULT_TASK_WIDTH = 75;
 export const DEFAULT_TASK_HEIGHT = 32;
 
 function getTaskIcon(task: WorkflowTask): JSX.Element | null {
