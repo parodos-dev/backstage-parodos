@@ -25,4 +25,11 @@ export const useCommonStyles = makeStyles(theme => ({
   link: {
     color: theme.palette.primary.main,
   },
+  svgCard: {
+    height: '100%',
+    '& div[class^="MuiCardContent-root"]': {
+      display: 'flex',
+      flexDirection: 'column',
+    },
+  },
 }));

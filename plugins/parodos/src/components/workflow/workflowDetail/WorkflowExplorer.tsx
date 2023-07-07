@@ -11,6 +11,7 @@ import { useUpdateLogs } from '../hooks/useUpdateLogs';
 import { useUpdateWorks } from '../hooks/useUpdateWorks';
 import { WorkFlowStepper } from './topology/WorkFlowStepper';
 import { WorkFlowLogViewer } from './WorkFlowLogViewer';
+import cs from 'classnames';
 
 interface WorkflowExplorerProps {
   executionId: string;
@@ -22,8 +23,13 @@ const useStyles = makeStyles(_theme => ({
   detailContainer: {
     flex: 1,
     display: 'grid',
-    gridTemplateRows: '1fr auto 1fr',
     minHeight: 0,
+  },
+  twoRow: {
+    gridTemplateRows: '2fr 1fr',
+  },
+  threeRow: {
+    gridTemplateRows: '1fr auto 1fr',
   },
   viewerContainer: {
     display: 'grid',
@@ -49,13 +55,18 @@ export function WorkflowExplorer({
   }, [setWorkflowName, workflowName]);
 
   return (
-    <Box className={styles.detailContainer}>
+    <Box
+      className={cs(styles.detailContainer, {
+        [styles.threeRow]: !!children,
+        [styles.twoRow]: !children,
+      })}
+    >
       {tasks.length > 0 ? (
         <WorkFlowStepper tasks={tasks} setSelectedTask={setSelectedTask} />
       ) : (
         <Progress />
       )}
-      <div>{children}</div>
+      {children && <div>{children}</div>}
       <div className={styles.viewerContainer}>
         {log !== '' && <WorkFlowLogViewer log={log} />}
       </div>
