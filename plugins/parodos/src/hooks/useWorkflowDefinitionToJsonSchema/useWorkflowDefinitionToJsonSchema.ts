@@ -13,6 +13,7 @@ import get from 'lodash.get';
 import set from 'lodash.set';
 import { assert } from 'assert-ts';
 import { ValueProviderResponse } from '../../models/valueProviderResponse';
+import { current } from 'immer';
 
 type UpdateSchema = {
   type: 'UPDATE_SCHEMA';
@@ -39,6 +40,27 @@ type State = {
   updateSchema?: UpdateSchemaAction;
 };
 
+function findStepFromPropertyPath(
+  steps: Step[],
+  propertyPath: string,
+  key: string,
+) {
+  for (const step of steps) {
+    if (step.path === propertyPath) {
+      console.log(`schema.properties.${propertyPath}.properties.${key}`);
+      const schema = get(
+        step,
+        `schema.properties.${propertyPath}.properties.${key}`,
+      );
+      const uiSchema = get(step, `uiSchema.${propertyPath}.${key}`);
+
+      return { schema, uiSchema };
+    }
+  }
+
+  return undefined;
+}
+
 export const reducer = (draft: State, action: Actions) => {
   switch (action.type) {
     case 'INITIALIZE': {
@@ -47,6 +69,8 @@ export const reducer = (draft: State, action: Actions) => {
           action.payload.definition,
           draft.formSchema,
         );
+
+        console.log(current(draft.formSchema));
 
         draft.updateSchema = action.payload.updateSchema;
         draft.initialized = true;
@@ -64,60 +88,29 @@ export const reducer = (draft: State, action: Actions) => {
         const paths = propertyPath.split('.');
         const stepName = paths.length === 1 ? paths[0] : paths[1];
 
-        const step =
-          paths.length === 1
-            ? draft.formSchema.steps[0]
-            : Object.values(draft.formSchema.steps).find(
-                s => !!get(s, `schema.properties.${stepName}`),
-              );
+        const elementToUpdate = findStepFromPropertyPath(
+          draft.formSchema.steps,
+          propertyPath,
+          key,
+        );
 
-        if (!step) {
+        // console.log({
+        //   schema: current(elementToUpdate?.schema),
+        //   uiSchema: current(elementToUpdate?.uiSchema),
+        // });
+
+        if (!elementToUpdate) {
           // eslint-disable-next-line no-console
-          console.log(`no step found for ${`schema.properties.${stepName}`}`);
+          console.log(`no element found for ${propertyPath}`);
           continue;
         }
 
-        let fieldPath = `schema.properties.${stepName}.properties.${key}`;
+        const { schema, uiSchema } = elementToUpdate;
 
-        let originalFormat = get(
-          step,
-          `uiSchema.${stepName}.${key}.['ui:original-format']`,
-        ) as ParameterFormat;
+        assert(!!schema, `no schema at ${propertyPath}`);
+        assert(!!uiSchema, `no uiSchema at ${propertyPath}`);
 
-        if (!get(step, fieldPath, undefined)) {
-          const worksPath = `schema.properties.${stepName}.properties.works.items`;
-
-          const works = get<Step, string>(step, worksPath) as Record<
-            string,
-            unknown
-          >[];
-
-          if (!works) {
-            // eslint-disable-next-line no-console
-            console.log(`no works at ${worksPath}`);
-            continue;
-          }
-
-          const worksKey = paths.slice(-1)[0];
-
-          const worksIndex = works.findIndex(work =>
-            get(work, `properties.${worksKey}`),
-          );
-
-          assert(
-            typeof worksIndex !== 'undefined',
-            `no field found in works at ${fieldPath}`,
-          );
-
-          fieldPath = `${worksPath}[${worksIndex}].properties.${worksKey}.properties.${key}`;
-
-          assert(!!get(step, fieldPath), `no field at ${fieldPath}`);
-
-          originalFormat = get(
-            step.uiSchema,
-            `${stepName}.works.items[${worksIndex}].${worksKey}.${key}.['ui:original-format']`,
-          );
-        }
+        const originalFormat = uiSchema['ui:original-format'];
 
         if (options) {
           assert((options ?? []).length > 0, `no options at path ${stepName}`);
@@ -125,14 +118,79 @@ export const reducer = (draft: State, action: Actions) => {
           const enumPath =
             originalFormat === 'multi-select' ? 'items.enum' : 'enum';
 
-          set(step, `${fieldPath}.${enumPath}`, options);
+          set(schema, `${enumPath}`, options);
         }
 
         set(
-          step,
-          `${fieldPath}.default`,
+          schema,
+          `default`,
           originalFormat === 'multi-select' ? [value] : value,
         );
+
+        console.log(current(schema));
+
+        // if (!step) {
+        //   // eslint-disable-next-line no-console
+        //   console.log(`no step found for ${`schema.properties.${stepName}`}`);
+        //   continue;
+        // }
+
+        // let fieldPath = `schema.properties.${stepName}.properties.${key}`;
+
+        // let originalFormat = get(
+        //   step,
+        //   `uiSchema.${stepName}.${key}.['ui:original-format']`,
+        // ) as ParameterFormat;
+
+        // if (!get(step, fieldPath, undefined)) {
+        //   const worksPath = `schema.properties.${stepName}.properties.works.items`;
+
+        //   const works = get<Step, string>(step, worksPath) as Record<
+        //     string,
+        //     unknown
+        //   >[];
+
+        //   if (!works) {
+        //     // eslint-disable-next-line no-console
+        //     console.log(`no works at ${worksPath}`);
+        //     continue;
+        //   }
+
+        //   const worksKey = paths.slice(-1)[0];
+
+        //   const worksIndex = works.findIndex(work =>
+        //     get(work, `properties.${worksKey}`),
+        //   );
+
+        //   assert(
+        //     typeof worksIndex !== 'undefined',
+        //     `no field found in works at ${fieldPath}`,
+        //   );
+
+        //   fieldPath = `${worksPath}[${worksIndex}].properties.${worksKey}.properties.${key}`;
+
+        //   assert(!!get(step, fieldPath), `no field at ${fieldPath}`);
+
+        //   originalFormat = get(
+        //     step.uiSchema,
+        //     `${stepName}.works.items[${worksIndex}].${worksKey}.${key}.['ui:original-format']`,
+        //   );
+        // }
+
+        // if (options) {
+        //   assert((options ?? []).length > 0, `no options at path ${stepName}`);
+
+        //   const enumPath =
+        //     originalFormat === 'multi-select' ? 'items.enum' : 'enum';
+
+        //   set(step, `${fieldPath}.${enumPath}`, options);
+        // }
+
+        // set(
+        //   step,
+        //   `${fieldPath}.default`,
+        //   originalFormat === 'multi-select' ? [value] : value,
+        // );
       }
       break;
     }

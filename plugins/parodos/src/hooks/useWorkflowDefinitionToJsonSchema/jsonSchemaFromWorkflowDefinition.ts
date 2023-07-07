@@ -103,7 +103,8 @@ export function getUiSchema(type: ParameterFormat) {
   }
 }
 
-function* transformWorkToStep(work: Work) {
+function* transformWorkToStep(work: Work, path: string) {
+  console.log(path);
   const title = taskDisplayName(work.name); // TODO: task label would be good here
 
   const childWorks = (work.works ?? []).filter(worksWithParameter);
@@ -115,7 +116,10 @@ function* transformWorkToStep(work: Work) {
   if (!workHasUiElements) {
     for (const childWork of childWorks) {
       let childStep: Step;
-      for (childStep of transformWorkToStep(childWork)) {
+      for (childStep of transformWorkToStep(
+        childWork,
+        `${path}.${childWork.name}`,
+      )) {
         yield childStep;
       }
     }
@@ -204,7 +208,10 @@ function* transformWorkToStep(work: Work) {
 
     for (const [index, childWork] of childWorks.entries()) {
       let childStep: Step;
-      for (childStep of transformWorkToStep(childWork)) {
+      for (childStep of transformWorkToStep(
+        childWork,
+        `${path}.${childWork.name}`,
+      )) {
         // We don't want to nest the recusive structure many levels deep
         // so instead we flatten the structure and only allow one level of nesting
         if (childWork.workType === 'WORKFLOW') {
@@ -214,8 +221,10 @@ function* transformWorkToStep(work: Work) {
 
         const nextSchemaKey = `properties.${key}.properties.works.items[${index}]`;
         const nextUiSchemaKey = `${key}.works.items[${index}]`;
+        const nextSchemaPath = `${nextSchemaKey}.path`;
 
         set(schema, nextSchemaKey, childStep.schema);
+        set(schema, nextSchemaPath, `${path}.${childWork.name}`);
 
         set(uiSchema, `${key}.works.['ui:hidden']`, true);
         set(uiSchema, nextUiSchemaKey, childStep.uiSchema);
@@ -223,11 +232,18 @@ function* transformWorkToStep(work: Work) {
     }
   }
 
-  yield { schema, uiSchema, title, mergedSchema: schema, parent: undefined };
+  yield {
+    schema,
+    uiSchema,
+    title,
+    mergedSchema: schema,
+    parent: undefined,
+    path,
+  };
 }
 
-export function* getAllSteps(work: Work) {
-  yield* transformWorkToStep(work);
+export function* getAllSteps(work: Work, path: string) {
+  yield* transformWorkToStep(work, path);
 }
 
 export function jsonSchemaFromWorkflowDefinition(
@@ -238,22 +254,31 @@ export function jsonSchemaFromWorkflowDefinition(
 
   if (Object.keys(parameters).length > 0) {
     const masterStep = [
-      ...transformWorkToStep({
-        name: workflowDefinition.name,
-        parameters,
-      } as Work),
+      ...transformWorkToStep(
+        {
+          name: workflowDefinition.name,
+          parameters,
+        } as Work,
+        workflowDefinition.name,
+      ),
     ][0];
 
     formSchema.steps.push(masterStep);
   }
 
-  for (const work of workflowDefinition.works.filter(
-    w =>
-      worksWithParameter(w) &&
-      (Object.keys(w.parameters ?? {}).length > 0 ||
-        (w?.works ?? []).length > 0),
-  )) {
-    for (const step of [...getAllSteps(work)].reverse()) {
+  const uiWorks = workflowDefinition.works
+    .filter(
+      w =>
+        worksWithParameter(w) &&
+        (Object.keys(w.parameters ?? {}).length > 0 ||
+          (w?.works ?? []).length > 0),
+    )
+    .filter(w => w.name === 'subWorkFlowThree');
+
+  for (const work of uiWorks) {
+    for (const step of [
+      ...getAllSteps(work, `${workflowDefinition.name}.${work.name}`),
+    ].reverse()) {
       formSchema.steps.push(step);
     }
   }
