@@ -16,7 +16,7 @@ export function getGridSize(uiSchema: UiSchema): ResponsiveGridSizes {
     return { xs: gridSize };
   }
 
-  if (Array.isArray(uiSchema.items)) {
+  if (Array.isArray(uiSchema?.items)) {
     return { xs: 12 };
   }
 
