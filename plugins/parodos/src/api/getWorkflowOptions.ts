@@ -1,10 +1,7 @@
 import { FetchApi } from '@backstage/core-plugin-api';
-import {
-  displayableWorkflowOptions,
-  workflowSchema,
-} from '../../../models/workflow';
-import { taskDisplayName } from '../../../utils/string';
-import { WorkflowOptionsListItem } from './useCreateWorkflow';
+import { displayableWorkflowOptions, workflowSchema } from '../models/workflow';
+import { taskDisplayName } from '../utils/string';
+import { WorkflowOptionsListItem } from '../components/workflow/hooks/useCreateWorkflow';
 
 export async function getWorkflowOptions(
   fetch: FetchApi['fetch'],

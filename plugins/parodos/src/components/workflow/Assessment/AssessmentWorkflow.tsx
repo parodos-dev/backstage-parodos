@@ -17,7 +17,7 @@ import { WorkflowOptionsList } from '../WorkflowOptionsList';
 import useAsync from 'react-use/lib/useAsync';
 import { useStore } from '../../../stores/workflowStore/workflowStore';
 import { errorApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
-import { getWorkflowOptions } from '../hooks/getWorkflowOptions';
+import { getWorkflowOptions } from '../../../api/getWorkflowOptions';
 import * as urls from '../../../urls';
 
 const useStyles = makeStyles(theme => ({

@@ -6,7 +6,7 @@ import type { ParodosConfig } from '../types';
 import { Status, WorkflowStatus } from '../models/workflowTaskSchema';
 
 export interface UISlice {
-  baseUrl: string | undefined;
+  baseUrl: string;
   setAppConfig(config: ParodosConfig): void;
   loading(): boolean;
   error(): unknown | undefined;

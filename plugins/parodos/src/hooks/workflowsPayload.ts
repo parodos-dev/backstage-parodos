@@ -1,5 +1,5 @@
 import {
-  Work,
+  type Work,
   type WorkflowDefinition,
 } from '../models/workflowDefinitionSchema';
 import { type WorkflowsPayload } from '../models/worksPayloadSchema';
