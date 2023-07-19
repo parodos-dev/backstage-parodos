@@ -1,5 +1,8 @@
 import { Config } from '@backstage/config';
-import { createTemplateAction } from '@backstage/plugin-scaffolder-node';
+import {
+  createTemplateAction,
+  TemplateAction,
+} from '@backstage/plugin-scaffolder-node';
 import type {
   WorkflowDefinition,
   Work,
@@ -9,7 +12,9 @@ import get from 'lodash.get';
 import { type StrictRJSFSchema } from '@rjsf/utils';
 import { z } from 'zod';
 
-export const executeWorkflow = (options: { config: Config }) => {
+export const executeWorkflow: (options: {
+  config: Config;
+}) => TemplateAction = options => {
   const { config } = options;
 
   return createTemplateAction({
@@ -37,9 +42,9 @@ export const executeWorkflow = (options: { config: Config }) => {
       ) as WorkflowDefinition;
       const payload = {
         ...getWorkflowsPayload({
-          projectId,
+          projectId: projectId as string,
           workflow: workflowDefinition,
-          schema: formData,
+          schema: formData as StrictRJSFSchema,
         }),
         invokingExecutionId:
           workflowDefinition.type !== 'ASSESSMENT' ? assessmentId : null,

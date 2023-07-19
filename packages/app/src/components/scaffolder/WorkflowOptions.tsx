@@ -54,7 +54,6 @@ export function WorkflowOptions({
   formData,
   formContext,
 }: FieldProps<string>) {
-  const isNew = true;
   const styles = useStyles();
 
   const {
@@ -75,9 +74,7 @@ export function WorkflowOptions({
       definition => definition.name === assessment,
     ) as WorkflowDefinition,
   });
-  // TODO Reuse id of already executed assessment
-  // TODO loading state
-  const [{ error: startAssessmentError }, startAssessment] =
+  const [{ loading, error: startAssessmentError }, startAssessment] =
     useAsyncFn(async () => {
       const { workFlowExecutionId } = await executeWorkflow({
         projectId: id,
@@ -102,8 +99,8 @@ export function WorkflowOptions({
     }, [assessmentId, fetch, configApi]);
 
   useEffect(() => {
-    if (!assessmentId) startAssessment();
-  }, [assessmentId, startAssessment]);
+    if (!loading && !assessmentId) startAssessment();
+  }, [loading, assessmentId, startAssessment]);
 
   useEffect(() => {
     if (assessmentId) getOptions();
@@ -134,27 +131,22 @@ export function WorkflowOptions({
     }
   }, [errorApi, startAssessmentError]);
 
-  // TODO Highlight workflow option if selected => Click Next => Render workflow options form
-  // TODO Tweak text and styles
-
-  const introduction = isNew
-    ? 'Assessment completed. To continue please select from the following option(s):'
-    : 'Your project qualifies for the following option(s):';
-
   return (
     <FormControl
       margin="normal"
       required={required}
       error={rawErrors?.length > 0 && !formData}
     >
-      <Typography paragraph>{introduction}</Typography>
+      <Typography paragraph>
+        Your project qualifies for the following option(s):
+      </Typography>
       <Grid container direction="row" spacing={2}>
         {workflowOptions?.map(workflowOption => (
           <Grid item xs={12} lg={6} xl={4} key={workflowOption.identifier}>
             <Card
               className={cs(styles.applicationCard, {
-                // TODO Highlight style
-                [styles.recommended]: workflowOption.recommended,
+                [styles.recommended]:
+                  workflowOption.workFlowName === options?.workflowName,
               })}
               variant="elevation"
               elevation={3}

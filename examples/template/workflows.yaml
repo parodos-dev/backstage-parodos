@@ -2,10 +2,9 @@ apiVersion: scaffolder.backstage.io/v1beta3
 # https://backstage.io/docs/features/software-catalog/descriptor-format#kind-template
 kind: Template
 metadata:
-  name: get-workflows
-  title: PoC to get workflows
+  name: execute-workflow
+  title: Execute Parodos workflow
 spec:
-  owner: user:test
   type: service
   parameters:
     - title: Choose project
@@ -46,13 +45,6 @@ spec:
               type: string
               title: Workflow name
           ui:field: WorkflowOptions
-        # TODO Use separate component
-        # assessmentId:
-        #   title: Assessment ID
-        #   type: string
-        #   ui:backstage:
-        #     review:
-        #       show: false
     - title: Workflow Form
       required:
         - formData
@@ -70,4 +62,3 @@ spec:
         projectId: ${{ parameters.project.id }}
         assessmentId: ${{ parameters.options.assessmentId }}
         formData: ${{ parameters.formData }}
-        # definitions: ${{ parameters.assessment.definitions }}
