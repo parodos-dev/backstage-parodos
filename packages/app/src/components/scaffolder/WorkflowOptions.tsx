@@ -99,8 +99,8 @@ export function WorkflowOptions({
     }, [assessmentId, fetch, configApi]);
 
   useEffect(() => {
-    if (!loading && !assessmentId) startAssessment();
-  }, [loading, assessmentId, startAssessment]);
+    if (definitions && !loading && !assessmentId) startAssessment();
+  }, [definitions, loading, assessmentId, startAssessment]);
 
   useEffect(() => {
     if (assessmentId) getOptions();

@@ -4,7 +4,9 @@ kind: Template
 metadata:
   name: execute-workflow
   title: Execute Parodos workflow
+  description: A template for the scaffolder that helps to walk through of Parodos workflow execution
 spec:
+  owner: user:guest
   type: service
   parameters:
     - title: Choose project

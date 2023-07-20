@@ -2,7 +2,7 @@ import {
   workflowDefinitionSchema,
   type WorkflowDefinition,
 } from '../../models/workflowDefinitionSchema';
-import type { FormSchema } from '../../components/types';
+import type { FormSchema, Step } from '../../components/types';
 import { jsonSchemaFromWorkflowDefinition } from './jsonSchemaFromWorkflowDefinition';
 import { GetDefinitionFilter } from '../../stores/types';
 import { useStore } from '../../stores/workflowStore/workflowStore';
@@ -39,6 +39,42 @@ type State = {
   updateSchema?: UpdateSchemaAction;
 };
 
+export function updateFormSchema(
+  steps: Step[],
+  valueProviderResponse: ValueProviderResponse,
+) {
+  for (const { key, value, options, propertyPath } of valueProviderResponse) {
+    const paths = propertyPath.split('.');
+    const stepName = paths.length === 1 ? paths[0] : paths[1];
+
+    const elementToUpdate = findStepFromPropertyPath(steps, propertyPath, key);
+
+    if (!elementToUpdate) {
+      // eslint-disable-next-line no-console
+      console.log(`no element found for ${propertyPath}`);
+      continue;
+    }
+
+    const { schema, uiSchema } = elementToUpdate;
+
+    assert(!!schema, `no schema at ${propertyPath}`);
+    assert(!!uiSchema, `no uiSchema at ${propertyPath}`);
+
+    const originalFormat = get(uiSchema, 'ui:original-format');
+
+    if (options) {
+      assert((options ?? []).length > 0, `no options at path ${stepName}`);
+
+      const enumPath =
+        originalFormat === 'multi-select' ? 'items.enum' : 'enum';
+
+      set(schema, `${enumPath}`, options);
+    }
+
+    set(schema, `default`, originalFormat === 'multi-select' ? [value] : value);
+  }
+}
+
 export const reducer = (draft: State, action: Actions) => {
   switch (action.type) {
     case 'INITIALIZE': {
@@ -59,45 +95,10 @@ export const reducer = (draft: State, action: Actions) => {
         return;
       }
 
-      for (const { key, value, options, propertyPath } of action.payload
-        .valueProviderResponse) {
-        const paths = propertyPath.split('.');
-        const stepName = paths.length === 1 ? paths[0] : paths[1];
-
-        const elementToUpdate = findStepFromPropertyPath(
-          draft.formSchema.steps,
-          propertyPath,
-          key,
-        );
-
-        if (!elementToUpdate) {
-          // eslint-disable-next-line no-console
-          console.log(`no element found for ${propertyPath}`);
-          continue;
-        }
-
-        const { schema, uiSchema } = elementToUpdate;
-
-        assert(!!schema, `no schema at ${propertyPath}`);
-        assert(!!uiSchema, `no uiSchema at ${propertyPath}`);
-
-        const originalFormat = get(uiSchema, 'ui:original-format');
-
-        if (options) {
-          assert((options ?? []).length > 0, `no options at path ${stepName}`);
-
-          const enumPath =
-            originalFormat === 'multi-select' ? 'items.enum' : 'enum';
-
-          set(schema, `${enumPath}`, options);
-        }
-
-        set(
-          schema,
-          `default`,
-          originalFormat === 'multi-select' ? [value] : value,
-        );
-      }
+      updateFormSchema(
+        draft.formSchema.steps,
+        action.payload.valueProviderResponse,
+      );
       break;
     }
     default: {

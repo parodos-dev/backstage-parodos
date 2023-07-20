@@ -88,6 +88,17 @@ export function Form({
     }
   };
 
+  const handleNextClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    setFormState(current => ({
+      ...current,
+      ...formRef.current?.state.formData,
+    }));
+    if (activeStep !== formSchema.steps.length - 1) {
+      setActiveStep(prev => prev + 1);
+    }
+  };
+
   const widgets: RegistryWidgetsType = {
     SelectWidget,
   };
@@ -103,7 +114,7 @@ export function Form({
       onChange={handleChange}
       formData={formState}
       formContext={{ formData: formState, form: formRef, updateSchema }}
-      onSubmit={handleNext}
+      onSubmit={onSubmit ? handleNext : undefined}
       schema={currentStep.schema}
       disabled={disabled}
       widgets={widgets}
@@ -135,9 +146,10 @@ export function Form({
           <Button
             variant="contained"
             color="primary"
-            type="submit"
+            type={onSubmit || isLastStep ? 'submit' : 'button'}
             className={styles.next}
             disabled={disabled}
+            onClick={onSubmit || isLastStep ? undefined : handleNextClick}
           >
             {isLastStep ? finalSubmitButtonText : 'NEXT'}
           </Button>

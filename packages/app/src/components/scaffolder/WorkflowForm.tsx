@@ -1,12 +1,15 @@
 /* eslint-disable no-console */
-import React, { useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { FormControl } from '@material-ui/core';
 import { FieldProps } from '@rjsf/core';
 import { IChangeEvent } from '@rjsf/core-v5';
+import { useImmer } from 'use-immer';
 import { useWorkflowDefinitions } from './useWorkflowDefinitions';
 import {
   Form,
   jsonSchemaFromWorkflowDefinition,
+  updateFormSchema,
+  ValueProviderResponse,
   WorkflowDefinition,
 } from '@parodos/plugin-parodos';
 
@@ -26,13 +29,32 @@ export function WorkflowForm({
     formData: data,
   }: IChangeEvent<Record<string, any>>) => onChange(data);
 
-  const formSchema = useMemo(() => {
+  const jsonSchema = useMemo(() => {
     if (definitions === undefined) return null;
     const assessmentWorkflow = definitions?.find(
       definition => definition.name === workflowName,
     ) as WorkflowDefinition;
-    return jsonSchemaFromWorkflowDefinition(assessmentWorkflow, { steps: [] });
+    return jsonSchemaFromWorkflowDefinition(assessmentWorkflow, {
+      steps: [],
+    });
   }, [definitions, workflowName]);
+
+  const [formSchema, updateSchema] = useImmer(jsonSchema);
+
+  const handleUpdateSchema = useCallback(
+    (valueProviderResponse: ValueProviderResponse) => {
+      updateSchema(draft => {
+        if (draft?.steps) updateFormSchema(draft?.steps, valueProviderResponse);
+      });
+    },
+    [updateSchema],
+  );
+
+  useEffect(() => {
+    if (jsonSchema) {
+      updateSchema(jsonSchema);
+    }
+  }, [jsonSchema, updateSchema]);
 
   return (
     <FormControl
@@ -43,9 +65,8 @@ export function WorkflowForm({
       {formSchema && (
         <Form
           formSchema={formSchema}
+          updateSchema={handleUpdateSchema}
           onChange={handleChange}
-          stepLess
-          hideTitle
         >
           <div />
         </Form>
