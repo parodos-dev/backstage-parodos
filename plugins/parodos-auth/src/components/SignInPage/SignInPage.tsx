@@ -1,4 +1,5 @@
 import {
+  configApiRef,
   errorApiRef,
   fetchApiRef,
   useApi,
@@ -17,7 +18,6 @@ import type { User } from './types';
 import { getToken } from './getToken';
 import { SessionStorageKey } from './ParodosSigninIdentity';
 import { BrandIcon } from '../icons/BrandIcon';
-import { fetchApiRef } from '@backstage/core-plugin-api';
 
 type ParodosSignInPageProps = SignInPageProps;
 
@@ -57,7 +57,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export function SignInPage({ onSignInSuccess }: ParodosSignInPageProps) {
-  const { fetch } = useApi(fetchApiRef);
   const styles = useStyles();
   const errorApi = useApi(errorApiRef);
   const configApi = useApi(configApiRef);
