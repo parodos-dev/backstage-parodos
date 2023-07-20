@@ -1,5 +1,6 @@
 import {
   errorApiRef,
+  fetchApiRef,
   useApi,
   type SignInPageProps,
 } from '@backstage/core-plugin-api';
@@ -59,8 +60,9 @@ export function SignInPage({ onSignInSuccess }: ParodosSignInPageProps) {
   const { fetch } = useApi(fetchApiRef);
   const styles = useStyles();
   const errorApi = useApi(errorApiRef);
-  // const configApi = useApi(configApiRef);
-  // const baseUrl = configApi.getString('backend.baseUrl');
+  const configApi = useApi(configApiRef);
+  const { fetch } = useApi(fetchApiRef);
+  const baseUrl = configApi.getString('backend.baseUrl');
   const [checkingToken, setTokenCheck] = useState(true);
 
   useEffect(() => {
@@ -81,15 +83,18 @@ export function SignInPage({ onSignInSuccess }: ParodosSignInPageProps) {
     }
   }, [onSignInSuccess]);
 
-  const [{ error, loading }, login] = useAsyncFn(async (user: User) => {
-    const token = getToken(user);
+  const [{ error, loading }, login] = useAsyncFn(
+    async (user: User) => {
+      const token = getToken(user);
 
-    return await fetch(`${LoginUrl}`, {
-      headers: {
-        Authorization: `Basic ${token}`,
-      },
-    });
-  });
+      return await fetch(`${baseUrl}${LoginUrl}`, {
+        headers: {
+          Authorization: `Basic ${token}`,
+        },
+      });
+    },
+    [baseUrl, fetch],
+  );
 
   const submitHandler = useCallback(
     async (data: IChangeEvent<User>) => {
