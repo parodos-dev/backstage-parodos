@@ -1,5 +1,4 @@
 import {
-  configApiRef,
   errorApiRef,
   useApi,
   type SignInPageProps,
@@ -17,6 +16,7 @@ import type { User } from './types';
 import { getToken } from './getToken';
 import { SessionStorageKey } from './ParodosSigninIdentity';
 import { BrandIcon } from '../icons/BrandIcon';
+import { fetchApiRef } from '@backstage/core-plugin-api';
 
 type ParodosSignInPageProps = SignInPageProps;
 
@@ -56,10 +56,11 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export function SignInPage({ onSignInSuccess }: ParodosSignInPageProps) {
+  const { fetch } = useApi(fetchApiRef);
   const styles = useStyles();
   const errorApi = useApi(errorApiRef);
-  const configApi = useApi(configApiRef);
-  const baseUrl = configApi.getString('backend.baseUrl');
+  // const configApi = useApi(configApiRef);
+  // const baseUrl = configApi.getString('backend.baseUrl');
   const [checkingToken, setTokenCheck] = useState(true);
 
   useEffect(() => {
@@ -83,7 +84,7 @@ export function SignInPage({ onSignInSuccess }: ParodosSignInPageProps) {
   const [{ error, loading }, login] = useAsyncFn(async (user: User) => {
     const token = getToken(user);
 
-    return await fetch(`${baseUrl}${LoginUrl}`, {
+    return await fetch(`${LoginUrl}`, {
       headers: {
         Authorization: `Basic ${token}`,
       },
