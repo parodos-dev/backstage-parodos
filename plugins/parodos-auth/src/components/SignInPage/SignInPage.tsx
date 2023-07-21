@@ -1,7 +1,6 @@
 import {
   configApiRef,
   errorApiRef,
-  fetchApiRef,
   useApi,
   type SignInPageProps,
 } from '@backstage/core-plugin-api';
@@ -60,7 +59,6 @@ export function SignInPage({ onSignInSuccess }: ParodosSignInPageProps) {
   const styles = useStyles();
   const errorApi = useApi(errorApiRef);
   const configApi = useApi(configApiRef);
-  const { fetch } = useApi(fetchApiRef);
   const baseUrl = configApi.getString('backend.baseUrl');
   const [checkingToken, setTokenCheck] = useState(true);
 
@@ -92,7 +90,7 @@ export function SignInPage({ onSignInSuccess }: ParodosSignInPageProps) {
         },
       });
     },
-    [baseUrl, fetch],
+    [baseUrl],
   );
 
   const submitHandler = useCallback(
