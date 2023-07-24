@@ -1,4 +1,5 @@
 import { type StrictRJSFSchema } from '@rjsf/utils';
+import { mockForNullInSubtask } from '../mocks/workflowDefinitions/mockForNullInSubtask';
 import { mockTasksWithNoParams } from '../mocks/workflowDefinitions/tasksWithNoParameters';
 import { WorkflowDefinition } from '../models/workflowDefinitionSchema';
 import { getWorkflowsPayload } from './workflowsPayload';
@@ -93,6 +94,45 @@ describe('getWorkflowsPayload', () => {
           value: 'main',
         },
       ]);
+    });
+  });
+
+  describe('fix null parameter value in a task of sub workflow', () => {
+    const schema = {
+      gitPushTask: {
+        credentials: 'AAA',
+        remote: 'AAA',
+      },
+      move2KubeWorkFlow_INFRASTRUCTURE_WORKFLOW: {
+        credentials: 'AAA',
+        uri: 'AAAA',
+        branch: 'AAAA',
+      },
+      getSources: {
+        works: [
+          {
+            gitBranchTask: {
+              branch: 'theBranch',
+            },
+          },
+        ],
+      },
+      gitCommitTask: {
+        commitMessage: 'AAA',
+      },
+    };
+
+    it('should extract the value', () => {
+      const result = getWorkflowsPayload({
+        projectId: '111',
+        workflow: mockForNullInSubtask,
+        schema: schema as StrictRJSFSchema,
+      });
+
+      expect(result?.works?.[0]?.works?.[0]?.works?.[1].arguments[0]).toEqual({
+        key: 'branch',
+        value: 'theBranch',
+      });
     });
   });
 });

@@ -22,19 +22,32 @@ export function walkWorks(
   prefix: string = '',
 ): Works {
   const result: Works = [];
-  for (const [index, work] of works.entries()) {
+  for (const work of works) {
     const next: WorkPayload = {
       workName: work.name,
       type: work.workType,
       arguments: Object.keys(work.parameters ?? {}).map(key => {
-        const value = get(
-          formData,
-          `${prefix === '' ? prefix : `${prefix}.works[${index}]`}${
-            work.name
-          }.${key}`,
-          null,
-        );
+        let path: string | undefined = undefined;
 
+        if (prefix === '') {
+          path = work.name;
+        } else {
+          const formDataWorks = get(
+            formData,
+            `${prefix}.works`,
+            null,
+          ) as Record<string, unknown>[];
+
+          const index = formDataWorks.findIndex(w =>
+            Object.keys(w).find(k => k === work.name),
+          );
+
+          path = `${prefix === '' ? prefix : `${prefix}.works[${index}]`}${
+            work.name
+          }.${key}`;
+        }
+
+        const value = get(formData, path, null);
         return {
           key,
           value,
