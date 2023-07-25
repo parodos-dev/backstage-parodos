@@ -1,0 +1,66 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+# https://backstage.io/docs/features/software-catalog/descriptor-format#kind-template
+kind: Template
+metadata:
+  name: execute-workflow
+  title: Execute Parodos workflow
+  description: A template for the scaffolder that helps to walk through of Parodos workflow execution
+spec:
+  owner: user:guest
+  type: service
+  parameters:
+    - title: Choose project
+      required:
+        - project
+      properties:
+        project:
+          title: Project
+          type: object
+          properties:
+            id:
+              type: string
+              title: Project ID
+            name:
+              type: string
+              title: Project name
+          ui:field: ProjectSelect
+    - title: Start assessment
+      required:
+        - assessmentData
+      properties:
+        assessmentData:
+          title: Assessment Form
+          type: object
+          ui:field: Assessment
+    - title: Choose workflow
+      required:
+        - options
+      properties:
+        options:
+          title: Workflow options
+          type: object
+          properties:
+            assessmentId:
+              type: string
+              title: Assessment ID
+            workflowName:
+              type: string
+              title: Workflow name
+          ui:field: WorkflowOptions
+    - title: Workflow Form
+      required:
+        - formData
+      properties:
+        formData:
+          title: Workflow Form
+          type: object
+          ui:field: WorkflowForm
+  steps:
+    - id: execute
+      name: Execute workflow
+      action: parodos:workflow:execute
+      input:
+        workflowName: ${{ parameters.options.workflowName }}
+        projectId: ${{ parameters.project.id }}
+        assessmentId: ${{ parameters.options.assessmentId }}
+        formData: ${{ parameters.formData }}

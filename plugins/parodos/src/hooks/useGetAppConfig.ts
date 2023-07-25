@@ -1,6 +1,6 @@
 import { configApiRef, useApi } from '@backstage/core-plugin-api';
 import { useMemo } from 'react';
-import type { ParodosConfig } from '../../types';
+import type { ParodosConfig } from '../types';
 
 export const useGetAppConfig = (): ParodosConfig => {
   const configApi = useApi(configApiRef);

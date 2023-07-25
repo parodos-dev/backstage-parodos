@@ -1,27 +1,17 @@
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import useAsyncFn, { AsyncFnReturn } from 'react-use/lib/useAsyncFn';
-import {
-  ProjectWorkflow,
-  projectWorkflowsSchema,
-} from '../../../models/workflowTaskSchema';
+import { fetchWorkflows } from '../../../api/fetchWorkflows';
+import { ProjectWorkflow } from '../../../models/workflowTaskSchema';
+import { useStore } from '../../../stores/workflowStore/workflowStore';
 
-export function useWorkflows(
-  workflowsUrl: string,
-): AsyncFnReturn<(projectId: string) => Promise<ProjectWorkflow[]>> {
+export function useWorkflows(): AsyncFnReturn<
+  (projectId: string) => Promise<ProjectWorkflow[]>
+> {
   const { fetch } = useApi(fetchApiRef);
+  const baseUrl = useStore(state => state.baseUrl);
 
   return useAsyncFn(
-    async (projectId: string) => {
-      const data = await fetch(`${workflowsUrl}?projectId=${projectId}`);
-
-      if (!data.ok) {
-        throw new Error(`${data.status} - ${data.statusText}`);
-      }
-
-      const response = projectWorkflowsSchema.parse(await data.json());
-
-      return response;
-    },
-    [fetch, workflowsUrl],
+    async (projectId: string) => fetchWorkflows(fetch, baseUrl, projectId),
+    [fetch, baseUrl],
   );
 }

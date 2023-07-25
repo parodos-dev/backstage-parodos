@@ -11,6 +11,7 @@ import {
   catalogImportPlugin,
 } from '@backstage/plugin-catalog-import';
 import { ScaffolderPage, scaffolderPlugin } from '@backstage/plugin-scaffolder';
+import { ScaffolderFieldExtensions } from '@backstage/plugin-scaffolder-react';
 import { orgPlugin } from '@backstage/plugin-org';
 import { SearchPage } from '@backstage/plugin-search';
 import { TechRadarPage } from '@backstage/plugin-tech-radar';
@@ -41,6 +42,12 @@ import {
 import { ParodosSignInPage } from '@parodos/plugin-parodos-auth';
 import { CssBaseline, ThemeProvider } from '@material-ui/core';
 import { lightTheme } from '@backstage/theme';
+import {
+  WorkflowOptionsExtension,
+  ProjectSelectExtension,
+  AssessmentExtension,
+  WorkflowFormExtension,
+} from './components/scaffolder';
 
 const parodosTheme: ParodosPluginTheme = createParodosTheme({
   ...lightTheme,
@@ -102,7 +109,14 @@ const routes = (
         <ReportIssue />
       </TechDocsAddons>
     </Route>
-    <Route path="/create" element={<ScaffolderPage />} />
+    <Route path="/create" element={<ScaffolderPage />}>
+      <ScaffolderFieldExtensions>
+        <ProjectSelectExtension />
+        <AssessmentExtension />
+        <WorkflowOptionsExtension />
+        <WorkflowFormExtension />
+      </ScaffolderFieldExtensions>
+    </Route>
     <Route path="/api-docs" element={<ApiExplorerPage />} />
     <Route
       path="/tech-radar"

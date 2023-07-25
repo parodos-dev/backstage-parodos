@@ -2,10 +2,10 @@ import type { StateCreator } from 'zustand';
 import type { ProjectsSlice, State, StateMiddleware } from '../types';
 import * as urls from '../../urls';
 import { unstable_batchedUpdates } from 'react-dom';
-import { type Project, projectSchema } from '../../models/project';
 import { FetchApi } from '@backstage/core-plugin-api';
 import { assert } from 'assert-ts';
 import { pollWorkflowStatus } from '../../components/workflow/hooks/pollWorkflowStatus';
+import { fetchProjects } from '../../api/fetchProjects';
 
 export const createProjectsSlice: StateCreator<
   State,
@@ -37,15 +37,7 @@ export const createProjectsSlice: StateCreator<
     });
 
     try {
-      const response = await fetch(`${get().baseUrl}${urls.Projects}`);
-      const projectsResponse = await response.json();
-
-      if ('error' in projectsResponse) {
-        throw new Error(`${projectsResponse.error}: ${projectsResponse.path}`);
-      }
-
-      const projects = (projectsResponse?.map(projectSchema.parse) ??
-        []) as Project[];
+      const projects = await fetchProjects(fetch, get().baseUrl as string);
 
       const existing = new Set(get().projects.map(p => p.id));
 

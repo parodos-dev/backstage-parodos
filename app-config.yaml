@@ -61,6 +61,7 @@ proxy:
     headers:
       Content-Type: 'application/json'
       accept: 'application/json'
+      Authorization: Basic dGVzdDp0ZXN0
 
   '/parodos-notifications':
     target: 'http://localhost:8081/api/v1'
@@ -105,6 +106,11 @@ catalog:
     # Local example template
     - type: file
       target: ../../examples/template/template.yaml
+      rules:
+        - allow: [Template]
+    # Local workflows template
+    - type: file
+      target: ../../examples/template/workflows.yaml
       rules:
         - allow: [Template]
 

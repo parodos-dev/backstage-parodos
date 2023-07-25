@@ -26,17 +26,21 @@ import { friendlyErrorsTransformer } from './friendlyErrorsTransformer';
 
 type FormProps = Pick<
   JsonFormProps,
-  'disabled' | 'onChange' | 'className' | 'transformErrors' | 'fields'
-> &
-  Required<Pick<JsonFormProps, 'onSubmit'>> & {
-    formSchema: FormSchema;
-    title?: string;
-    hideTitle?: boolean;
-    stepLess?: boolean;
-    children?: ReactNode;
-    updateSchema?: UpdateSchemaAction;
-    finalSubmitButtonText?: string;
-  };
+  | 'disabled'
+  | 'onChange'
+  | 'className'
+  | 'transformErrors'
+  | 'fields'
+  | 'onSubmit'
+> & {
+  formSchema: FormSchema;
+  title?: string;
+  hideTitle?: boolean;
+  stepLess?: boolean;
+  children?: ReactNode;
+  updateSchema?: UpdateSchemaAction;
+  finalSubmitButtonText?: string;
+};
 
 export function Form({
   formSchema,
@@ -78,8 +82,19 @@ export function Form({
     setFormState(current => ({ ...current, ...data.formData }));
 
     if (activeStep === formSchema.steps.length - 1) {
-      await onSubmit(data, e);
+      await onSubmit?.(data, e);
     } else {
+      setActiveStep(prev => prev + 1);
+    }
+  };
+
+  const handleNextClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    setFormState(current => ({
+      ...current,
+      ...formRef.current?.state.formData,
+    }));
+    if (activeStep !== formSchema.steps.length - 1) {
       setActiveStep(prev => prev + 1);
     }
   };
@@ -99,10 +114,11 @@ export function Form({
       onChange={handleChange}
       formData={formState}
       formContext={{ formData: formState, form: formRef, updateSchema }}
-      onSubmit={handleNext}
+      onSubmit={onSubmit ? handleNext : undefined}
       schema={currentStep.schema}
       disabled={disabled}
       widgets={widgets}
+      tagName={onSubmit ? 'form' : 'div'}
       templates={{
         ObjectFieldTemplate: FluidObjectFieldTemplate,
         BaseInputTemplate: OutlinedBaseInputTemplate as any,
@@ -130,9 +146,10 @@ export function Form({
           <Button
             variant="contained"
             color="primary"
-            type="submit"
+            type={onSubmit || isLastStep ? 'submit' : 'button'}
             className={styles.next}
             disabled={disabled}
+            onClick={onSubmit || isLastStep ? undefined : handleNextClick}
           >
             {isLastStep ? finalSubmitButtonText : 'NEXT'}
           </Button>

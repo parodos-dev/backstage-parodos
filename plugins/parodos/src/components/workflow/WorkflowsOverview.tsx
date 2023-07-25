@@ -7,7 +7,6 @@ import {
   Select,
   SupportButton,
 } from '@backstage/core-components';
-import * as urls from '../../urls';
 import { ParodosPage } from '../ParodosPage';
 import Star from '@material-ui/icons/StarOutline';
 import { Button, Grid, makeStyles } from '@material-ui/core';
@@ -45,7 +44,6 @@ const useStyles = makeStyles(theme => ({
 export function WorkflowsOverview(): JSX.Element {
   const classes = useStyles();
   const projects = useStore(state => state.projects);
-  const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
   const errorApi = useApi(errorApiRef);
   const [searchParams] = useSearchParams();
 
@@ -58,8 +56,7 @@ export function WorkflowsOverview(): JSX.Element {
     value: project.id,
   }));
 
-  const [{ loading, error, value: workflows }, getWorkflows] =
-    useWorkflows(workflowsUrl);
+  const [{ loading, error, value: workflows }, getWorkflows] = useWorkflows();
 
   useEffect(() => {
     if (selectedProjectId) {

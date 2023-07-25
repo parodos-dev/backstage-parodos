@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { useStore } from '../stores/workflowStore/workflowStore';
-import { useGetAppConfig } from '../components/api';
+import { useGetAppConfig } from '../hooks/useGetAppConfig';
 import { assert } from 'assert-ts';
 
 export const useInitializeStore = () => {

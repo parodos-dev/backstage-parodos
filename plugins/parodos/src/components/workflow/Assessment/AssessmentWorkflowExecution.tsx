@@ -15,7 +15,7 @@ import ChevronDown from '@material-ui/icons/KeyboardArrowDown';
 import { WorkflowExplorer } from '../workflowDetail/WorkflowExplorer';
 import cs from 'classnames';
 import { assert } from 'assert-ts';
-import { getWorkflowOptions } from '../hooks/getWorkflowOptions';
+import { getWorkflowOptions } from '../../../api/getWorkflowOptions';
 import { useStore } from '../../../stores/workflowStore/workflowStore';
 import * as urls from '../../../urls';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
@@ -51,7 +51,7 @@ export function AssessmentWorkflowExecution(): JSX.Element {
   const { projectId, assessmentWorkflowExecutionId } = useParams();
   const [, setWorkflowName] = useState('');
   const workflowsUrl = useStore(state => state.getApiUrl(urls.Workflows));
-  const [workflowOptions, setWorklowOptions] =
+  const [workflowOptions, setWorkflowOptions] =
     useState<WorkflowOptionsListItem[]>();
   const [showMoreWorkflows, setShowMoreWorkflows] = useState<boolean>(true);
   const errorApi = useApi(errorApiRef);
@@ -93,7 +93,7 @@ export function AssessmentWorkflowExecution(): JSX.Element {
 
   useEffect(() => {
     async function options() {
-      setWorklowOptions(await getOptions());
+      setWorkflowOptions(await getOptions());
     }
 
     if (assessmentStatus === 'COMPLETED') {
