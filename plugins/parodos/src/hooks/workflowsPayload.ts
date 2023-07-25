@@ -5,6 +5,7 @@ import {
 import { type WorkflowsPayload } from '../models/worksPayloadSchema';
 import get from 'lodash.get';
 import { type StrictRJSFSchema } from '@rjsf/utils';
+import { assert } from 'assert-ts';
 
 interface GetWorkflowsPayload {
   workflow: WorkflowDefinition;
@@ -42,12 +43,13 @@ export function walkWorks(
             Object.keys(w).find(k => k === work.name),
           );
 
-          path = `${prefix === '' ? prefix : `${prefix}.works[${index}]`}${
-            work.name
-          }.${key}`;
+          assert(index !== -1, `no index found`);
+
+          path = `${prefix}.works[${index}]${work.name}.${key}`;
         }
 
         const value = get(formData, path, null);
+
         return {
           key,
           value,
