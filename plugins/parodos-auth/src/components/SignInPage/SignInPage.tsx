@@ -128,7 +128,7 @@ export function SignInPage({ onSignInSuccess }: ParodosSignInPageProps) {
     <Page themeId="tool">
       <Content className={styles.container}>
         <Grid container justifyContent="center">
-          <Grid item xs={8} md={5} lg={4} xl={3} className={styles.grid}>
+          <Grid item xs={12} md={9} lg={5} xl={3} className={styles.grid}>
             <Paper elevation={4} className={styles.paper}>
               <BrandIcon style={{ fontSize: '5rem' }} />
               <h1>Parodos</h1>
@@ -136,7 +136,7 @@ export function SignInPage({ onSignInSuccess }: ParodosSignInPageProps) {
                 Please enter your SOEID and password to continue.
               </Typography>
               <Grid container justifyContent="center">
-                <Grid item xs={7}>
+                <Grid item lg={10} md={8}>
                   <LoginForm onSubmit={submitHandler}>
                     <Button type="submit" variant="contained" color="primary">
                       SIGN IN
