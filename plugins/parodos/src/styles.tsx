@@ -22,6 +22,9 @@ export const useCommonStyles = makeStyles(theme => ({
   fullHeight: {
     height: '100%',
   },
+  fullWidth: {
+    width: '100%',
+  },
   link: {
     color: theme.palette.primary.main,
   },

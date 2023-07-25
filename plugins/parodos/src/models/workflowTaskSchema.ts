@@ -45,6 +45,7 @@ export const workflowStatusSchema = z.object({
   workFlowExecutionId: z.string(),
   workFlowName: z.string(),
   works: z.array(workStatusSchema),
+  message: z.string().optional().nullable(),
   status: transformedStatus,
 });
 

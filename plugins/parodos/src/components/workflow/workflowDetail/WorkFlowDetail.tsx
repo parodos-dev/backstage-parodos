@@ -72,6 +72,7 @@ export function WorkFlowDetail(): JSX.Element {
         <WorkflowExplorer
           setWorkflowName={setWorkflowName}
           executionId={executionId}
+          projectId={projectId}
         />
       </InfoCard>
     </ParodosPage>
