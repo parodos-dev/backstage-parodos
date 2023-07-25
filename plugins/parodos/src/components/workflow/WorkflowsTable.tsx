@@ -77,6 +77,7 @@ interface WorkflowTableData {
   author: string;
   startDate: string;
   endDate: string;
+  status: ProjectWorkflow['workStatus'];
 }
 
 const columns: TableColumn<WorkflowTableData>[] = [
@@ -180,6 +181,7 @@ export const WorkflowsTable: React.FC<{
           : undefined,
         additionalInfos: workflow.additionalInfos,
         workFlowType: workflow.workFlowType,
+        status: workflow.workStatus,
       } as WorkflowTableData;
     })
     .filter(workflow =>
@@ -305,7 +307,7 @@ export const WorkflowsTable: React.FC<{
                       : ''
                   }`}
                 >
-                  VIEW
+                  {rowData.status === 'FAILED' ? 'SUMMARY' : 'VIEW'}
                 </LinkButton>
               </TableCell>
             );

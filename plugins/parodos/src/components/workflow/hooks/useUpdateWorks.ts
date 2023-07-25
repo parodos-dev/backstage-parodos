@@ -20,6 +20,7 @@ export function useUpdateWorks({ executionId }: UpdateWorks): {
   tasks: WorkflowTask[];
   workflowStatus: Status;
   workflowName: string;
+  updateWorks: () => Promise<WorkStatus[]>;
 } {
   const workflowStatus = useStore(
     state => state.workflowStatus ?? 'IN_PROGRESS',
@@ -72,7 +73,7 @@ export function useUpdateWorks({ executionId }: UpdateWorks): {
       }
 
       if (workflowStatus === 'FAILED') {
-        setWorkflowError(new Error(`workflow failed`));
+        setWorkflowError(new Error(response.message ?? undefined));
       }
 
       if (response.works.some(w => w.status === 'REJECTED')) {
@@ -123,5 +124,10 @@ export function useUpdateWorks({ executionId }: UpdateWorks): {
 
   assert(!!workflowStatus, `workflowStatus is undefined`);
 
-  return { tasks: allTasks, workflowStatus, workflowName };
+  return {
+    tasks: allTasks,
+    workflowStatus,
+    workflowName,
+    updateWorks: updateWorksFromApi,
+  };
 }

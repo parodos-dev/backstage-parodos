@@ -122,6 +122,7 @@ export function AssessmentWorkflowExecution(): JSX.Element {
         <WorkflowExplorer
           setWorkflowName={setWorkflowName}
           executionId={assessmentWorkflowExecutionId}
+          projectId={projectId}
         >
           <Grid xs={12} item className={styles.options}>
             {assessmentStatus === 'IN_PROGRESS' && <Progress />}
