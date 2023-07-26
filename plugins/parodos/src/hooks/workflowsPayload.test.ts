@@ -119,11 +119,6 @@ describe('getWorkflowsPayload', () => {
               processingType: 'SEQUENTIAL',
               works: [
                 {
-                  id: '388590b8-aa8c-427c-8f8d-8e7c64d345d7',
-                  name: 'gitCloneTask',
-                  workType: 'TASK',
-                },
-                {
                   id: 'e7ee4694-ca24-444a-af44-41d01dd7c924',
                   name: 'gitBranchTask',
                   workType: 'TASK',
@@ -140,18 +135,50 @@ describe('getWorkflowsPayload', () => {
             },
           ],
         },
+        {
+          id: 'c4b40cc3-4bc4-42cc-976d-ccc6b8bf599c',
+          name: 'gitCommitTask',
+          workType: 'TASK',
+          parameters: {
+            commitMessage: {
+              format: 'text',
+              description: 'Commit message for all the files',
+              type: 'string',
+              required: true,
+            },
+          },
+        },
+        {
+          id: '8ea6f3ab-6468-4487-8d98-e95af8b107bd',
+          name: 'gitPushTask',
+          workType: 'TASK',
+          parameters: {
+            credentials: {
+              format: 'text',
+              description: 'Git credential',
+              type: 'string',
+              required: false,
+            },
+            remote: {
+              format: 'text',
+              description: 'path where the git repo is located',
+              type: 'string',
+              required: true,
+            },
+          },
+        },
       ],
     };
 
     const schema = {
       gitPushTask: {
-        credentials: 'AAA',
-        remote: 'AAA',
+        credentials: 'credentials',
+        remote: 'origin',
       },
       move2KubeWorkFlow_INFRASTRUCTURE_WORKFLOW: {
-        credentials: 'AAA',
-        uri: 'AAAA',
-        branch: 'AAAA',
+        credentials: 'credentials',
+        uri: 'uri',
+        branch: 'branch',
       },
       getSources: {
         works: [
@@ -163,7 +190,7 @@ describe('getWorkflowsPayload', () => {
         ],
       },
       gitCommitTask: {
-        commitMessage: 'AAA',
+        commitMessage: 'commit message',
       },
     };
 
@@ -174,9 +201,14 @@ describe('getWorkflowsPayload', () => {
         schema: schema as StrictRJSFSchema,
       });
 
-      expect(result?.works?.[0]?.works?.[0]?.works?.[1].arguments[0]).toEqual({
+      expect(result?.works?.[0]?.works?.[0]?.works?.[0].arguments[0]).toEqual({
         key: 'branch',
         value: 'theBranch',
+      });
+
+      expect(result?.works[2].arguments[1]).toEqual({
+        key: 'remote',
+        value: 'origin',
       });
     });
   });
