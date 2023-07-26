@@ -45,10 +45,10 @@ export function walkWorks(
 
           assert(index !== -1, `no index found`);
 
-          path = `${prefix}.works[${index}]${work.name}.${key}`;
+          path = `${prefix}.works[${index}]${work.name}`;
         }
 
-        const value = get(formData, path, null);
+        const value = get(formData, `${path}.${key}`, null);
 
         return {
           key,
