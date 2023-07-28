@@ -53,11 +53,13 @@ const useStyles = makeStyles<BackstageTheme>(theme => ({
   },
   alertContainer: {
     margin: theme.spacing(3),
-    width: '66%',
-    maxWidth: 'inherit',
+    width: '100%',
     flexWrap: 'nowrap',
     color: theme.palette.banner.text,
     backgroundColor: theme.palette.status.error,
+    [theme.breakpoints.up('lg')]: {
+      width: '66%',
+    },
   },
   restartConfirmation: {
     display: 'flex',

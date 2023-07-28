@@ -70,6 +70,7 @@ export const projectWorkflowSchema = z.object({
   startDate: z.string(),
   endDate: z.string().optional(),
   executeBy: z.string(),
+  originalExecutionId: z.string().optional().nullable(),
   additionalInfos: z.array(additionalInfoSchema).optional().nullable(),
 });
 

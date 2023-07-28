@@ -31,6 +31,7 @@ import {
   TableCell,
   Typography,
   Link,
+  TableRow,
 } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
@@ -52,7 +53,12 @@ const useStyles = makeStyles(theme => ({
   },
   workflowDescriptionSummaryContent: {
     flexDirection: 'column',
+    '&&': {
+      margin: '0',
+      minHeight: '60px',
+    },
   },
+  workflowDescriptionSummaryExpanded: {},
   expandIcon: {
     marginRight: theme.spacing(2),
     padding: '0',
@@ -65,19 +71,25 @@ const useStyles = makeStyles(theme => ({
     marginLeft: theme.spacing(3),
     gap: theme.spacing(0.5),
   },
+  restartedWorkflow: {
+    paddingLeft: theme.spacing(7.5),
+  },
 }));
 
 interface WorkflowTableData {
+  index: number;
   id: string;
+  originalExecutionId?: string;
   name: string;
   description?: string;
   type: string;
   processingType: 'SEQUENTIAL' | 'PARALLEL';
-  StatusComponent: () => JSX.Element;
+  StatusComponent: (props: { retries?: number }) => JSX.Element;
   author: string;
   startDate: string;
   endDate: string;
   status: ProjectWorkflow['workStatus'];
+  restarts: WorkflowTableData[];
 }
 
 const columns: TableColumn<WorkflowTableData>[] = [
@@ -107,13 +119,23 @@ const statusMap: Record<ProjectWorkflow['workStatus'], string> = {
 
 const StatusComponents: Record<
   ProjectWorkflow['workStatus'],
-  () => JSX.Element
+  (props: { retries?: number }) => JSX.Element
 > = {
-  IN_PROGRESS: () => <StatusRunning>Running</StatusRunning>,
-  COMPLETED: () => <StatusOK>Completed</StatusOK>,
-  FAILED: () => <StatusError>Failed</StatusError>,
-  PENDING: () => <StatusWarning>Pending</StatusWarning>,
-  REJECTED: () => <StatusAborted>Aborted</StatusAborted>,
+  IN_PROGRESS: ({ retries = 0 }) => (
+    <StatusRunning>Running{retries > 0 ? ` (${retries})` : ''}</StatusRunning>
+  ),
+  COMPLETED: ({ retries = 0 }) => (
+    <StatusOK>Completed{retries > 0 ? ` (${retries})` : ''}</StatusOK>
+  ),
+  FAILED: ({ retries = 0 }) => (
+    <StatusError>Failed{retries > 0 ? ` (${retries})` : ''}</StatusError>
+  ),
+  PENDING: ({ retries = 0 }) => (
+    <StatusWarning>Pending{retries > 0 ? ` (${retries})` : ''}</StatusWarning>
+  ),
+  REJECTED: ({ retries = 0 }) => (
+    <StatusAborted>Aborted{retries > 0 ? ` (${retries})` : ''}</StatusAborted>
+  ),
 };
 
 const formatDate = new Intl.DateTimeFormat('en', {
@@ -133,6 +155,9 @@ export const WorkflowsTable: React.FC<{
     useState<ProjectWorkflow['workStatus']>();
   const [openFilter, setOpenFilter] = useState(false);
   const getWorkDefinitionBy = useStore(state => state.getWorkDefinitionBy);
+  const [expandedRows, setExpandedRows] = useState<Map<number, boolean>>(
+    new Map(),
+  );
 
   const handleFilterToggle = () => setOpenFilter(prevOpen => !prevOpen);
   const handleFilterClose = (event: React.MouseEvent<Node, MouseEvent>) => {
@@ -160,35 +185,63 @@ export const WorkflowsTable: React.FC<{
     }
   };
 
-  const data = workflows
+  const filteredWorkflows = workflows
     .filter(workflow =>
       statusFilter ? workflow.workStatus === statusFilter : true,
     )
-    .map(workflow => {
-      const definition = getWorkDefinitionBy('byName', workflow.workFlowName);
-
-      return {
-        id: workflow.workFlowExecutionId,
-        name: workflow.workFlowName,
-        description: 'Description of workflow',
-        type: definition?.type,
-        processingType: definition?.processingType,
-        StatusComponent: StatusComponents[workflow.workStatus],
-        author: workflow.executeBy,
-        startDate: formatDate.format(Date.parse(workflow.startDate)),
-        endDate: workflow.endDate
-          ? formatDate.format(Date.parse(workflow.endDate))
-          : undefined,
-        additionalInfos: workflow.additionalInfos,
-        workFlowType: workflow.workFlowType,
-        status: workflow.workStatus,
-      } as WorkflowTableData;
-    })
     .filter(workflow =>
       search
-        ? workflow.name.toLowerCase().includes(search.toLowerCase())
+        ? workflow.workFlowName.toLowerCase().includes(search.toLowerCase())
         : true,
     );
+
+  const workflowMap: Map<string, WorkflowTableData> = new Map();
+
+  filteredWorkflows.forEach((workflow, index) => {
+    const definition = getWorkDefinitionBy('byName', workflow.workFlowName);
+
+    workflowMap.set(workflow.workFlowExecutionId, {
+      index,
+      id: workflow.workFlowExecutionId,
+      originalExecutionId: workflow.originalExecutionId,
+      name: workflow.workFlowName,
+      description: 'Description of workflow',
+      type: definition?.type,
+      processingType: definition?.processingType,
+      StatusComponent: StatusComponents[workflow.workStatus],
+      author: workflow.executeBy,
+      startDate: formatDate.format(Date.parse(workflow.startDate)),
+      endDate: workflow.endDate
+        ? formatDate.format(Date.parse(workflow.endDate))
+        : undefined,
+      additionalInfos: workflow.additionalInfos,
+      workFlowType: workflow.workFlowType,
+      status: workflow.workStatus,
+      restarts: [],
+    } as WorkflowTableData);
+  });
+
+  for (const workflow of workflowMap.values()) {
+    let parentWorkflow = workflow.originalExecutionId
+      ? workflowMap.get(workflow.originalExecutionId)
+      : undefined;
+    while (parentWorkflow?.originalExecutionId) {
+      parentWorkflow = workflowMap.get(parentWorkflow.originalExecutionId);
+    }
+    if (parentWorkflow) {
+      parentWorkflow.restarts.push(workflow);
+    }
+  }
+
+  const data = Array.from(workflowMap.values()).filter(
+    workflow => !workflow.originalExecutionId,
+  );
+
+  const handleExpand = (rowIndex: number) => {
+    setExpandedRows(prevExpandedRows =>
+      new Map(prevExpandedRows).set(rowIndex, !prevExpandedRows.get(rowIndex)),
+    );
+  };
 
   return (
     <Table
@@ -247,12 +300,52 @@ export const WorkflowsTable: React.FC<{
       columns={columns}
       data={data}
       components={{
+        Row: ({ columns: columnDefs, components: { Cell }, data: rowData }) => {
+          return (
+            <>
+              <TableRow key={rowData.index}>
+                {columnDefs.map((column: TableColumn<WorkflowTableData>) => (
+                  <Cell
+                    key={column.field}
+                    columnDef={column}
+                    rowData={rowData}
+                  />
+                ))}
+              </TableRow>
+              {expandedRows.get(rowData.index) &&
+                rowData.restarts.map((restart: WorkflowTableData) => (
+                  <TableRow key={`${rowData.index}-${restart.index}`}>
+                    {columnDefs.map(
+                      (column: TableColumn<WorkflowTableData>) => (
+                        <Cell
+                          key={column.field}
+                          columnDef={column}
+                          rowData={restart}
+                        />
+                      ),
+                    )}
+                  </TableRow>
+                ))}
+            </>
+          );
+        },
         Cell: ({ columnDef, rowData: { StatusComponent, ...rowData } }) => {
           if (columnDef.field === 'name') {
             return (
-              <TableCell>
-                {rowData?.additionalInfos?.length ? (
-                  <Accordion className={classes.workflowDescriptionContainer}>
+              <TableCell
+                width={columnDef.width}
+                className={
+                  rowData.originalExecutionId
+                    ? classes.restartedWorkflow
+                    : undefined
+                }
+              >
+                {rowData?.additionalInfos?.length || rowData.restarts.length ? (
+                  <Accordion
+                    className={classes.workflowDescriptionContainer}
+                    expanded={expandedRows.get(rowData.index)}
+                    onChange={() => handleExpand(rowData.index)}
+                  >
                     <AccordionSummary
                       className={classes.workflowDescriptionSummary}
                       classes={{
@@ -266,25 +359,33 @@ export const WorkflowsTable: React.FC<{
                       id="workflow-description-header"
                     >
                       <SubvalueCell
-                        value={rowData.name}
+                        value={
+                          rowData.restarts.length
+                            ? `${rowData.name} (${rowData.restarts.length})`
+                            : rowData.name
+                        }
                         subvalue={rowData.description}
                       />
                     </AccordionSummary>
-                    <AccordionDetails
-                      className={classes.workflowDescriptionDetails}
-                    >
-                      {rowData?.additionalInfos?.map((additionalInfo: any) => {
-                        return (
-                          <Link target="_blank" href={additionalInfo.value}>
-                            {additionalInfo.key}{' '}
-                            <LaunchIcon
-                              fontSize="inherit"
-                              className={classes.urlIcon}
-                            />
-                          </Link>
-                        );
-                      })}
-                    </AccordionDetails>
+                    {rowData?.additionalInfos && (
+                      <AccordionDetails
+                        className={classes.workflowDescriptionDetails}
+                      >
+                        {rowData?.additionalInfos?.map(
+                          (additionalInfo: any) => {
+                            return (
+                              <Link target="_blank" href={additionalInfo.value}>
+                                {additionalInfo.key}{' '}
+                                <LaunchIcon
+                                  fontSize="inherit"
+                                  className={classes.urlIcon}
+                                />
+                              </Link>
+                            );
+                          },
+                        )}
+                      </AccordionDetails>
+                    )}
                   </Accordion>
                 ) : (
                   <SubvalueCell
@@ -296,7 +397,7 @@ export const WorkflowsTable: React.FC<{
             );
           } else if (columnDef.field === 'view') {
             return (
-              <TableCell>
+              <TableCell width={columnDef.width}>
                 <LinkButton
                   color="primary"
                   to={`${pluginRoutePrefix}/onboarding/${projectId}/${
@@ -313,12 +414,19 @@ export const WorkflowsTable: React.FC<{
             );
           } else if (columnDef.field === 'status') {
             return (
-              <TableCell data-testid={`${rowData.id} '${rowData.status}'`}>
-                <StatusComponent />
+              <TableCell
+                data-testid={`${rowData.id} '${rowData.status}'`}
+                width={columnDef.width}
+              >
+                <StatusComponent retries={rowData.restarts.length} />
               </TableCell>
             );
           }
-          return <TableCell>{rowData[columnDef.field]}</TableCell>;
+          return (
+            <TableCell width={columnDef.width}>
+              {rowData[columnDef.field]}
+            </TableCell>
+          );
         },
       }}
     />
