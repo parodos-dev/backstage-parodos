@@ -13,12 +13,11 @@ export default defineConfig({
 
   use: {
     baseURL: process.env.FRONTEND_URL ?? 'http://localhost:3000',
-    // run traces on the first retry of a failed test
+    // run traces on the first retry of a failed test:q
     trace: 'on-first-retry',
   },
 
   projects: [
-    // this matches all tests ending with .setup.ts
     {
       name: 'setup',
       testMatch: '**/*.setup.ts',
