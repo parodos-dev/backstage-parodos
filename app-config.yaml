@@ -61,7 +61,6 @@ proxy:
     headers:
       Content-Type: 'application/json'
       accept: 'application/json'
-      Authorization: Basic dGVzdDp0ZXN0
 
   '/parodos-notifications':
     target: 'http://localhost:8081/api/v1'
