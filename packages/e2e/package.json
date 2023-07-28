@@ -1,0 +1,17 @@
+{
+  "name": "@parodos/e2e-tests",
+  "version": "0.0.1",
+  "scripts": {
+    "test": "npx playwright test",
+    "ctest": "npx playwright test --project=chromium",
+    "ftest": "npx playwright test --project=firefox",
+    "wtest": "npx playwright test --project=webkit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.27.0",
+    "eslint-plugin-playwright": "^0.15.3"
+  }
+}

@@ -8,6 +8,8 @@
   "scripts": {
     "dev": "concurrently \"yarn start\" \"yarn start-backend\"",
     "start": "yarn workspace app start",
+    "e2e": "yarn workspace @parodos/e2e-tests test",
+    "e2e:ui": "yarn workspace @parodos/e2e-tests test --ui",
     "start-backend": "yarn workspace backend start",
     "build:backend": "yarn workspace backend build",
     "build:all": "yarn tsc && backstage-cli repo build --all",

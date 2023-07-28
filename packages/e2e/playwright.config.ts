@@ -35,4 +35,8 @@ export default defineConfig({
       testIgnore: ['**/*loggedin.spec.ts', '**/*.setup.ts'],
     },
   ],
+  webServer: {
+    command: 'mkdir -p playwright/.auth && yarn --cwd="../.." dev',
+    port: 3000,
+  },
 });
