@@ -1,12 +1,9 @@
-import { test, expect } from '@playwright/test';
+import { expect } from '@playwright/test';
+import { test } from './sessionStorage';
 
 test.describe('/parodos', () => {
   test('should render projects page', async ({ page }) => {
     await page.goto(`/`);
-
-    await page.getByRole('textbox', { name: 'SOEID' }).fill('test');
-    await page.getByRole('textbox', { name: 'Password' }).fill('test');
-    await page.keyboard.press('Enter');
 
     await expect(page.locator('[href*="/parodos"]')).toBeVisible();
 

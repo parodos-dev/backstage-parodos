@@ -28,9 +28,6 @@ export default defineConfig({
       name: 'e2e tests logged in',
       testMatch: '**/*loggedin.spec.ts',
       dependencies: ['setup'],
-      use: {
-        storageState: STORAGE_STATE,
-      },
     },
     // this project runs all tests except the setup and logged in tests
     {
