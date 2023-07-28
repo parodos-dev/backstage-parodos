@@ -89,6 +89,7 @@ export function ProjectsNew(): JSX.Element {
             disabled={loading}
             variant="contained"
             color="primary"
+            data-testid="create-project"
           >
             CREATE PROJECT
           </Button>

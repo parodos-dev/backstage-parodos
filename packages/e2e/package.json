@@ -1,0 +1,14 @@
+{
+  "name": "@parodos/e2e-tests",
+  "version": "0.0.1",
+  "scripts": {
+    "test": "npx playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.27.0",
+    "eslint-plugin-playwright": "^0.15.3"
+  }
+}
