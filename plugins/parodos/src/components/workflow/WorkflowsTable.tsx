@@ -53,7 +53,12 @@ const useStyles = makeStyles(theme => ({
   },
   workflowDescriptionSummaryContent: {
     flexDirection: 'column',
+    '&&': {
+      margin: '0',
+      minHeight: '60px',
+    },
   },
+  workflowDescriptionSummaryExpanded: {},
   expandIcon: {
     marginRight: theme.spacing(2),
     padding: '0',
@@ -79,7 +84,7 @@ interface WorkflowTableData {
   description?: string;
   type: string;
   processingType: 'SEQUENTIAL' | 'PARALLEL';
-  StatusComponent: () => JSX.Element;
+  StatusComponent: (props: { retries?: number }) => JSX.Element;
   author: string;
   startDate: string;
   endDate: string;
@@ -114,13 +119,23 @@ const statusMap: Record<ProjectWorkflow['workStatus'], string> = {
 
 const StatusComponents: Record<
   ProjectWorkflow['workStatus'],
-  () => JSX.Element
+  (props: { retries?: number }) => JSX.Element
 > = {
-  IN_PROGRESS: () => <StatusRunning>Running</StatusRunning>,
-  COMPLETED: () => <StatusOK>Completed</StatusOK>,
-  FAILED: () => <StatusError>Failed</StatusError>,
-  PENDING: () => <StatusWarning>Pending</StatusWarning>,
-  REJECTED: () => <StatusAborted>Aborted</StatusAborted>,
+  IN_PROGRESS: ({ retries = 0 }) => (
+    <StatusRunning>Running{retries > 0 ? ` (${retries})` : ''}</StatusRunning>
+  ),
+  COMPLETED: ({ retries = 0 }) => (
+    <StatusOK>Completed{retries > 0 ? ` (${retries})` : ''}</StatusOK>
+  ),
+  FAILED: ({ retries = 0 }) => (
+    <StatusError>Failed{retries > 0 ? ` (${retries})` : ''}</StatusError>
+  ),
+  PENDING: ({ retries = 0 }) => (
+    <StatusWarning>Pending{retries > 0 ? ` (${retries})` : ''}</StatusWarning>
+  ),
+  REJECTED: ({ retries = 0 }) => (
+    <StatusAborted>Aborted{retries > 0 ? ` (${retries})` : ''}</StatusAborted>
+  ),
 };
 
 const formatDate = new Intl.DateTimeFormat('en', {
@@ -188,10 +203,7 @@ export const WorkflowsTable: React.FC<{
     workflowMap.set(workflow.workFlowExecutionId, {
       index,
       id: workflow.workFlowExecutionId,
-      // TODO Get originalExecutionId from API
-      // originalExecutionId: workflow.originalExecutionId as string | undefined,
-      originalExecutionId:
-        index > 1 ? '64e6b8e7-2117-4a08-9b3e-c642dba41bf8' : undefined,
+      originalExecutionId: workflow.originalExecutionId,
       name: workflow.workFlowName,
       description: 'Description of workflow',
       type: definition?.type,
@@ -331,6 +343,7 @@ export const WorkflowsTable: React.FC<{
                 {rowData?.additionalInfos?.length || rowData.restarts.length ? (
                   <Accordion
                     className={classes.workflowDescriptionContainer}
+                    expanded={expandedRows.get(rowData.index)}
                     onChange={() => handleExpand(rowData.index)}
                   >
                     <AccordionSummary
@@ -354,29 +367,29 @@ export const WorkflowsTable: React.FC<{
                         subvalue={rowData.description}
                       />
                     </AccordionSummary>
-                    <AccordionDetails
-                      className={classes.workflowDescriptionDetails}
-                    >
-                      {rowData?.additionalInfos?.map((additionalInfo: any) => {
-                        return (
-                          <Link target="_blank" href={additionalInfo.value}>
-                            {additionalInfo.key}{' '}
-                            <LaunchIcon
-                              fontSize="inherit"
-                              className={classes.urlIcon}
-                            />
-                          </Link>
-                        );
-                      })}
-                    </AccordionDetails>
+                    {rowData?.additionalInfos && (
+                      <AccordionDetails
+                        className={classes.workflowDescriptionDetails}
+                      >
+                        {rowData?.additionalInfos?.map(
+                          (additionalInfo: any) => {
+                            return (
+                              <Link target="_blank" href={additionalInfo.value}>
+                                {additionalInfo.key}{' '}
+                                <LaunchIcon
+                                  fontSize="inherit"
+                                  className={classes.urlIcon}
+                                />
+                              </Link>
+                            );
+                          },
+                        )}
+                      </AccordionDetails>
+                    )}
                   </Accordion>
                 ) : (
                   <SubvalueCell
-                    value={
-                      rowData.restarts.length
-                        ? `${rowData.name} (${rowData.restarts.length})`
-                        : rowData.name
-                    }
+                    value={rowData.name}
                     subvalue={rowData.description}
                   />
                 )}
@@ -405,7 +418,7 @@ export const WorkflowsTable: React.FC<{
                 data-testid={`${rowData.id} '${rowData.status}'`}
                 width={columnDef.width}
               >
-                <StatusComponent />
+                <StatusComponent retries={rowData.restarts.length} />
               </TableCell>
             );
           }
