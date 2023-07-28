@@ -23,16 +23,10 @@ export default defineConfig({
       name: 'setup',
       testMatch: '**/*.setup.ts',
     },
-    // this project depends on the setup project and matches all tests ending with loggedin.spec.ts
     {
       name: 'e2e tests logged in',
-      testMatch: '**/*loggedin.spec.ts',
+      testMatch: '**/*.spec.ts',
       dependencies: ['setup'],
-    },
-    // this project runs all tests except the setup and logged in tests
-    {
-      name: 'e2e tests',
-      testIgnore: ['**/*loggedin.spec.ts', '**/*.setup.ts'],
     },
   ],
   webServer: {
