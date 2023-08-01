@@ -51,4 +51,5 @@ jobs:
       - name: E2E tests
         run: |
           yarn dev:e2e &
+          yarn wait-on http://localhost:3000
           yarn e2e
