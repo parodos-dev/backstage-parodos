@@ -48,5 +48,8 @@ jobs:
       - name: Build code
         run: yarn build:all
 
+      - name: Install playwright browsers
+        run: yarn playwright install --with-deps
+
       - name: E2E tests
         run: yarn e2e
