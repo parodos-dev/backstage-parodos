@@ -7,10 +7,13 @@
   },
   "scripts": {
     "dev": "concurrently \"yarn start\" \"yarn start-backend\"",
+    "dev:e2e": "concurrently \"yarn start:e2e\" \"yarn start-backend:e2e\"",
     "start": "yarn workspace app start",
+    "start:e2e": "yarn workspace app start --config \"../../app-config.yaml\" --config \"../../app-config.test.yaml\"",
     "e2e": "yarn workspace @parodos/e2e-tests test",
     "e2e:ui": "yarn workspace @parodos/e2e-tests test --ui",
     "start-backend": "yarn workspace backend start",
+    "start-backend:e2e": "yarn workspace backend start --config \"../../app-config.yaml\" --config \"../../app-config.test.yaml\"",
     "build:backend": "yarn workspace backend build",
     "build:all": "yarn tsc && backstage-cli repo build --all",
     "build-image": "yarn workspace backend build-image",

@@ -8,6 +8,15 @@ on:
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
+    services:
+      workflows:
+        image: quay.io/parodos-dev/workflow-service:latest
+        ports:
+          - 8080:8080
+      notifications:
+        image: quay.io/parodos-dev/notification-service:latest
+        ports:
+          - 8081:8081
     env:
       NODE_OPTIONS: --max-old-space-size=8192
     steps:
@@ -38,3 +47,8 @@ jobs:
 
       - name: Build code
         run: yarn build:all
+
+      - name: E2E tests
+        run: |
+          yarn dev:e2e &
+          yarn e2e
