@@ -16,7 +16,8 @@ jobs:
       workflows:
         image: quay.io/parodos-dev/workflow-service:latest
         env:
-          M2K_URL: http://m2k:8082/api/v1
+          M2K_URL: http://m2k:8082
+          workflows.m2k.url: http://m2k:8082
           NOTIFICATION_SERVER_URL: http://notifications:8081
         ports:
           - 8080:8080
