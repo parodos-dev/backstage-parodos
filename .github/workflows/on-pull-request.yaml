@@ -16,10 +16,9 @@ jobs:
       workflows:
         image: quay.io/parodos-dev/workflow-service:latest
         env:
-          M2K_URL: http://m2k:8082
           workflows.m2k.url: http://m2k:8082
           workflows.mta.url: http://mta:8083
-          spring_profiles_active: local
+          SPRING_PROFILES_ACTIVE: local
           NOTIFICATION_SERVER_URL: http://notifications:8081
         ports:
           - 8080:8080
