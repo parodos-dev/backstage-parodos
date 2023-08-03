@@ -15,6 +15,7 @@ export default defineConfig({
     baseURL: process.env.FRONTEND_URL ?? 'http://localhost:3000',
     // run traces on the first retry of a failed test:q
     trace: 'on-first-retry',
+    video: 'retain-on-failure',
   },
 
   projects: [
