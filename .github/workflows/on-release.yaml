@@ -103,3 +103,9 @@ jobs:
           make build-image-openshift GIT_BRANCH="${{ steps.new-version.outputs.new_version }}"
           make push-image GIT_BRANCH="${{ steps.new-version.outputs.new_version }}"
           make push-image-openshift GIT_BRANCH="${{ steps.new-version.outputs.new_version }}"
+
+          # Images for stable images, At the moment, we always release new one as stable.
+          make build-image GIT_BRANCH="stable"
+          make build-image-openshift GIT_BRANCH="stable"
+          make push-image GIT_BRANCH="stable"
+          make push-image-openshift GIT_BRANCH="stable"
