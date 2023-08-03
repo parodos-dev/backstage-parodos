@@ -14,7 +14,5 @@ setup('authenticate', async ({ page }) => {
     JSON.stringify(sessionStorage),
   );
 
-  if (!process.env.CI) {
-    fs.writeFileSync(STORAGE_STATE, JSON.stringify(sessionStorage), 'utf-8');
-  }
+  fs.writeFileSync(STORAGE_STATE, JSON.stringify(sessionStorage), 'utf-8');
 });

@@ -63,10 +63,7 @@ jobs:
         run: yarn playwright install --with-deps
 
       - name: E2E tests
-        run: |
-          yarn dev:e2e &
-          yarn wait-on http://localhost:3000
-          yarn e2e
+        run: yarn e2e
 
       - uses: actions/upload-artifact@v3
         if: always()
