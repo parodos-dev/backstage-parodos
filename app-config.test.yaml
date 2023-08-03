@@ -1,6 +1,6 @@
 proxy:
   '/parodos':
-    target: 'http://workflows:8080/api/v1'
+    target: 'http://localhost:8080/api/v1'
     changeOrigin: true
     redirect: follow
     cache: 'no-cache'
@@ -11,7 +11,7 @@ proxy:
       accept: 'application/json'
 
   '/parodos-notifications':
-    target: 'http://notifications:8081/api/v1'
+    target: 'http://localhost:8081/api/v1'
     changeOrigin: true
     redirect: follow
     cache: 'no-cache'
