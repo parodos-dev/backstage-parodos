@@ -30,9 +30,11 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `mkdir -p playwright/.auth && yarn --cwd="../.." dev${
-      process.env.CI ? ':e2e' : ''
-    }`,
+    // command: `mkdir -p playwright/.auth && yarn --cwd="../.." dev${
+    //   process.env.CI ? ':e2e' : ''
+    // }`,
+    reuseExistingServer: true,
+    command: 'mkdir -p playwright/.auth',
     port: 3000,
   },
 });
