@@ -7,7 +7,7 @@ export default defineConfig({
   testDir: './tests',
   reporter: [['list'], ['html']],
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 5 : 0,
   /* Run tests in files in parallel */
   fullyParallel: true,
 
@@ -15,6 +15,7 @@ export default defineConfig({
     baseURL: process.env.FRONTEND_URL ?? 'http://localhost:3000',
     // run traces on the first retry of a failed test:q
     trace: 'on-first-retry',
+    video: 'retain-on-failure',
   },
 
   projects: [

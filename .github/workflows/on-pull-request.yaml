@@ -8,6 +8,26 @@ on:
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
+    services:
+      m2k:
+        image: quay.io/konveyor/move2kube-ui:latest
+        ports:
+          - 8082:8080
+      workflows:
+        image: quay.io/parodos-dev/workflow-service:latest
+        env:
+          workflows.m2k.url: http://m2k:8082
+          workflows.mta.url: http://mta:8083
+          SPRING_PROFILES_ACTIVE: local
+          NOTIFICATION_SERVER_URL: http://notifications:8081
+        ports:
+          - 8080:8080
+      notifications:
+        image: quay.io/parodos-dev/notification-service:latest
+        env:
+          SPRING_PROFILES_ACTIVE: local
+        ports:
+          - 8081:8080
     env:
       NODE_OPTIONS: --max-old-space-size=8192
     steps:
@@ -38,3 +58,16 @@ jobs:
 
       - name: Build code
         run: yarn build:all
+
+      - name: Install playwright browsers
+        run: yarn playwright install --with-deps
+
+      - name: E2E tests
+        run: yarn e2e
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results
+          path: packages/e2e/test-results/
+          retention-days: 30
