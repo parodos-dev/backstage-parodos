@@ -1,4 +1,5 @@
-import { Table, TableColumn } from '@backstage/core-components';
+import { Progress, Table, TableColumn } from '@backstage/core-components';
+import { errorApiRef, fetchApiRef, useApi } from '@backstage/core-plugin-api';
 import { BackstageTheme } from '@backstage/theme';
 import {
   Button,
@@ -13,8 +14,14 @@ import {
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import useAsyncFn from 'react-use/lib/useAsyncFn';
 import { AccessRole, Project } from '../../models/project';
+import { useStore } from '../../stores/workflowStore/workflowStore';
+import useAsync from 'react-use/lib/useAsync';
+import { fetchProjectMembers } from '../../api/fetchProjectMembers';
+import { updateUserRole } from '../../api/updateUserRole';
+import { removeUserFromProject } from '../../api/removeUserFromProject';
 
 export interface ProjectAccessTableProps {
   project: Project;
@@ -26,54 +33,6 @@ interface AccessTableData {
 }
 
 const roles: AccessRole[] = ['Owner', 'Admin', 'Developer'];
-
-const mockMembers: { name: string; role: AccessRole }[] = [
-  { name: 'Luke Shannon', role: 'Owner' },
-  { name: 'Piotr Kliczewski', role: 'Admin' },
-  { name: 'Richard Wang', role: 'Developer' },
-  { name: 'Moti Asayag', role: 'Developer' },
-  { name: 'Paul Cowan', role: 'Developer' },
-  { name: 'Dmitriy Lazarev', role: 'Developer' },
-];
-
-function useMockMembers() {
-  const [members, setMembers] = useState(mockMembers);
-
-  const addMember = useCallback(
-    (name: string, role: AccessRole) =>
-      setMembers(prevMembers => [...prevMembers, { name, role }]),
-    [],
-  );
-  const removeMember = useCallback(
-    (name: string) =>
-      setMembers(prevMembers =>
-        prevMembers.filter(member => member.name !== name),
-      ),
-    [],
-  );
-  const transferOwnership = useCallback(
-    (name: string) =>
-      setMembers(prevMembers =>
-        prevMembers.map(member => {
-          if (member.name === name) return { ...member, role: 'Owner' };
-          if (member.role === 'Owner') return { ...member, role: 'Developer' };
-          return member;
-        }),
-      ),
-    [],
-  );
-  const changeRole = useCallback(
-    (name: string, role: Exclude<AccessRole, 'Owner'>) =>
-      setMembers(prevMembers =>
-        prevMembers.map(member =>
-          member.name === name ? { ...member, role } : member,
-        ),
-      ),
-    [],
-  );
-
-  return { members, addMember, removeMember, transferOwnership, changeRole };
-}
 
 const useStyles = makeStyles<BackstageTheme>(theme => ({
   root: {
@@ -110,16 +69,24 @@ const useStyles = makeStyles<BackstageTheme>(theme => ({
 export function ProjectAccessTable({
   project,
 }: ProjectAccessTableProps): JSX.Element {
-  // TODO Use real data when it will be available
-  const { members, addMember, removeMember, transferOwnership, changeRole } =
-    useMockMembers();
-
+  const { fetch } = useApi(fetchApiRef);
+  const errorApi = useApi(errorApiRef);
+  const baseUrl = useStore(state => state.baseUrl);
   const classes = useStyles();
   const [snackbarMessage, setSnackbarMessage] = useState<string>();
   const [undoRemove, setUndoRemove] = useState<() => void>();
   const [selectedMembers, setSelectedMembers] = useState<
     { name: string; role: AccessRole }[]
   >([]);
+
+  const {
+    error: getMembersError,
+    loading,
+    value: members = [],
+  } = useAsync(
+    async () => fetchProjectMembers(fetch, baseUrl, project.id),
+    [fetch, baseUrl, project.id],
+  );
 
   const columns: TableColumn<AccessTableData>[] = [
     {
@@ -131,9 +98,57 @@ export function ProjectAccessTable({
   ];
 
   const tableData: AccessTableData[] = members.map(member => ({
-    member: member.name,
-    roles: roles.map(role => [role, role === member.role]),
+    member: `${member.firstName} ${member.lastName}`,
+    roles: roles.map(role => [role, member.roles.includes(role)]),
   }));
+
+  const [{ error: changeRoleError }, changeRole] = useAsyncFn(
+    async (username: string, role: Exclude<AccessRole, 'Owner'>) => {
+      await updateUserRole(fetch, baseUrl, project.id, [{ username, role }]);
+      setSnackbarMessage(
+        `User role for ${username} has been successfully changed to ${role}.`,
+      );
+    },
+    [fetch, baseUrl, project.id],
+  );
+
+  const [{ error: transferOwnershipError }, transferOwnership] = useAsyncFn(
+    async (username: string) => {
+      const { username: ownerUsername } =
+        members.find(member => member.roles.includes('Owner')) ?? {};
+      await updateUserRole(fetch, baseUrl, project.id, [
+        { username, role: 'Owner' },
+        ...(ownerUsername
+          ? [{ username: ownerUsername, role: 'Admin' as AccessRole }]
+          : []),
+      ]);
+      setSnackbarMessage(
+        `User ownership has been successfully transferred to ${username}.`,
+      );
+    },
+    [fetch, baseUrl, project.id, members],
+  );
+
+  const [{ error: removeMembersError }, removeMembers] =
+    useAsyncFn(async () => {
+      const users = selectedMembers.map(({ name }) => name);
+      await removeUserFromProject(fetch, baseUrl, project.id, users);
+      setSelectedMembers([]);
+      setSnackbarMessage(
+        `You have successfully removed ${selectedMembers.length} contributor${
+          selectedMembers.length > 1 ? 's' : ''
+        } from this project.`,
+      );
+      setUndoRemove(
+        () => () =>
+          updateUserRole(
+            fetch,
+            baseUrl,
+            project.id,
+            selectedMembers.map(({ name, role }) => ({ username: name, role })),
+          ),
+      );
+    }, [fetch, baseUrl, project.id, selectedMembers]);
 
   const handleSelectMember = useCallback(
     (event: React.ChangeEvent<{}>, selected: boolean) => {
@@ -142,7 +157,7 @@ export function ProjectAccessTable({
       if (selected) {
         setSelectedMembers(prevSelected => [
           ...prevSelected,
-          members.find(member => member.name === name)!,
+          members.find(member => member.username === name)!,
         ]);
       } else {
         setSelectedMembers(prevSelected =>
@@ -153,25 +168,25 @@ export function ProjectAccessTable({
     [members],
   );
 
-  const handleTransferOwnership = useCallback(
-    (name: string) => {
-      transferOwnership(name);
-      setSnackbarMessage(
-        `User ownership has been successfully transferred to ${name}.`,
-      );
-    },
-    [transferOwnership],
-  );
+  useEffect(() => {
+    const error =
+      getMembersError ||
+      changeRoleError ||
+      transferOwnershipError ||
+      removeMembersError;
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
 
-  const handleChangeRole = useCallback(
-    (name: string, role: Exclude<AccessRole, 'Owner'>) => {
-      changeRole(name, role);
-      setSnackbarMessage(
-        `User role for ${name} has been successfully changed to ${role}.`,
-      );
-    },
-    [changeRole],
-  );
+      errorApi.post(new Error('Failed to update project access'));
+    }
+  }, [
+    errorApi,
+    getMembersError,
+    changeRoleError,
+    transferOwnershipError,
+    removeMembersError,
+  ]);
 
   const Cell = useCallback(
     ({ columnDef, rowData }) => {
@@ -209,8 +224,8 @@ export function ProjectAccessTable({
                       onChange={() => {
                         if (selected) return;
                         if (roleName === 'Owner')
-                          handleTransferOwnership(rowData.member);
-                        else handleChangeRole(rowData.member, roleName);
+                          transferOwnership(rowData.member);
+                        else changeRole(rowData.member, roleName);
                       }}
                     />
                   </Grid>
@@ -222,29 +237,8 @@ export function ProjectAccessTable({
       }
       return <TableCell>{rowData[columnDef.field]}</TableCell>;
     },
-    [
-      project.accessRole,
-      handleSelectMember,
-      handleTransferOwnership,
-      handleChangeRole,
-    ],
+    [project.accessRole, handleSelectMember, transferOwnership, changeRole],
   );
-
-  const handleRemoveSelected = () => {
-    selectedMembers.forEach(member => removeMember(member.name));
-    setSelectedMembers([]);
-    setSnackbarMessage(
-      `You have successfully removed ${selectedMembers.length} contributor${
-        selectedMembers.length > 1 ? 's' : ''
-      } from this project.`,
-    );
-    setUndoRemove(
-      () => () =>
-        [...selectedMembers]
-          .reverse()
-          .forEach(member => addMember(member.name, member.role)),
-    );
-  };
 
   return (
     <>
@@ -299,13 +293,15 @@ export function ProjectAccessTable({
         data={tableData}
         components={{
           Cell,
+          // Row: ({ rowData, ...props }) => (),
         }}
       />
+      {loading && <Progress />}
       <Button
         variant="text"
         color="primary"
         disabled={selectedMembers.length === 0}
-        onClick={handleRemoveSelected}
+        onClick={removeMembers}
       >
         Remove selected
       </Button>

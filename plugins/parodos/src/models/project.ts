@@ -18,6 +18,16 @@ export type AccessRole = z.infer<typeof accessRole>;
 
 export type ProjectStatus = z.infer<typeof projectStatus>;
 
+export const projectMember = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  roles: z.array(accessRole),
+});
+
+export const projectMembers = z.array(projectMember);
+
+export type ProjectMember = z.infer<typeof projectMember>;
+
 export const projectSchema = z.object({
   id: z.string(),
   name: z.string(),
