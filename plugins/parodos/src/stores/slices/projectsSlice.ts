@@ -31,7 +31,7 @@ export const createProjectsSlice: StateCreator<
     return project;
   },
   projects: [],
-  async fetchProjects(fetch: FetchApi['fetch']) {
+  async fetchProjects(fetch: FetchApi['fetch'], force?: boolean) {
     set(state => {
       state.projectsLoading = true;
     });
@@ -44,6 +44,7 @@ export const createProjectsSlice: StateCreator<
       const newProjects = new Set(projects.map(p => p.id));
 
       if (
+        !force &&
         get().initiallyLoaded &&
         existing.size === newProjects.size &&
         [...newProjects].every(id => existing.has(id))

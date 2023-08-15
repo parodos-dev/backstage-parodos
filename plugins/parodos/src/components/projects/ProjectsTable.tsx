@@ -7,7 +7,6 @@ import {
   Grow,
   IconButton,
   Link,
-  makeStyles,
   MenuItem,
   MenuList,
   Paper,
@@ -25,14 +24,8 @@ import { useStore } from '../../stores/workflowStore/workflowStore';
 import { WorkflowStatus } from '../../models/workflowTaskSchema';
 import { errorApiRef, useApi } from '@backstage/core-plugin-api';
 
-const useStyles = makeStyles(_ => ({
-  manageAccessIcon: {
-    marginLeft: 'auto',
-  },
-}));
-
 type ProjectsTableData = {
-  [K in Pick<Project, 'name' | 'createdBy' | 'createdDate' | 'accessRole'> &
+  [K in Pick<Project, 'name' | 'createdBy' | 'createdDate' | 'accessRoles'> &
     string]: string;
 };
 
@@ -40,7 +33,7 @@ const columns: TableColumn<ProjectsTableData>[] = [
   { title: 'PROJECT NAME', field: 'name', width: '20%' },
   { title: 'OWNER', field: 'createdBy', width: '10%' },
   { title: 'CREATED', field: 'createdDate', width: '10%' },
-  { title: 'ACCESS', field: 'accessRole', width: '10%' },
+  { title: 'ACCESS', field: 'accessRoles', width: '10%' },
   { title: '', field: 'view', width: '5%' },
 ];
 
@@ -48,15 +41,14 @@ type AccessRoleFilter = AccessRole | 'All';
 
 const accessRoleMap: Record<AccessRoleFilter, string> = {
   All: 'All',
-  Admin: 'Admin',
-  Owner: 'Owner',
-  Developer: 'Developer',
+  ADMIN: 'Admin',
+  OWNER: 'Owner',
+  DEVELOPER: 'Developer',
 } as const;
 
 type AccessRoleMapKeys = keyof typeof accessRoleMap;
 
 export function ProjectsTable({ projects }: { projects: Project[] }) {
-  const classes = useStyles();
   const errorApi = useApi(errorApiRef);
   const requestAccessStatuses = useStore(state => state.requestAccessStatuses);
   const filterIconRef = useRef<HTMLButtonElement>(null);
@@ -110,7 +102,9 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
     () =>
       projects
         .filter(p =>
-          accessRoleFilter === 'All' ? true : p.accessRole === accessRoleFilter,
+          accessRoleFilter === 'All'
+            ? true
+            : p.accessRoles?.includes(accessRoleFilter),
         )
         .filter(p =>
           search ? p.name.toLocaleLowerCase().includes(search) : true,
@@ -120,7 +114,7 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
           name: project.name,
           createdBy: project.createdBy,
           createdDate: getHumanReadableDate(project.createdDate),
-          accessRole: project.accessRole,
+          accessRoles: project.accessRoles ?? [],
         })),
     [accessRoleFilter, projects, search],
   );
@@ -181,10 +175,10 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
       components={{
         Cell: ({ columnDef, rowData }) => {
           const hasAccess =
-            rowData.accessRole ||
+            rowData.accessRoles.length ||
             requestAccessStatusByProjectId[rowData.id] === 'COMPLETED';
 
-          if (columnDef.field === 'accessRole') {
+          if (columnDef.field === 'accessRoles') {
             const isPendingAccess =
               requestAccessStatusByProjectId[rowData.id] === 'IN_PROGRESS' ||
               requestAccessStatusByProjectId[rowData.id] === 'PENDING';
@@ -194,9 +188,13 @@ export function ProjectsTable({ projects }: { projects: Project[] }) {
             if (hasAccess) {
               return (
                 <TableCell>
-                  <Grid container alignItems="center">
-                    <Grid item>{rowData.accessRole ?? 'Access granted'}</Grid>
-                    <Grid item className={classes.manageAccessIcon}>
+                  <Grid container alignItems="center" justifyContent="center">
+                    <Grid item>
+                      {rowData.accessRoles
+                        .map((r: AccessRole) => accessRoleMap[r])
+                        .join(', ') ?? 'Access granted'}
+                    </Grid>
+                    <Grid item>
                       <Link
                         to={`${pluginRoutePrefix}/projects/${rowData.id}/access`}
                         component={NavLink}
