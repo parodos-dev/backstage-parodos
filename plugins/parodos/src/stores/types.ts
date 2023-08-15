@@ -45,7 +45,7 @@ export interface ProjectsSlice {
     string,
     { projectId: string; status: WorkflowStatus['status'] }
   >;
-  fetchProjects(fetch: FetchApi['fetch']): Promise<void>;
+  fetchProjects(fetch: FetchApi['fetch'], force?: boolean): Promise<void>;
   fetchRequestAccessStatuses(fetch: FetchApi['fetch']): Promise<void>;
   hasProjects(): boolean;
   addProject(project: Project): void;

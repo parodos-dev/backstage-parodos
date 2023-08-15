@@ -10,7 +10,7 @@ export async function removeUserFromProject(
   const response = await fetch(
     `${baseUrl}${urls.Projects}/${projectId}/users`,
     {
-      method: 'POST',
+      method: 'DELETE',
       body: JSON.stringify(users),
     },
   );

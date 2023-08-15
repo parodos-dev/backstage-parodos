@@ -1,12 +1,12 @@
 import { FetchApi } from '@backstage/core-plugin-api';
-import { AccessRole } from '../models/project';
+import { AccessStatus } from '../models/project';
 import * as urls from '../urls';
 
 export async function responseOnAccessRequest(
   fetch: FetchApi['fetch'],
   baseUrl: string,
   requestId: string,
-  payload: { comment?: string; status: AccessRole },
+  payload: { comment?: string; status: AccessStatus },
 ) {
   const response = await fetch(
     `${baseUrl}${urls.Projects}/access/${requestId}/status`,
@@ -15,9 +15,12 @@ export async function responseOnAccessRequest(
       body: JSON.stringify({ ...payload, comment: payload.comment || '' }),
     },
   );
-  const data = await response.json();
+  if (response.status !== 204) {
+    if (response.status === 400) {
+      const data = await response.json();
+      throw new Error(`${response.status}: ${data.message}`);
+    }
 
-  if ('error' in data) {
-    throw new Error(`${data.error}: ${data.path}`);
+    throw new Error(`${response.status}`);
   }
 }

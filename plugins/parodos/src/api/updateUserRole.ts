@@ -6,7 +6,7 @@ export async function updateUserRole(
   fetch: FetchApi['fetch'],
   baseUrl: string,
   projectId: string,
-  payload: { username: string; role: AccessRole }[],
+  payload: { username: string; roles: AccessRole[] }[],
 ) {
   const response = await fetch(
     `${baseUrl}${urls.Projects}/${projectId}/users`,
