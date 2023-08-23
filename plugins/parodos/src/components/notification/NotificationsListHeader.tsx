@@ -1,7 +1,20 @@
-import React, { MouseEventHandler } from 'react';
-import { Grid, IconButton, makeStyles, Typography } from '@material-ui/core';
+import React, {
+  MouseEventHandler,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import {
+  debounce,
+  Grid,
+  IconButton,
+  makeStyles,
+  TextField,
+  Typography,
+} from '@material-ui/core';
 import { AccordionIcon } from '../icons/AccordionIcon';
-import { Select } from '@backstage/core-components';
+import { Progress, Select } from '@backstage/core-components';
 import { type PropsFromComponent } from '../types';
 import ArchiveIcon from '@material-ui/icons/Archive';
 import UnarchiveIcon from '@material-ui/icons/Unarchive';
@@ -9,12 +22,15 @@ import DeleteIcon from '@material-ui/icons/DeleteForever';
 import cs from 'classnames';
 
 type SelectProps = PropsFromComponent<typeof Select>;
+type TextFieldProps = PropsFromComponent<typeof TextField>;
 
 type View = 'Filter' | 'Actions';
 
 interface NotificationListHeaderProps {
   filterChangeHandler: SelectProps['onChange'];
   filter: SelectProps['selected'];
+  searchChangeHandler: TextFieldProps['onChange'];
+  search: TextFieldProps['value'];
   selected: number;
   deleteHandler: MouseEventHandler<HTMLButtonElement>;
   archiveHandler: MouseEventHandler<HTMLButtonElement>;
@@ -32,12 +48,8 @@ const useStyles = makeStyles(theme => ({
   selected: {
     marginLeft: theme.spacing(2),
     color: theme.palette.error.main,
-    position: 'relative',
-    top: theme.spacing(2),
   },
   actions: {
-    position: 'relative',
-    top: theme.spacing(2),
     display: 'flex',
     justifyContent: 'flex-end',
     marginRight: theme.spacing(1),
@@ -51,11 +63,18 @@ const useStyles = makeStyles(theme => ({
   filterIcon: {
     color: theme.palette.primary.main,
   },
+  progress: {
+    position: 'relative',
+    top: theme.spacing(1),
+    height: theme.spacing(0.5),
+  },
 }));
 
 export function NotificationListHeader({
   filterChangeHandler,
   filter,
+  searchChangeHandler,
+  search,
   selected,
   deleteHandler,
   archiveHandler,
@@ -65,74 +84,111 @@ export function NotificationListHeader({
   const styles = useStyles();
   const view: View = selected === 0 ? 'Filter' : 'Actions';
 
+  const [searchValue, setSearchValue] = useState(search);
+
+  const debouncedSearchHandler = useMemo(
+    () => searchChangeHandler && debounce(searchChangeHandler, 500),
+    [searchChangeHandler],
+  );
+  const isLoading = searchValue !== search;
+
+  const handleSearchChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchValue(event.target.value);
+      debouncedSearchHandler?.(event);
+    },
+    [debouncedSearchHandler],
+  );
+
+  useEffect(() => {
+    setSearchValue(search);
+  }, [search]);
+
   return (
-    <Grid
-      container
-      justifyContent="space-between"
-      alignItems="center"
-      className={cs(styles.root, view === 'Actions' && 'actions')}
-    >
-      <Grid item xs={3}>
-        {view === 'Filter' ? (
-          <Select
-            onChange={filterChangeHandler}
-            selected={filter}
-            label="Filter by"
-            items={[
-              { label: 'All', value: 'ALL' },
-              { label: 'Unread', value: 'UNREAD' },
-              { label: 'Archived', value: 'ARCHIVED' },
-            ]}
-          />
-        ) : (
-          <Typography className={styles.selected}>
-            {selected} selected
-          </Typography>
-        )}
-      </Grid>
+    <>
       <Grid
-        item
-        xs={1}
-        className={cs(styles.actions, {
-          [styles.accordionIcon]: view === 'Filter',
-        })}
+        container
+        justifyContent="space-between"
+        alignItems="flex-end"
+        className={cs(styles.root, view === 'Actions' && 'actions')}
       >
         {view === 'Filter' ? (
-          <span className={styles.filterIcon}>
-            <AccordionIcon />
-          </span>
+          <>
+            <Grid item xs={3}>
+              <Select
+                onChange={filterChangeHandler}
+                selected={filter}
+                label="Filter by"
+                items={[
+                  { label: 'All', value: 'ALL' },
+                  { label: 'Unread', value: 'UNREAD' },
+                  { label: 'Archived', value: 'ARCHIVED' },
+                ]}
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <TextField
+                placeholder="Search"
+                label="Search"
+                variant="outlined"
+                size="small"
+                fullWidth
+                onChange={handleSearchChange}
+                value={searchValue}
+              />
+            </Grid>
+          </>
         ) : (
-          <span className={styles.buttons}>
-            {filter !== 'ARCHIVED' && (
-              <IconButton
-                aria-label="archive"
-                onClick={archiveHandler}
-                disabled={disableButtons}
-              >
-                <ArchiveIcon />
-              </IconButton>
-            )}
-            {filter !== 'UNREAD' && (
-              <IconButton
-                aria-label="unarchive"
-                onClick={unarchiveHandler}
-                disabled={disableButtons}
-              >
-                <UnarchiveIcon />
-              </IconButton>
-            )}
-            <IconButton
-              size="medium"
-              onClick={deleteHandler}
-              aria-label="delete"
-              edge="end"
-              disabled={disableButtons}
-            >
-              <DeleteIcon />
-            </IconButton>
-          </span>
+          <Grid item xs={3}>
+            <Typography className={styles.selected}>
+              {selected} selected
+            </Typography>
+          </Grid>
         )}
+        <Grid
+          item
+          xs={1}
+          className={cs(styles.actions, {
+            [styles.accordionIcon]: view === 'Filter',
+          })}
+        >
+          {view === 'Filter' ? (
+            <span className={styles.filterIcon}>
+              <AccordionIcon />
+            </span>
+          ) : (
+            <span className={styles.buttons}>
+              {filter !== 'ARCHIVED' && (
+                <IconButton
+                  aria-label="archive"
+                  onClick={archiveHandler}
+                  disabled={disableButtons}
+                >
+                  <ArchiveIcon />
+                </IconButton>
+              )}
+              {filter !== 'UNREAD' && (
+                <IconButton
+                  aria-label="unarchive"
+                  onClick={unarchiveHandler}
+                  disabled={disableButtons}
+                >
+                  <UnarchiveIcon />
+                </IconButton>
+              )}
+              <IconButton
+                onClick={deleteHandler}
+                aria-label="delete"
+                edge="end"
+                disabled={disableButtons}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </span>
+          )}
+        </Grid>
       </Grid>
-    </Grid>
+      <div className={styles.progress}>{isLoading && <Progress />}</div>
+    </>
   );
 }
