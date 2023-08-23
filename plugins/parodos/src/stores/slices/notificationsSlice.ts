@@ -8,10 +8,13 @@ async function fetchNotifications(
   baseUrl: string,
   options: Parameters<NotificationsSlice['fetchNotifications']>[0],
 ) {
-  const { filter, page, rowsPerPage, fetch } = options;
+  const { filter, search, page, rowsPerPage, fetch } = options;
   let urlQuery = `?page=${page}&size=${rowsPerPage}&sort=notificationMessage.createdOn,desc`;
   if (filter !== 'ALL') {
     urlQuery += `&state=${filter}`;
+  }
+  if (search) {
+    urlQuery += `&searchTerm=${search}`;
   }
 
   const response = await fetch(`${baseUrl}${urls.Notifications}${urlQuery}`);
@@ -34,6 +37,7 @@ export const createNotificationsSlice: StateCreator<
     try {
       const notifications = await fetchNotifications(get().baseUrl as string, {
         filter: 'UNREAD',
+        search: '',
         page: 0,
         rowsPerPage: 0,
         fetch,
@@ -46,7 +50,13 @@ export const createNotificationsSlice: StateCreator<
       console.error('Error fetching notifications', e);
     }
   },
-  async fetchNotifications({ filter = 'ALL', page, rowsPerPage, fetch }) {
+  async fetchNotifications({
+    filter = 'ALL',
+    search,
+    page,
+    rowsPerPage,
+    fetch,
+  }) {
     if (get().notificationsLoading) {
       return;
     }
@@ -58,6 +68,7 @@ export const createNotificationsSlice: StateCreator<
     try {
       const notifications = await fetchNotifications(get().baseUrl as string, {
         filter,
+        search,
         page,
         rowsPerPage,
         fetch,

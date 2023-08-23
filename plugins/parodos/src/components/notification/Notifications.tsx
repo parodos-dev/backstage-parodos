@@ -65,6 +65,7 @@ export const Notification = () => {
   useEffect(() => {
     fetchNotifications({
       filter: state.notificationFilter,
+      search: state.notificationSearch,
       page: state.page,
       rowsPerPage: state.rowsPerPage,
       fetch,
@@ -75,6 +76,7 @@ export const Notification = () => {
     state.page,
     state.rowsPerPage,
     state.notificationFilter,
+    state.notificationSearch,
     fetch,
   ]);
 
@@ -92,6 +94,16 @@ export const Notification = () => {
       payload: { filter: filter as NotificationState },
     });
   };
+
+  const searchChangeHandler = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      dispatch({
+        type: 'CHANGE_SEARCH',
+        payload: { search: e.target.value },
+      });
+    },
+    [dispatch],
+  );
 
   const handleChangePage = (
     _event: MouseEvent<HTMLButtonElement> | null,
@@ -167,6 +179,7 @@ export const Notification = () => {
 
         fetchNotifications({
           filter: state.notificationFilter,
+          search: state.notificationSearch,
           page: state.page,
           rowsPerPage: state.rowsPerPage,
           fetch,
@@ -185,6 +198,7 @@ export const Notification = () => {
       notifications,
       state.action,
       state.notificationFilter,
+      state.notificationSearch,
       state.page,
       state.rowsPerPage,
       state.selectedNotifications,
@@ -224,6 +238,8 @@ export const Notification = () => {
               <NotificationListHeader
                 filterChangeHandler={filterChangeHandler}
                 filter={state.notificationFilter}
+                searchChangeHandler={searchChangeHandler}
+                search={state.notificationSearch}
                 selected={state.selectedNotifications.length}
                 archiveHandler={archiveNotificationsHandler}
                 unarchiveHandler={unarchiveNotificationsHandler}

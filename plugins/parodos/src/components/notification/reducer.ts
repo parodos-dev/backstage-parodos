@@ -45,6 +45,12 @@ type Actions =
       payload: {
         filter: NotificationState;
       };
+    }
+  | {
+      type: 'CHANGE_SEARCH';
+      payload: {
+        search: string;
+      };
     };
 
 export const initialState = {
@@ -55,6 +61,7 @@ export const initialState = {
   selectedNotifications: [] as string[],
   action: 'ARCHIVE' as Action,
   notificationFilter: 'ALL' as NotificationState,
+  notificationSearch: '',
 };
 
 export type State = typeof initialState;
@@ -123,6 +130,12 @@ export const reducer = (draft: State, action: Actions) => {
     }
     case 'CHANGE_FILTER': {
       draft.notificationFilter = action.payload.filter;
+      draft.page = 0;
+
+      break;
+    }
+    case 'CHANGE_SEARCH': {
+      draft.notificationSearch = action.payload.search;
       draft.page = 0;
 
       break;

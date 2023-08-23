@@ -70,6 +70,7 @@ export interface NotificationsSlice {
   fetchNotifications(params: {
     fetch: FetchApi['fetch'];
     filter: NotificationState;
+    search: string;
     page: number;
     rowsPerPage: number;
   }): Promise<void>;
